@@ -1,0 +1,108 @@
+{% extends './base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+  
+    /* Default positioning for larger screens */
+    #chat-form {
+      position: fixed;
+      bottom: 0px;
+      right: 0px;
+      width: calc(100% - 290px); /* Adjusting width based on sidebar (typically 250px) */
+      padding-right: 15px;
+      z-index: 1; /* Ensure the chat form is below the sidebar */
+    }
+  
+    .input-group {
+      display: flex;
+      padding-bottom: 10px;
+    }
+  
+    /* Styling the input and button with rounded corners */
+    .input-group .form-control {
+      border-top-left-radius: 15px;
+      border-bottom-left-radius: 15px;
+    }
+  
+    .input-group .btn {
+      border-top-right-radius: 15px;
+      border-bottom-right-radius: 15px;
+    }
+  
+    /* Sidebar styling to ensure it sits above the form */
+    .sidebar {
+      z-index: 1000; /* Set a higher z-index for the sidebar */
+    }
+  
+    /* When the screen width is 991px or less, make the form take up full width */
+    @media (max-width: 991px) {
+      #chat-form {
+        width: 100%; /* Make the form full width */
+        padding-right: 15px; /* Remove padding */
+        padding-left: 15px; /* Remove padding */
+      }
+    }
+
+        /* Style the textarea to look like an input */
+    .input-like {
+      resize: none;
+      height: 40px; /* Fixed height to look like an input initially */
+      padding: 0.375rem 0.75rem; /* Standard input padding */
+      border-radius: 0.25rem; /* Rounded corners like an input */
+      border: 1px solid #ced4da; /* Input border */
+      font-size: 1rem; /* Match input font size */
+      line-height: 1.5; /* Match input line height */
+      appearance: none; /* Removes default textarea styling */
+      -webkit-appearance: none; /* Removes default textarea styling in Webkit browsers */
+    }
+  </style>
+  
+  <div class="container-fluid d-flex flex-column">
+
+    <div class="list-wrapper-messages">
+      <!-- where all the messages are going to appear -->
+    </div>
+
+    <form id="chat-form">
+        <div class="input-group">
+            <textarea class="form-control input-like" placeholder="Type a message..." id="chat-input"></textarea>
+            <button class="btn btn-primary" type="submit">Send</button>
+        </div>
+    </form>
+</div>
+
+<script>
+
+buildListMessages()
+  function buildListMessages() {
+    var wrapper_messages = document.getElementById('list-wrapper-messages');
+    var url = 'http://127.0.0.1:7000/api/chatsessions/create/';
+
+    fetch(url)
+    .then((resp) => resp.json())
+    .then(function(data) {
+      console.log('Data:', data);
+
+    })
+}
+
+
+  const textarea = document.getElementById('chat-input');
+
+  // Auto-resize the textarea as the user types
+  textarea.addEventListener('input', function() {
+      this.style.height = 'auto'; // Reset height
+      this.style.height = this.scrollHeight + 'px'; // Expand based on scroll height
+  });
+
+  // Optional: Limit maximum height for the textarea
+  textarea.style.maxHeight = '150px'; // Prevent it from growing too large
+</script>
+
+
+{% endblock %}

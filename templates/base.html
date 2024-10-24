@@ -1,0 +1,736 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5">
+	<meta name="author" content="AdminKit">
+	<meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link rel="shortcut icon" href="{% static 'img/icons/Anton Logo 1.png' %}" />
+
+	<link rel="canonical" href="https://demo.adminkit.io/" />
+
+	<title>{% block title %}Anton.{% endblock %}</title>
+
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+	<!-- Choose your prefered color scheme -->
+	<!-- <link href="css/light.css" rel="stylesheet"> -->
+	<!-- <link href="css/dark.css" rel="stylesheet"> -->
+	<!-- 
+		A.N.T.O.N 
+		A = Assistant 
+		N = Network 
+		T = Targeted 
+		O = Objectives
+		N = Navigation (NexTech) 
+	-->
+	<!-- BEGIN SETTINGS -->
+	<!-- Remove this after purchasing -->
+	<link class="js-stylesheet" href="{% static 'css/light.css' %}?v=1" rel="stylesheet">
+
+    <style>
+        body {
+			opacity: 0;
+		}
+		.align-middle {
+			color: white;
+		}
+		.align-middle:hover {
+			color: gray;
+		}
+		.position-absolute {
+			z-index: 100;
+			background-color: white;
+			width: 100%;
+			max-height: 200px;
+			overflow-y: auto;
+			border-radius: .25rem;
+		}
+    </style>
+	<!-- END SETTINGS -->
+</head>
+<!--
+  HOW TO USE: 
+  data-theme: default (default), dark, light, colored
+  data-layout: fluid (default), boxed
+  data-sidebar-position: left (default), right
+  data-sidebar-layout: default (default), compact
+-->
+<body data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default">
+	<div class="wrapper" >
+
+		<nav  id="sidebar" class="sidebar js-sidebar">
+			<div class="sidebar-content js-simplebar">
+				<a class="sidebar-brand" href="/">
+					<span style="color: white;" class="sidebar-brand-text align-middle">
+						<sup style="margin-right: 7px;">
+							<img style="width: 37px; height: auto;" src="{% static 'img/icons/Anton Logo 1.png' %}" alt="">
+						</sup>
+						<span style="font-size: larger;">Anton.</span>
+					</span>
+					<svg class="sidebar-brand-icon align-middle" width="32px" height="32px" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5"
+						stroke-linecap="square" stroke-linejoin="miter" color="#FFFFFF" style="margin-left: -3px">
+						<path d="M12 4L20 8.00004L12 12L4 8.00004L12 4Z"></path>
+						<path d="M20 12L12 16L4 12"></path>
+						<path d="M20 16L12 20L4 16"></path>
+					</svg>
+				</a>
+				<div class="sidebar-user">
+					<div class="d-flex justify-content-center">
+						<div class="flex-shrink-0">
+							<img style="width: 25px; height: auto;" src="{% static 'img/icons/user (1).png' %}" class="avatar img-fluid rounded me-1" alt="Charles Hall" />
+						</div>
+						<div class="flex-grow-1 ps-2">
+							<a class="sidebar-user-title dropdown-toggle" href="#" data-bs-toggle="dropdown">
+								{% if user.is_authenticated %}
+									{{ user.username }}
+								{% else %}
+
+								{% endif %}
+							</a>
+							<div class="dropdown-menu dropdown-menu-start">
+								<a class="dropdown-item" href=""><i class="align-middle me-1" data-feather="user"></i> Profile</a>
+								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href=""><i class="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>
+								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a>
+								<div class="dropdown-divider"></div>
+								{% if user.is_authenticated %}
+									<a class="dropdown-item" href="{% url 'logout' %}">Log out</a>
+								{% else %}
+									<a class="dropdown-item" href="{% url 'login' %}">Log in</a>
+								{% endif %}
+							</div>
+
+							<div class="sidebar-user-subtitle">User</div>
+						</div>
+					</div>
+				</div>
+
+				<ul class="sidebar-nav">
+					<li class="sidebar-header">
+						Pages
+					</li>
+					<li class="sidebar-item">
+						<a data-bs-target="#dashboards" data-bs-toggle="collapse" class="sidebar-link">
+							<i class="align-middle" data-feather="sliders" style="color: #5784db;"></i> <span class="align-middle">Dashboards</span>
+						</a>
+                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
+                            <a class="sidebar-link" href=""><i class="align-middle me-2 far fa-fw fa-file-alt"></i> Resumen del acuerdo</a>
+                        </ul>
+                        
+                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
+                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-balance-scale"></i> Comparar acuerdos</a>
+                        </ul>
+                        
+                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
+                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-file-signature"></i> Crear un acuerdo</a>
+                        </ul>
+                        
+                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
+                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-language"></i> Traducción de documentos</a>
+                        </ul>
+                        
+                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
+                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-file-image"></i> Imagen a texto</a>
+                        </ul>
+                        
+                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
+                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-cog"></i> Configuración</a>
+                        </ul>
+					</li>
+
+					<li class="sidebar-item active">
+						<a class="sidebar-link" href="{% url 'chats' %}">
+							<i class="align-middle me-2 far fa-fw fa-comment-dots"></i> <span class="align-middle">Chats</span>
+						</a>
+					</li>
+
+					<li class="sidebar-item"></li>
+						<a class="sidebar-link" href="{% url 'contracts' %}">
+							<i class="align-middle me-2 fas fa-fw fa-file-contract"></i> <span class="align-middle">Contratos</span>
+						</a>
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="">
+							<i class="align-middle" data-feather="calendar" style="color: #5784db;"></i> <span class="align-middle">Calendar</span>
+						</a>
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="">
+							<i class="align-middle" data-feather="credit-card" style="color: #5784db;"></i> <span class="align-middle">Invoice</span>
+						</a>
+					</li>
+
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="">
+							<i class="align-middle" data-feather="user" style="color: #5784db;"></i> <span class="align-middle">Profile</span>
+						</a>
+					</li>
+
+					<!-- <li class="sidebar-item">
+						<a href="#auth" data-bs-toggle="collapse" class="sidebar-link collapsed">
+							<i class="align-middle" data-feather="users" style="color: #5784db;"></i> <span class="align-middle">Auth</span>
+						</a>
+						<ul id="auth" class="sidebar-dropdown list-unstyled collapse " data-bs-parent="#sidebar">
+							<li class="sidebar-item"><a class="sidebar-link" href="pages-sign-in.html">Sign In</a></li>
+							<li class="sidebar-item"><a class="sidebar-link" href="pages-sign-up.html">Sign Up</a></li>
+							<li class="sidebar-item"><a class="sidebar-link" href="pages-reset-password.html">Reset Password <span>
+						</ul>
+					</li> -->
+
+				</ul>
+
+				<div class="sidebar-cta">
+					<div class="sidebar-cta-content">
+						<strong class="d-inline-block mb-2">Weekly Sales Report</strong>
+						<div class="mb-3 text-sm">
+							Your weekly sales report is ready for download!
+						</div>
+
+						<div class="d-grid">
+							<a href="https://adminkit.io/" class="btn btn-outline-primary" target="_blank">Download</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+
+		<div class="main">
+			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle js-sidebar-toggle">
+					<i class="hamburger align-self-center"></i>
+				</a>
+
+				<!-- Main Search on base html file -->
+				<form method="POST" class="d-none d-sm-inline-block position-relative" action="">
+					{% csrf_token %}
+					<div class="input-group input-group-navbar">
+						<input name="searched" type="text" class="form-control" placeholder="Search…" aria-label="Search" id="searchQuery" onkeyup="searchItems()" value="{% if searched %}{{ searched }}{% endif %}">
+						<button class="btn" type="button">
+							<i class="align-middle" data-feather="search"></i>
+						</button>
+					</div>
+					<div id="autocompleteResults" class="list-group position-absolute"></div>
+				</form>
+
+				<div class="navbar-collapse collapse">
+					<ul class="navbar-nav navbar-align">
+						<li class="nav-item dropdown">
+							<a class="nav-icon dropdown-toggle" href="#" id="alertsDropdown" data-bs-toggle="dropdown">
+								<div class="position-relative">
+									<i style="color: black;" class="align-middle" data-feather="bell"></i>
+									<!-- notification number -->
+									<span class="indicator">0</span>
+								</div>
+							</a>
+							<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0" aria-labelledby="alertsDropdown">
+								<div class="dropdown-menu-header">
+									 <!-- New Notifications -->
+								</div>
+								
+								<div class="list-group" id="list-group-wrapper">
+									<!-- notifications display -->
+								</div>
+								<div id="notification-detail-container"></div>
+
+								<script>
+									// Notifications 
+									function buildList() {
+										var wrapper = document.getElementById('list-group-wrapper');
+								
+										var url = 'http://127.0.0.1:7000/api/notifications/';
+										
+										fetch(url)
+										.then((resp) => resp.json())
+										.then(function(data) {  // Pass 'data' as a parameter here
+											console.log('Data', data);  // Log the fetched data to the console
+											// You can now use 'data' to build your list in the wrapper
+											var notiflist = data
+											for (var i = 0; i < Math.min(5, notiflist.length); i++) {
+												// Truncate the title to 20 characters and add '...' if necessary
+												var title = notiflist[i].title;
+												if (title.length > 20) {
+													title = title.substring(0, 20) + '...';
+												}
+
+												// Determine the icon based on notification type
+												var icon;
+												switch (notiflist[i].notification_type) {
+													case 'info':
+														icon = '<i class="text-primary" data-feather="home"></i>';
+														break;
+													case 'warning':
+														icon = '<i class="text-warning" data-feather="bell"></i>';
+														break;
+													case 'error':
+														icon = '<i class="text-danger" data-feather="alert-circle"></i>';
+														break;
+													case 'success':
+														icon = '<i class="text-success" data-feather="user-plus"></i>';
+														break;
+													default:
+														icon = '<i class="text-muted" data-feather="info"></i>';  // Default icon
+												}
+
+												var item = `
+													<a href="#" class="list-group-item" data-id="${notiflist[i].id}">
+														<div class="row g-0 align-items-center">
+															<div class="col-2">
+																${icon}
+															</div>
+															<div class="col-10">
+																<div class="text-dark">${title}</div>
+																<div class="text-muted small mt-1">${new Date(notiflist[i].created_at).toLocaleString()}</div>
+															</div>
+														</div>
+													</a>
+												`;
+											wrapper.innerHTML += item
+											}
+										})
+										.catch(function(error) {
+											console.error('Error:', error);
+										});
+									}
+
+									// display notification detail  
+									function displayNotificationDetail(notificationId) {
+										var url = `http://127.0.0.1:7000/api/notification-detail/${notificationId}/`;
+
+										fetch(url)
+											.then((resp) => resp.json())
+											.then(function(data){
+												var notificationDetailContainer = document.getElementById('notification-detail-container');
+												if (notificationDetailContainer) {
+													notificationDetailContainer.innerHTML = `
+														<h2><b>${data.title}</b></h2>
+														<p>Created: ${new Date(data.created_at).toLocaleString()}</p>
+														<p>
+															<svg style="margin-right: 8px;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
+																<path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z"/>
+																<path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z"/>
+																<path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5"/>
+															</svg> ${new Date(data.updated_at).toLocaleString()}
+														</p>
+														<p>${data.description}</p>
+													`;
+													feather.replace(); // Re-render feather icons if necessary
+												}
+											})
+											.catch(function(error) {
+												console.log('Error:', error);
+											});
+									}
+
+									function updateUnreadCount() {
+										var url = 'http://127.0.0.1:7000/api/unread-notifications-count/';
+
+										fetch(url)
+										.then((resp) => resp.json())
+										.then(function(data) {
+											var header = document.querySelector('.dropdown-menu-header');
+											var indicator = document.querySelector('.indicator');
+
+											// Update the dropdown header
+											header.innerHTML = `${data.unread_count} New Notifications`;
+
+											// Update the indicator span
+											indicator.innerHTML = `${data.unread_count}`;
+										})
+										.catch(function(error) {
+											console.error('Error:', error);
+									});
+}
+
+									document.getElementById('list-group-wrapper').addEventListener('click', function(e) {
+										if (e.target && e.target.matches('a.list-group-item')) {
+											var notificationId = e.target.getAttribute('data-id');
+											displayNotificationDetail(notificationId);
+										}
+									});
+
+									// Call the function after defining it
+									buildList();
+									// Call this function after the notifications list is built or periodically
+									updateUnreadCount();
+
+								</script>
+								
+								<div class="dropdown-menu-footer">
+									<a href="" class="text-muted">Show all notifications</a>
+								</div>
+							</div>
+						</li>
+						<li class="nav-item">
+							<a class="nav-icon js-fullscreen d-none d-lg-block" href="#">
+								<div class="position-relative">
+									<i style="color: black;" class="align-middle" data-feather="maximize"></i>
+								</div>
+							</a>
+						</li>
+						<li class="nav-item dropdown">
+							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
+								<img style="width: 30px; height: auto;" src="{% static 'img/icons/user (1).png' %}" class="avatar img-fluid rounded" alt="Charles Hall" />
+							</a>
+							<div class="dropdown-menu dropdown-menu-end">
+								<a class="dropdown-item" href="pages-profile.html"><i class="align-middle me-1" data-feather="user"></i> Profile</a>
+								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="pages-settings.html"><i class="align-middle me-1" data-feather="settings"></i> Settings &
+									Privacy</a>
+								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="">Log out</a>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</nav>
+			<style>
+				.content-me {
+					width: 100%; /* default width */
+					margin: 0 auto; /* centers the content */
+				}
+				@media (max-width: 768px) {
+					.content-me {
+						width: 100%; /* full width on mobile */
+						margin: 0; /* removes auto margins to allow full width */
+					}
+				}
+			</style>
+			<main class="content-me">
+				{% block content %}
+                {% endblock %}
+			</main>
+		</div>
+	</div>
+
+	<script src="{% static 'js/app.js' %}"></script>
+
+	<script>
+		// Main Search on base html file
+		function searchItems() {
+			const query = document.getElementById('searchQuery').value;
+			if (query.length < 2) {
+				document.getElementById('autocompleteResults').innerHTML = '';
+				return;
+			}
+
+			Promise.all([
+				fetch(`/api/tasks/search/?q=${query}`).then(response => response.json()),
+				fetch(`/api/categories/search/?q=${query}`).then(response => response.json())
+			])
+			.then(([taskData, categoryData]) => {
+				console.log('Task Data:', taskData);  // Debugging
+				console.log('Category Data:', categoryData);  // Debugging
+
+				const autocompleteResults = document.getElementById('autocompleteResults');
+				autocompleteResults.innerHTML = '';
+
+				if (categoryData.length > 0) {
+					const categoryHeader = document.createElement('div');
+					categoryHeader.className = 'list-group-item active';
+					categoryHeader.textContent = 'Categories';
+					autocompleteResults.appendChild(categoryHeader);
+
+					categoryData.forEach(category => {
+						const categoryItem = document.createElement('a');
+						categoryItem.href = `/task-list/${category.id}/`; // Link to category detail page
+						categoryItem.className = 'list-group-item list-group-item-action';
+						categoryItem.innerHTML = `<strong>${category.name}</strong><br><small>Created on: ${new Date(category.created_at).toLocaleDateString()}</small>`;
+						autocompleteResults.appendChild(categoryItem);
+					});
+				}
+
+				if (taskData.length > 0) {
+					const taskHeader = document.createElement('div');
+					taskHeader.className = 'list-group-item active';
+					taskHeader.textContent = 'Tasks';
+					autocompleteResults.appendChild(taskHeader);
+
+					taskData.forEach(task => {
+						const taskItem = document.createElement('a');
+						taskItem.href = `/task-list/${task.category_id}/`; // Link to task detail page
+						taskItem.className = 'list-group-item list-group-item-action';
+						taskItem.innerHTML = `<strong>${task.title}</strong> - <small>${task.category_name || 'No Category'}</small><br><small>Created on: ${new Date(task.created_at).toLocaleDateString()}</small>`;
+						autocompleteResults.appendChild(taskItem);
+					});
+				}
+			})
+			.catch(error => console.error('Error:', error));
+		}
+
+		// Add event listener for clicks outside the input and results box
+		document.addEventListener('click', function(event) {
+			const isClickInside = document.getElementById('searchQuery').contains(event.target) || document.getElementById('autocompleteResults').contains(event.target);
+			if (!isClickInside) {
+				document.getElementById('autocompleteResults').innerHTML = '';
+			}
+		});
+
+		// Yearly progress bar
+		const startOfYear = new Date(new Date().getFullYear(), 0, 1);
+		const currentDate = new Date();
+		const totalDaysInYear = (new Date(currentDate.getFullYear(), 11, 31) - startOfYear) / (1000 * 60 * 60 * 24) + 1;
+		const daysPassed = (currentDate - startOfYear) / (1000 * 60 * 60 * 24);
+		const percentageOfYearPassed = (daysPassed / totalDaysInYear) * 100;
+		const daysLeft = totalDaysInYear - daysPassed;
+
+		const progressBar = document.getElementById('yearProgress');
+		progressBar.style.width = `${percentageOfYearPassed.toFixed(2)}%`;
+		progressBar.setAttribute('aria-valuenow', percentageOfYearPassed.toFixed(2));
+		progressBar.innerText = `${percentageOfYearPassed.toFixed(2)}%`;
+
+		// Set the tooltip message on the progress bar's container
+		progressBar.parentNode.setAttribute('title', `You are ${percentageOfYearPassed.toFixed(2)}% through the year. ${Math.floor(daysPassed)} days have passed, and ${Math.ceil(daysLeft)} days are left.`);
+
+		document.addEventListener("DOMContentLoaded", function() {
+			var ctx = document.getElementById("chartjs-dashboard-line").getContext("2d");
+			var gradientLight = ctx.createLinearGradient(0, 0, 0, 225);
+			gradientLight.addColorStop(0, "rgba(215, 227, 244, 1)");
+			gradientLight.addColorStop(1, "rgba(215, 227, 244, 0)");
+			var gradientDark = ctx.createLinearGradient(0, 0, 0, 225);
+			gradientDark.addColorStop(0, "rgba(51, 66, 84, 1)");
+			gradientDark.addColorStop(1, "rgba(51, 66, 84, 0)");
+			// Line chart
+			new Chart(document.getElementById("chartjs-dashboard-line"), {
+				type: "line",
+				data: {
+					labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+					datasets: [{
+						label: "Sales ($)",
+						fill: true,
+						backgroundColor: window.theme.id === "light" ? gradientLight : gradientDark,
+						borderColor: window.theme.primary,
+						data: [
+							2115,
+							1562,
+							1584,
+							1892,
+							1587,
+							1923,
+							2566,
+							2448,
+							2805,
+							3438,
+							2917,
+							3327
+						]
+					}]
+				},
+				options: {
+					maintainAspectRatio: false,
+					legend: {
+						display: false
+					},
+					tooltips: {
+						intersect: false
+					},
+					hover: {
+						intersect: true
+					},
+					plugins: {
+						filler: {
+							propagate: false
+						}
+					},
+					scales: {
+						xAxes: [{
+							reverse: true,
+							gridLines: {
+								color: "rgba(0,0,0,0.0)"
+							}
+						}],
+						yAxes: [{
+							ticks: {
+								stepSize: 1000
+							},
+							display: true,
+							borderDash: [3, 3],
+							gridLines: {
+								color: "rgba(0,0,0,0.0)",
+								fontColor: "#fff"
+							}
+						}]
+					}
+				}
+			});
+		});
+	</script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			// Pie chart
+			new Chart(document.getElementById("chartjs-dashboard-pie"), {
+				type: "pie",
+				data: {
+					labels: ["Chrome", "Firefox", "IE", "Other"],
+					datasets: [{
+						data: [4306, 3801, 1689, 3251],
+						backgroundColor: [
+							window.theme.primary,
+							window.theme.warning,
+							window.theme.danger,
+							"#E8EAED"
+						],
+						borderWidth: 5,
+						borderColor: window.theme.white
+					}]
+				},
+				options: {
+					responsive: !window.MSInputMethodContext,
+					maintainAspectRatio: false,
+					legend: {
+						display: false
+					},
+					cutoutPercentage: 70
+				}
+			});
+		});
+	</script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			// Bar chart
+			new Chart(document.getElementById("chartjs-dashboard-bar"), {
+				type: "bar",
+				data: {
+					labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+					datasets: [{
+						label: "This year",
+						backgroundColor: window.theme.primary,
+						borderColor: window.theme.primary,
+						hoverBackgroundColor: window.theme.primary,
+						hoverBorderColor: window.theme.primary,
+						data: [54, 67, 41, 55, 62, 45, 55, 73, 60, 76, 48, 79],
+						barPercentage: .75,
+						categoryPercentage: .5
+					}]
+				},
+				options: {
+					maintainAspectRatio: false,
+					legend: {
+						display: false
+					},
+					scales: {
+						yAxes: [{
+							gridLines: {
+								display: false
+							},
+							stacked: false,
+							ticks: {
+								stepSize: 20
+							}
+						}],
+						xAxes: [{
+							stacked: false,
+							gridLines: {
+								color: "transparent"
+							}
+						}]
+					}
+				}
+			});
+		});
+	</script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			var markers = [{
+					coords: [31.230391, 121.473701],
+					name: "Shanghai"
+				},
+				{
+					coords: [28.704060, 77.102493],
+					name: "Delhi"
+				},
+				{
+					coords: [6.524379, 3.379206],
+					name: "Lagos"
+				},
+				{
+					coords: [35.689487, 139.691711],
+					name: "Tokyo"
+				},
+				{
+					coords: [23.129110, 113.264381],
+					name: "Guangzhou"
+				},
+				{
+					coords: [40.7127837, -74.0059413],
+					name: "New York"
+				},
+				{
+					coords: [34.052235, -118.243683],
+					name: "Los Angeles"
+				},
+				{
+					coords: [41.878113, -87.629799],
+					name: "Chicago"
+				},
+				{
+					coords: [51.507351, -0.127758],
+					name: "London"
+				},
+				{
+					coords: [40.416775, -3.703790],
+					name: "Madrid "
+				}
+			];
+			var map = new jsVectorMap({
+				map: "world",
+				selector: "#world_map",
+				zoomButtons: true,
+				markers: markers,
+				markerStyle: {
+					initial: {
+						r: 9,
+						stroke: window.theme.white,
+						strokeWidth: 7,
+						stokeOpacity: .4,
+						fill: window.theme.primary
+					},
+					hover: {
+						fill: window.theme.primary,
+						stroke: window.theme.primary
+					}
+				},
+				regionStyle: {
+					initial: {
+						fill: window.theme["gray-200"]
+					}
+				},
+				zoomOnScroll: false
+			});
+			window.addEventListener("resize", () => {
+				map.updateSize();
+			});
+			setTimeout(function() {
+				map.updateSize();
+			}, 250);
+		});
+	</script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			var date = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
+			var defaultDate = date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
+			document.getElementById("datetimepicker-dashboard").flatpickr({
+				inline: true,
+				prevArrow: "<span class=\"fas fa-chevron-left\" title=\"Previous month\"></span>",
+				nextArrow: "<span class=\"fas fa-chevron-right\" title=\"Next month\"></span>",
+				defaultDate: defaultDate
+			});
+		});
+	</script>
+
+</body>
+
+</html>

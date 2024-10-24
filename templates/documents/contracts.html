@@ -1,0 +1,230 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    #hoverButton {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .custom-circle-button {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%; /* Makes the button circular */
+        padding: 0; /* Remove padding to maintain the circular shape */
+        text-align: center; /* Center the icon inside the button */
+        border: none; /* Remove default border */
+        background-color: #6c757d; /* Same background color as .btn-secondary */
+        color: white; 
+        cursor: pointer; 
+        display: flex; /* Use flexbox to center the icon */
+        align-items: center; /* Vertically center */
+        justify-content: center; /* Horizontally center */
+    }
+</style>
+<div class="container-fluid p-2">
+    <h3><strong>Contratos</strong></h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col" style="text-align: right;"></th>
+            </tr>
+        </thead>
+        <tbody id="list-wrapper-contracts">
+            <!-- Contract data will be populated here -->
+        </tbody>
+    </table>
+
+    <a href="" id="hoverButton" class="btn btn-primary custom-circle-button" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        <i class="fas fa-fw fa-plus"></i>
+   </a>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16">
+                        <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a2 2 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139q.323-.119.684-.12h5.396z"/>
+                    </svg> Contrato
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="form-wrapper">
+                    <form id="add-contract-project" action="">
+                        <div class="form-group">
+                            <input id="name" class="form-control" type="text" name="name" placeholder="Nombre del Contrato" required>
+                        </div>
+                        <button class="btn btn-primary form-control" type="submit">Crear Contrato</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+var avtiveItem = null
+
+function buildList() {
+    var wrapper = document.getElementById('list-wrapper-contracts');
+    var url = 'http://127.0.0.1:7000/api/contract-project/';
+
+    fetch(url)
+    .then((resp) => resp.json())
+    .then(function(data) {
+        console.log('Data:', data);
+        var list = data;
+        
+        // Clear the existing content
+        wrapper.innerHTML = '';
+
+        for (var i in list) {
+            // Format the created_at date as DD/MM/YYYY
+            var createdDate = new Date(list[i].created_at).toLocaleDateString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            var item = `
+                <tr>
+                   <td>
+                        <i style="color: gray;" class="align-middle me-2 far fa-fw fa-file-word"></i>
+                        <a href="/contract/${list[i].id}/">${list[i].name ? list[i].name : 'Unnamed Contract Project'}</a>
+                        <button class="btn btn-sm btn-outline-info edit"><i style="color: gray;" class="align-middle me-2 far fa-fw fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger delete"><i style="color: gray;" class="align-middle me-2 far fa-fw fa-trash-alt"></i></button>
+                    </td>
+                    <td style="text-align: right;">${createdDate}</td>
+                </tr>
+            `;
+            wrapper.innerHTML += item;
+        }
+        for (var i in list) {
+            var editBtn = document.getElementsByClassName('edit')[i];
+            var deleteBtn = document.getElementsByClassName('delete')[i];
+            
+            editBtn.addEventListener('click', (function(item){
+                return function() {
+                    editItem(item)
+                }
+            })(list[i]))
+
+            // Add click event for delete button (use deleteItem function)
+            deleteBtn.addEventListener('click', (function(item) {
+                return function() {
+                    deleteItem(item);
+                };
+            })(list[i]));
+
+        }
+    })
+    .catch(function(error) {
+        console.error('Error fetching data:', error);
+    });
+}
+buildList();
+
+var form = document.getElementById('add-contract-project')
+form.addEventListener('submit', function(e){
+    e.preventDefault();
+    console.log('Form Submitted');
+    var url = 'http://127.0.0.1:7000/api/contract-create/';
+    var method = 'POST';
+
+    if (avtiveItem != null) {
+        url = `http://127.0.0.1:7000/api/contract-update/${avtiveItem.id}/`;
+        method = 'PUT';
+    }
+
+    var name = document.getElementById('name').value;
+    fetch(url, {
+        method: method, // Use 'POST' or 'PUT' based on the action
+        headers: {
+            'Content-type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({'name': name})
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        console.log('Success:', data);
+        buildList();
+        form.reset(); 
+        avtiveItem = null; 
+        var exampleModal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
+        exampleModal.hide(); 
+    })
+    .catch(function(error) {
+        console.error('Error:', error);
+    });
+
+});
+
+function editItem(item) {
+    console.log('Item edit clicked:', item);
+    avtiveItem = item;
+    document.getElementById('name').value = avtiveItem.name;
+
+    // Show the edit modal
+    var exampleModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+    exampleModal.show();
+}
+
+function deleteItem(item) {
+    if (!confirm('¿Está seguro de que desea eliminar este documento?')) {
+        return; 
+    }
+
+    console.log('Delete clicked:', item);
+    var url = `http://127.0.0.1:7000/api/contract-delete/${item.id}/`;
+
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        }
+    })
+    .then((response) => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        buildList(); 
+    })
+    .catch(function(error) {
+        console.error('Error deleting item:', error);
+        alert('No se pudo eliminar el documento. Inténtalo nuevamente.');
+    });
+}
+
+</script>
+
+{% endblock %}

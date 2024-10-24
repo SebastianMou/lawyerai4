@@ -1,0 +1,65 @@
+{% extends './base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid p-2">
+  <h3><strong>History</strong></h3>
+
+  <div class="list-wrapper-chat">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody id="chat-session-tbody">
+        <!-- Dynamic rows will be inserted here by JavaScript -->
+      </tbody>
+    </table>
+  </div>
+  
+
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      buildListChat();
+  });
+  
+  function buildListChat() {
+      var tbody = document.getElementById('chat-session-tbody');  // Select the tbody element where rows will go
+      var url = 'http://127.0.0.1:7000/api/chatsessions/user/';  // Make sure this URL is correct
+  
+      fetch(url)
+      .then((resp) => resp.json())
+      .then(function(data) {
+        console.log('Data:', data);  // Check your data structure in console
+  
+        // Clear the tbody before inserting new content
+        tbody.innerHTML = '';
+  
+        // Loop through each chat session and append a new row
+        data.forEach(function(session) {
+          // Format the date from 'created_at'
+          let createdDate = new Date(session.created_at).toLocaleDateString();
+  
+          // Create a table row for each session
+          let row = `
+            <tr>
+              <td><i style="color: gray;" class="align-middle me-2 fas fa-fw fa-comments"></i> ${session.name}</td>
+              <td style="text-align: right;">${createdDate}</td>
+            </tr>
+          `;
+  
+          // Append the row to the tbody
+          tbody.innerHTML += row;
+        });
+      })
+      .catch(function(error) {
+        console.error('Error:', error);
+      });
+  }
+  </script>
+  
+{% endblock %}
