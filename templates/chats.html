@@ -3,63 +3,158 @@
 
 {% block content %}
 <div class="container-fluid p-2">
-  <h3><strong>History</strong></h3>
-
-  <div class="list-wrapper-chat">
-    <table class="table">
+  <table class="table">
       <thead>
-        <tr>
-          <th scope="col"></th>
-          <th scope="col"></th>
-        </tr>
+          <tr>
+              <th scope="col">Session Name</th>
+              <th scope="col" style="text-align: right;">Created At</th>
+          </tr>
       </thead>
-      <tbody id="chat-session-tbody">
-        <!-- Dynamic rows will be inserted here by JavaScript -->
+      <tbody id="list-wrapper-chat">
+          <!-- Chat session data will be populated here -->
       </tbody>
-    </table>
-  </div>
-  
+  </table>
 
+  <!-- Button to trigger modal -->
+  <a href="/" class="btn btn-primary custom-circle-button">
+      <i class="fas fa-fw fa-plus"></i>
+  </a>
+</div>
+
+<!-- Modal for adding/editing chat session -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="chatModalLabel">
+                  <i class="fas fa-comments"></i> Chat Session
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <form id="add-chat-session">
+                  <div class="form-group">
+                      <input id="chat-name" class="form-control" type="text" name="name" placeholder="Chat Session Name" required>
+                  </div>
+                  <button class="btn btn-primary form-control" type="submit">Save Session</button>
+              </form>
+          </div>
+      </div>
+  </div>
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-      buildListChat();
-  });
-  
-  function buildListChat() {
-      var tbody = document.getElementById('chat-session-tbody');  // Select the tbody element where rows will go
-      var url = 'http://127.0.0.1:7000/api/chatsessions/user/';  // Make sure this URL is correct
-  
+  // Function to get CSRF token for AJAX requests
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+
+  const csrftoken = getCookie('csrftoken');
+  var activeItem = null;
+
+  function buildChatList() {
+      var wrapper = document.getElementById('list-wrapper-chat');
+      var url = 'http://127.0.0.1:7000/api/chatsessions/user/';
+
       fetch(url)
       .then((resp) => resp.json())
       .then(function(data) {
-        console.log('Data:', data);  // Check your data structure in console
-  
-        // Clear the tbody before inserting new content
-        tbody.innerHTML = '';
-  
-        // Loop through each chat session and append a new row
-        data.forEach(function(session) {
-          // Format the date from 'created_at'
-          let createdDate = new Date(session.created_at).toLocaleDateString();
-  
-          // Create a table row for each session
-          let row = `
-            <tr>
-              <td><i style="color: gray;" class="align-middle me-2 fas fa-fw fa-comments"></i> ${session.name}</td>
-              <td style="text-align: right;">${createdDate}</td>
-            </tr>
-          `;
-  
-          // Append the row to the tbody
-          tbody.innerHTML += row;
-        });
+          console.log('Data:', data);
+          var list = data;
+          
+          // Clear the existing content
+          wrapper.innerHTML = '';
+
+          for (var i in list) {
+            var createdDate = new Date(list[i].created_at).toLocaleDateString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            var item = `
+                <tr>
+                    <td>
+                        <i style="color: gray;" class="align-middle me-2 fas fa-fw fa-comments"></i>
+                        <a href="/chat/${list[i].id}/">${list[i].name ? list[i].name : 'Unnamed Chat Session'}</a>
+                        <button class="btn btn-sm btn-outline-info edit"><i style="color: gray;" class="align-middle me-2 fas fa-fw fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger delete"><i style="color: gray;" class="align-middle me-2 far fa-fw fa-trash-alt"></i></button>
+                    </td>
+                    <td style="text-align: right;">${createdDate}</td>
+                </tr>
+            `;
+            wrapper.innerHTML += item;
+        }
+
+
+          // Attach edit and delete event listeners to each button
+          for (var i in list) {
+              var editBtn = document.getElementsByClassName('edit')[i];
+              var deleteBtn = document.getElementsByClassName('delete')[i];
+
+              editBtn.addEventListener('click', (function(item){
+                  return function() {
+                      editChatItem(item);
+                  }
+              })(list[i]));
+
+              deleteBtn.addEventListener('click', (function(item) {
+                  return function() {
+                      deleteChatItem(item);
+                  };
+              })(list[i]));
+          }
       })
       .catch(function(error) {
-        console.error('Error:', error);
+          console.error('Error fetching data:', error);
       });
   }
-  </script>
+  buildChatList();
+
+  function editChatItem(item) {
+      activeItem = item;
+      document.getElementById('chat-name').value = activeItem.name;
+
+      var chatModal = new bootstrap.Modal(document.getElementById('chatModal'));
+      chatModal.show();
+  }
+
+  function deleteChatItem(item) {
+      if (!confirm('Are you sure you want to delete this chat session?')) {
+          return;
+      }
+
+      var url = `http://127.0.0.1:7000/api/chatsessions/${item.id}/delete/`;
+
+      fetch(url, {
+          method: 'DELETE',
+          headers: {
+              'Content-type': 'application/json',
+              'X-CSRFToken': csrftoken,
+          }
+      })
+      .then((response) => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          buildChatList();
+      })
+      .catch(function(error) {
+          console.error('Error deleting item:', error);
+          alert('Unable to delete the chat session. Please try again.');
+      });
+  }
+</script>
+
   
 {% endblock %}

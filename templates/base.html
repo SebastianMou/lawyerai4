@@ -53,7 +53,6 @@
 			border-radius: .25rem;
 		}
     </style>
-	<!-- END SETTINGS -->
 </head>
 <!--
   HOW TO USE: 
@@ -146,36 +145,24 @@
                         </ul>
 					</li>
 
-					<li class="sidebar-item active">
+					<li class="sidebar-item  {% if request.resolver_match.url_name == 'chats' %}active{% endif %}"">
 						<a class="sidebar-link" href="{% url 'chats' %}">
 							<i class="align-middle me-2 far fa-fw fa-comment-dots"></i> <span class="align-middle">Chats</span>
 						</a>
 					</li>
 
-					<li class="sidebar-item"></li>
-						<a class="sidebar-link" href="{% url 'contracts' %}">
+					<li class="sidebar-item {% if request.resolver_match.url_name == 'contracts' %}active{% endif %}"">
+						<a class="sidebar-link " href="{% url 'contracts' %}">
 							<i class="align-middle me-2 fas fa-fw fa-file-contract"></i> <span class="align-middle">Contratos</span>
 						</a>
 					</li>
 
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="">
-							<i class="align-middle" data-feather="calendar" style="color: #5784db;"></i> <span class="align-middle">Calendar</span>
+					<li class="sidebar-item {% if request.resolver_match.url_name == 'invoice' %}active{% endif %}"">
+						<a class="sidebar-link" href="{% url 'invoice' %}">
+							<i class="align-middle" data-feather="credit-card" style="color: #5784db;"></i> <span class="align-middle">Factura</span>
 						</a>
 					</li>
 
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="">
-							<i class="align-middle" data-feather="credit-card" style="color: #5784db;"></i> <span class="align-middle">Invoice</span>
-						</a>
-					</li>
-
-
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="">
-							<i class="align-middle" data-feather="user" style="color: #5784db;"></i> <span class="align-middle">Profile</span>
-						</a>
-					</li>
 
 					<!-- <li class="sidebar-item">
 						<a href="#auth" data-bs-toggle="collapse" class="sidebar-link collapsed">

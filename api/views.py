@@ -7,7 +7,7 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
-
+from django.http import HttpResponse
 import json
 import openai
 import random
@@ -42,7 +42,7 @@ def apiOverview(request):
 
 @api_view(['GET'])
 def contract_project(request):
-    contracts = ContractProject.objects.filter(owner=request.user)
+    contracts = ContractProject.objects.filter(owner=request.user).order_by('-created_at')
     serializer = ContractProjectSerializer(contracts, many=True)
     return Response(serializer.data)
 
@@ -159,7 +159,6 @@ def get_chat_history_contract(request, contract_project_id):
 
 ##################################################################################################################
 
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_chat_session(request):
@@ -170,21 +169,17 @@ def create_chat_session(request):
         if not user_input:
             return Response({"error": "Message content is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Generate the session name via OpenAI API
+        # Generate a session name based on the user input question
         prompt_for_name = f"Generate a concise and meaningful chat session name based on the following question: '{user_input}'"
-        
-        # OpenAI's chat-based API call to generate session name
         session_name_response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",  # You can use "gpt-4" if available
+            model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are an AI assistant that generates session names based on user input."},
+                {"role": "system", "content": "You are an AI assistant that generates short session names based on user input."},
                 {"role": "user", "content": prompt_for_name}
             ],
-            max_tokens=10,  # Control the length of the response (you can adjust this)
-            temperature=0.7  # Adjust creativity level
+            max_tokens=50,
+            temperature=0.7
         )
-
-        # Extract the AI's generated session name
         session_name = session_name_response.choices[0].message.content.strip()
 
         # Create the chat session with the generated name
@@ -193,30 +188,57 @@ def create_chat_session(request):
             owner=request.user
         )
 
-        # Create the first message (the user's input)
-        user_message = Message.objects.create(
+        # Create and save the initial user message
+        Message.objects.create(
             chat_session=chat_session,
             content=user_input,
             sender='user'
         )
 
-        # Generate the AI's answer to the user's question
-        prompt_for_answer = f"{user_input}"  # Directly use user's question as the prompt for the AI to answer
+        # Retrieve chat history and limit to recent messages if applicable
+        chat_history = Message.objects.filter(chat_session=chat_session).order_by('created_at')
+        recent_messages = list(chat_history)[-15:]  # Keep the last 15 messages for context
 
+        # Summarize older messages if the chat has more than 20 messages
+        summary_text = ""
+        if len(chat_history) > 20:
+            # Concatenate older messages for the summary
+            older_messages = " ".join([msg.content for msg in list(chat_history)[:-15]])
+            summary_prompt = [
+                {"role": "system", "content": "Summarize the following conversation."},
+                {"role": "user", "content": older_messages}
+            ]
+            # Generate summary for older messages
+            summary_response = openai.chat.completions.create(
+                model="gpt-4o",
+                messages=summary_prompt,
+                max_tokens=150
+            )
+            summary_text = summary_response.choices[0].message.content.strip()
+
+        # Build the AI's response prompt including summary and recent messages
+        messages = [{"role": "system", "content": "You are a helpful assistant and your name is creator."}]
+        if summary_text:
+            messages.append({"role": "assistant", "content": f"Summary of previous conversation: {summary_text}"})
+
+        # Append recent messages to the prompt
+        for message in recent_messages:
+            messages.append({
+                "role": "user" if message.sender == "user" else "assistant",
+                "content": message.content
+            })
+
+        # Add the initial user message to the prompt
+        messages.append({"role": "user", "content": user_input})
+
+        # Generate the AI's response
         ai_response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",  # You can use "gpt-4" if available
-            messages=[
-                {"role": "system", "content": "You are an AI assistant that helps answer questions."},
-                {"role": "user", "content": prompt_for_answer}
-            ],
-            max_tokens=500,  # Set a reasonable max token limit for the answer
-            temperature=0.7  # Adjust creativity level
+            model="gpt-4o",
+            messages=messages
         )
-
-        # Extract the AI's answer from the 'choices' array
         ai_answer = ai_response.choices[0].message.content.strip()
 
-        # Save the AI's response as a new message in the chat session
+        # Save the AI's response in the chat session
         Message.objects.create(
             chat_session=chat_session,
             content=ai_answer,
@@ -227,6 +249,92 @@ def create_chat_session(request):
         session_serializer = ChatSessionSerializer(chat_session)
         return Response(session_serializer.data, status=status.HTTP_201_CREATED)
 
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_message_to_chat_session(request, session_id):
+    try:
+        # Retrieve the chat session
+        chat_session = ChatSession.objects.get(id=session_id, owner=request.user)
+        
+        # Get the user's new message
+        user_input = request.data.get('message', '')
+        
+        if not user_input:
+            return Response({"error": "Message content is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Save the user's message in the database
+        user_message = Message.objects.create(
+            chat_session=chat_session,
+            content=user_input,
+            sender='user'
+        )
+
+        # Retrieve chat history
+        chat_history = Message.objects.filter(chat_session=chat_session).order_by('created_at')
+
+        # Initialize summary and recent messages
+        summary_text = ""
+        recent_messages = list(chat_history)[-15:]  # Last 15 messages for context
+
+        # Summarize older messages if chat exceeds 20 messages
+        if len(chat_history) > 20:
+            # Concatenate older messages to create summary prompt
+            older_messages = " ".join([msg.content for msg in list(chat_history)[:-15]])
+            summary_prompt = [
+                {"role": "system", "content": "Summarize the following conversation."},
+                {"role": "user", "content": older_messages}
+            ]
+
+            # Generate summary for older messages
+            summary_response = openai.chat.completions.create(
+                model="gpt-4o",
+                messages=summary_prompt,
+                max_tokens=150  # Limit the summary length
+            )
+            summary_text = summary_response.choices[0].message.content.strip()
+
+        # Build the prompt including the summary and recent messages
+        messages = [{"role": "system", "content": "You are a therapist that helps coupled with problems in their relationship an you name is chatsessionor"}]
+        if summary_text:
+            messages.append({"role": "assistant", "content": f"Summary of previous conversation: {summary_text}"})
+
+        # Append recent messages to the prompt
+        for message in recent_messages:
+            messages.append({
+                "role": "user" if message.sender == "user" else "assistant",
+                "content": message.content
+            })
+
+        # Add the latest user message to the prompt
+        messages.append({"role": "user", "content": user_input})
+
+        # Generate AI's response with the updated context
+        ai_response = openai.chat.completions.create(
+            model="gpt-4o",
+            messages=messages
+        )
+
+        # Extract the AI's generated response
+        ai_answer = ai_response.choices[0].message.content.strip()
+
+        # Save the AI's response as a new message in the same chat session
+        Message.objects.create(
+            chat_session=chat_session,
+            content=ai_answer,
+            sender='AI'
+        )
+
+        # Serialize and return the updated session with all messages
+        session_serializer = ChatSessionSerializer(chat_session)
+        return Response(session_serializer.data, status=status.HTTP_201_CREATED)
+
+    except ChatSession.DoesNotExist:
+        return Response({"error": "Chat session not found."}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         print(f"Error occurred: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -249,52 +357,42 @@ def retrieve_chat_session(request, session_id):
     serializer = ChatSessionSerializer(chat_session)
     return Response(serializer.data)
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def send_message_to_chat_session(request, session_id):
+def list_user_chat_sessions(request):
+    # Filter chat sessions by the currently authenticated user
+    chat_sessions = ChatSession.objects.filter(owner=request.user).order_by('-created_at')
+
+    # Serialize the chat sessions
+    serializer = ChatSessionSerializer(chat_sessions, many=True)
+    
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+#########################################################################################################################
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_chat_session(request, session_id):
     try:
-        # Retrieve the chat session
+        # Get the chat session by its ID and make sure it belongs to the current user
         chat_session = ChatSession.objects.get(id=session_id, owner=request.user)
-        
-        # Get the user's new message
-        user_input = request.data.get('message', '')
-        
-        if not user_input:
-            return Response({"error": "Message content is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create a new message from the user in the existing chat session
-        user_message = Message.objects.create(
-            chat_session=chat_session,
-            content=user_input,
-            sender='user'
-        )
-        
-        # Generate the AI's response to the new question
-        prompt_for_answer = f"{user_input}"  # Use the user's new message as the prompt for the AI
-        
-        ai_response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",  # You can use "gpt-4" if available
-            messages=[
-                {"role": "system", "content": "You are an AI assistant that helps answer questions."},
-                {"role": "user", "content": prompt_for_answer}
-            ],
-            max_tokens=500,  # Set a reasonable max token limit for the answer
-            temperature=0.7  # Adjust creativity level
-        )
-        
-        # Extract the AI's response from the 'choices' array
-        ai_answer = ai_response.choices[0].message.content.strip()
+        # Get the incoming data from the request
+        data = request.data.copy()
 
-        # Save the AI's response as a new message in the same chat session
-        Message.objects.create(
-            chat_session=chat_session,
-            content=ai_answer,
-            sender='AI'
-        )
+        # Log the incoming data to check if it is being received correctly
+        print('Incoming data:', data)
 
-        # Return the full chat session with all messages
-        session_serializer = ChatSessionSerializer(chat_session)
-        return Response(session_serializer.data, status=status.HTTP_201_CREATED)
+        # Update the chat session using a serializer
+        serializer = ChatSessionSerializer(instance=chat_session, data=data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            print('Chat session updated successfully')  # Add this log to confirm successful save
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            print('Serializer errors:', serializer.errors)  # Log errors to help debug
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     except ChatSession.DoesNotExist:
         return Response({"error": "Chat session not found."}, status=status.HTTP_404_NOT_FOUND)
@@ -302,13 +400,21 @@ def send_message_to_chat_session(request, session_id):
         print(f"Error occurred: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@api_view(['GET'])
+@api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def list_user_chat_sessions(request):
-    # Filter chat sessions by the currently authenticated user
-    chat_sessions = ChatSession.objects.filter(owner=request.user)
+def delete_chat_session(request, session_id):
+    try:
+        # Get the chat session by its ID and make sure it belongs to the current user
+        chat_session = ChatSession.objects.get(id=session_id, owner=request.user)
 
-    # Serialize the chat sessions
-    serializer = ChatSessionSerializer(chat_sessions, many=True)
-    
-    return Response(serializer.data, status=status.HTTP_200_OK)
+        # Delete the chat session
+        chat_session.delete()
+
+        # Return a success response
+        return Response({"message": "Chat session deleted successfully."}, status=status.HTTP_200_OK)
+
+    except ChatSession.DoesNotExist:
+        return Response({"error": "Chat session not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

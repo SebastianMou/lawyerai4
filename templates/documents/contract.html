@@ -212,8 +212,8 @@
 
     /* AI's chat bubble (on the left) */
     .ai-bubble {
-        background-color: #5a71d2; 
-        color: white;
+        background-color: rgba(128, 128, 128, 0.074); 
+        color: black;
         margin-right: auto;
         margin-bottom: 9px;
         text-align: left;
@@ -287,13 +287,39 @@
     }
 
     .alert {
-    border-radius: 0.25rem !important; /* Enforce rounded corners */
-    padding: 0.75rem 1.25rem !important; /* Ensure padding is correct */
-    color: #856404 !important; /* Ensure the text color matches warning alerts */
-    border: 1px solid #ffeeba !important; /* Ensure border color */
-}
+        border-radius: 0.25rem !important; /* Enforce rounded corners */
+        padding: 0.75rem 1.25rem !important; /* Ensure padding is correct */
+        color: #856404 !important; /* Ensure the text color matches warning alerts */
+        border: 1px solid #ffeeba !important; /* Ensure border color */
+    }
 
+    .copy-button {
+        margin-left: 8px;
+        padding: 4px 8px;
+        font-size: 12px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+    }
+    .copy-button:hover {
+        background-color: #0056b3;
+    }
 
+    .read-button {
+        margin-left: 8px;
+        padding: 4px 8px;
+        font-size: 12px;
+        cursor: pointer;
+        background-color: #007bfffa;
+        color: white;
+        border: none;
+        border-radius: 4px;
+    }
+    .read-button:hover {
+        background-color: #0056b3;
+    }
 </style>
 <div class="alert alert-warning alert-dismissible fade show" role="alert">
     <i style="padding: 5px; margin-right: 9%px;" class="fas fa-exclamation-triangle"></i>
@@ -2690,7 +2716,7 @@ tinymce.init({
     plugins: 'advlist autolink lists link image charmap print preview anchor searchreplace visualblocks code fullscreen insertdatetime media table paste help wordcount',
     toolbar: 'undo redo | formatselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | code fullscreen',
     menubar: 'file edit view insert format tools table help',
-    height: '88vh',
+    height: '85vh',
     width: '100%',
     setup: function (editor) {
         editor.on('init', function () {
@@ -2791,10 +2817,6 @@ if (searchInput) {
 } else {
     console.error("Search input not found");
 }
-
-
-
-
 
 // -----------------------------------------------------------
 // --------------- Side panel text messages ------------------
@@ -2932,7 +2954,6 @@ function attachEventListeners() {
         });
     });
 }
-
 
 // Close the side panel
 const closePopupButton = document.getElementById('closePopup');
@@ -3140,11 +3161,6 @@ window.addEventListener('load', function() {
         chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight; // Scroll to the bottom
     }
 });
-
-
-
-
-
 </script>
 
 

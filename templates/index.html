@@ -62,35 +62,120 @@
     }
   </style>
   
-  <div class="container-fluid d-flex flex-column">
+<div class="container-fluid d-flex flex-column">
 
-    <div class="list-wrapper-messages">
-      <!-- where all the messages are going to appear -->
-    </div>
+  <div id="list-wrapper-messages" class="list-wrapper-messages">
+    <!-- Messages will appear here -->
+  </div>
 
-    <form id="chat-form">
-        <div class="input-group">
-            <textarea class="form-control input-like" placeholder="Type a message..." id="chat-input"></textarea>
-            <button class="btn btn-primary" type="submit">Send</button>
-        </div>
-    </form>
+  <form id="chat-form">
+      <div class="input-group">
+          <textarea class="form-control input-like" placeholder="Type a message..." id="chat-input"></textarea>
+          <button class="btn btn-primary" type="submit">Send</button>
+      </div>
+  </form>
 </div>
 
 <script>
 
-buildListMessages()
-  function buildListMessages() {
-    var wrapper_messages = document.getElementById('list-wrapper-messages');
-    var url = 'http://127.0.0.1:7000/api/chatsessions/create/';
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+  const messageWrapper = document.getElementById('list-wrapper-messages');
+  let sessionId = null;  // Store the session ID after the first message
 
-    fetch(url)
-    .then((resp) => resp.json())
-    .then(function(data) {
-      console.log('Data:', data);
+  // Function to get CSRF token for secure requests
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
 
+  const csrftoken = getCookie('csrftoken');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const userMessage = chatInput.value;
+
+    // Ensure there's a message to send
+    if (!userMessage.trim()) {
+      return;
+    }
+
+    let url;
+    let method = 'POST';
+
+    if (sessionId === null) {
+      // If there's no session ID, create a new chat session
+      url = 'http://127.0.0.1:7000/api/chatsessions/create/';
+    } else {
+      // If a session already exists, send the message to the existing session
+      url = `http://127.0.0.1:7000/api/chatsessions/${sessionId}/send_message/`;
+    }
+
+    // Prepare data for the POST/PUT request
+    const data = {
+      message: userMessage
+    };
+
+    // Send the message to the API
+    fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken
+      },
+      body: JSON.stringify(data)
     })
-}
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(function(data) {
+      console.log('Data received:', data);
 
+      if (sessionId === null) {
+        // Store the session ID for future messages
+        sessionId = data.id;
+      }
+
+      // Display user message
+      const userMessageHTML = `
+        <div class="user-message">
+          <strong>User:</strong> ${userMessage}
+        </div>
+      `;
+      messageWrapper.innerHTML += userMessageHTML;
+
+      // Display AI response
+      const aiMessageHTML = `
+        <div class="ai-message">
+          <strong>AI:</strong> ${data.messages[data.messages.length - 1].content}
+        </div>
+      `;
+      messageWrapper.innerHTML += aiMessageHTML;
+
+      // Clear the input field after sending
+      chatInput.value = '';
+      chatInput.focus();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  });
+});
 
   const textarea = document.getElementById('chat-input');
 

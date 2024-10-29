@@ -21,4 +21,7 @@ urlpatterns = [
     path('chatsessions/<int:session_id>/', views.retrieve_chat_session, name='retrieve_chat_session'),
     path('chatsessions/<int:session_id>/send_message/', views.send_message_to_chat_session, name='send_message_to_chat_session'),
     path('chatsessions/user/', views.list_user_chat_sessions, name='list_user_chat_sessions'),
+
+    path('chatsessions/<int:session_id>/update/', views.update_chat_session, name='update_chat_session'),
+    path('chatsessions/<int:session_id>/delete/', views.delete_chat_session, name='delete_chat_session'),
 ]

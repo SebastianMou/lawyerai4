@@ -8,10 +8,11 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
+from django.http import HttpResponse
 
 from .tokens import account_activation_token
 from .forms import CustomLoginForm, RegisterForm  
-from api.models import ContractProject
+from api.models import ContractProject, ChatSession
 
 # Create your views here.
 def index(request):
@@ -22,6 +23,14 @@ def chats(request):
 
 def contracts(request):
     return render(request, 'documents/contracts.html')
+
+def view_chat_session(request, session_id):
+    try:
+        # Retrieve the ChatSession object
+        chat_session = get_object_or_404(ChatSession, id=session_id, owner=request.user)
+        return render(request, 'chat.html', {'chat_session': chat_session})  # Assuming chats.html is the template for chat sessions
+    except ChatSession.DoesNotExist:
+        return HttpResponse("Chat session not found.", status=404)
 
 def contract(request, pk):
     # Retrieve the ContractProject object based on its primary key (pk)
@@ -129,3 +138,6 @@ def activateEmail(request, user, to_email):
 
 def check_email(request):
     return render(request, 'authentication/check_email.html')
+
+def invoice(request):
+    return render(request, 'invoice.html')
