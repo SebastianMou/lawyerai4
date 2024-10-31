@@ -95,38 +95,77 @@ def contract_project_delete(request, pk):
 @api_view(['POST'])
 def create_ai_chat_contract(request, contract_project_id):
     try:
-        print(f"Request data: {request.data}")
-        print(f"Contract Project ID: {contract_project_id}")
+        print("Starting create_ai_chat_contract function...")
         
-        # Get the contract project the AI chat is associated with
+        # Fetch the contract project and check for user input
         contract_project = ContractProject.objects.get(id=contract_project_id)
+        print(f"Contract Project ID: {contract_project_id}, User: {request.user}")
 
-        # Get the user, highlighted text, and instruction from the request data
         user = request.user
-        highlighted_text = request.data.get('highlighted_text', '').strip()  # Default to empty string if None
+        highlighted_text = request.data.get('highlighted_text', '').strip()
         instruction = request.data.get('instruction')
+        print(f"Highlighted Text: {highlighted_text}, Instruction: {instruction}")
 
-        # Modify the prompt based on whether text was highlighted or not
-        if highlighted_text:
-            prompt = f"Highlight: {highlighted_text}\nInstruction: {instruction}\n"
-        else:
-            prompt = f"Instruction: {instruction}\n"
+        # Retrieve chat history
+        chat_history = AIHighlightChat.objects.filter(
+            user=user,
+            contract_project=contract_project
+        ).order_by('created_at')
+        print(f"Total chat history messages: {len(chat_history)}")
 
-        # OpenAI's chat-based API
+        # Initialize summary and recent messages
+        summary_text = ""
+        recent_messages = list(chat_history)[-15:]  # Last 15 messages for context
+        print("Recent messages for prompt context:", [msg.instruction for msg in recent_messages])
+
+        # Summarize older messages if chat exceeds 20 messages
+        if len(chat_history) > 20:
+            # Concatenate older messages to create summary prompt
+            older_messages = " ".join([msg.instruction for msg in list(chat_history)[:-15]])
+            print("Older messages to summarize:", older_messages)
+
+            summary_prompt = [
+                {"role": "system", "content": "Summarize the following conversation."},
+                {"role": "user", "content": older_messages}
+            ]
+
+            # Generate summary for older messages
+            summary_response = openai.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=summary_prompt,
+                max_tokens=150
+            )
+            summary_text = summary_response.choices[0].message.content.strip()
+            print("Generated summary text:", summary_text)
+
+        # Build the prompt including the summary and recent messages
+        conversation_history = [{"role": "system", "content": "You are an AI assistant."}]
+        if summary_text:
+            conversation_history.append({"role": "assistant", "content": f"Summary of previous conversation: {summary_text}"})
+            print("Added summary to conversation history.")
+
+        # Append recent messages to the prompt
+        for message in recent_messages:
+            conversation_history.append({"role": "user", "content": message.instruction})
+            conversation_history.append({"role": "assistant", "content": message.ai_response})
+
+        print("Final conversation history sent to OpenAI:", conversation_history)
+
+        # Add the latest user instruction
+        prompt = f"Highlight: {highlighted_text}\nInstruction: {instruction}\n" if highlighted_text else f"Instruction: {instruction}\n"
+        conversation_history.append({"role": "user", "content": prompt})
+
+        # Call the OpenAI API with the structured conversation history
         response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",  # or "gpt-4" if available in your plan
-            messages=[
-                {"role": "system", "content": "You are an AI assistant."},
-                {"role": "user", "content": prompt}
-            ],
+            model="gpt-3.5-turbo",
+            messages=conversation_history,
             max_tokens=500,
             temperature=0.7
         )
-        
-        # Extract the AI's response from the 'choices' array
         ai_response = response.choices[0].message.content.strip()
+        print("AI response:", ai_response)
 
-        # Save AI chat in the database
+        # Save the chat message for future context
         ai_chat = AIHighlightChat.objects.create(
             user=user,
             contract_project=contract_project,
@@ -134,10 +173,12 @@ def create_ai_chat_contract(request, contract_project_id):
             instruction=instruction,
             ai_response=ai_response
         )
+        print("Chat message saved to database.")
 
         return JsonResponse({'ai_response': ai_response}, status=201)
 
     except ContractProject.DoesNotExist:
+        print("Error: Contract project not found.")
         return JsonResponse({'error': 'Contract project not found'}, status=404)
     except Exception as e:
         print(f"Error occurred: {e}")
