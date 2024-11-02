@@ -287,79 +287,81 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-// Modified submit handler to use the typing effect
-form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const userMessage = chatInput.value;
-    if (!userMessage.trim()) return;
+    // Modified submit handler to use the typing effect
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const userMessage = chatInput.value;
+        if (!userMessage.trim()) return;
 
-    const uniqueId = `user-message-${Date.now()}`;
-    const userMessageHTML = `
-        <div class="user-message" id="${uniqueId}">
-            <strong>You:</strong> <span class="message-text" id="${uniqueId}-text">${userMessage}</span>
-        </div>
-    `;
-    messageWrapper.insertAdjacentHTML('beforeend', userMessageHTML);
-
-    chatInput.value = '';
-    chatInput.style.height = 'auto';
-    chatInput.focus();
-
-    // Add loading indicator after user message
-    const loadingIndicator = `
-        <div class="ai-message" id="loading-indicator">
-            <strong>AI:</strong> <span class="message-text">AI is typing...</span>
-        </div>
-    `;
-    messageWrapper.insertAdjacentHTML('beforeend', loadingIndicator);
-
-    const data = { message: userMessage };
-
-    fetch(`/api/chatsessions/${sessionId}/send_message/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        if (!response.ok) throw new Error('Network response was not ok');
-        return response.json();
-    })
-    .then(function(data) {
-        let aiContent = data.messages[data.messages.length - 1].content;
-        aiContent = formatMessageContent(aiContent); // Format AI content
-        const uniqueId = `ai-message-${Date.now()}`;
-
-        // Remove loading indicator
-        document.getElementById('loading-indicator').remove();
-
-        // Create an empty container for the AI message
-        const aiMessageHTML = `
-            <div class="ai-message" id="${uniqueId}">
-                <strong>AI:</strong> <span class="message-text" id="${uniqueId}-text"></span>
-                <div>
-                    <button onclick="copyToClipboard('${uniqueId}-text')" class="copy-button">
-                        <i class="align-middle me-2 far fa-fw fa-clipboard"></i>copiar
-                    </button>
-                    <button data-text-id="${uniqueId}-text" class="read-button">
-                        <span id="${uniqueId}-icon"><i style="color: white;" class="align-middle me-2 fas fa-volume-up"></i></span>Leer
-                    </button>
-                </div>
+        const uniqueId = `user-message-${Date.now()}`;
+        const userMessageHTML = `
+            <div class="user-message" id="${uniqueId}">
+                <strong>You:</strong> <span class="message-text" id="${uniqueId}-text">${userMessage}</span>
             </div>
         `;
-        messageWrapper.insertAdjacentHTML('beforeend', aiMessageHTML);
+        messageWrapper.insertAdjacentHTML('beforeend', userMessageHTML);
 
-        // Call typing effect function to display the AI response dynamically
-        typeMessageEffect(`${uniqueId}-text`, aiContent);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        // Optional: Remove loading indicator if there's an error
-        document.getElementById('loading-indicator')?.remove();
+        chatInput.value = '';
+        chatInput.style.height = 'auto';
+        chatInput.focus();
+
+        // Display the loading message
+        const loadingMessageId = `loading-message-${Date.now()}`;
+        const loadingMessageHTML = `
+            <div class="ai-message loading" id="${loadingMessageId}">
+                <strong>AI:</strong> <span>Loading...</span>
+            </div>
+        `;
+        messageWrapper.insertAdjacentHTML('beforeend', loadingMessageHTML);
+
+        const data = { message: userMessage };
+
+        fetch(`/api/chatsessions/${sessionId}/send_message/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(function(data) {
+            // Remove the loading message
+            document.getElementById(loadingMessageId).remove();
+
+            let aiContent = data.messages[data.messages.length - 1].content;
+            aiContent = formatMessageContent(aiContent); // Format AI content
+            const uniqueId = `ai-message-${Date.now()}`;
+
+            // Create an empty container for the AI message
+            const aiMessageHTML = `
+                <div class="ai-message" id="${uniqueId}">
+                    <strong>AI:</strong> <span class="message-text" id="${uniqueId}-text"></span>
+                    <div>
+                        <button onclick="copyToClipboard('${uniqueId}-text')" class="copy-button">
+                            <i class="align-middle me-2 far fa-fw fa-clipboard"></i>copiar
+                        </button>
+                        <button data-text-id="${uniqueId}-text" class="read-button">
+                            <span id="${uniqueId}-icon"><i style="color: white;" class="align-middle me-2 fas fa-volume-up"></i></span>Leer
+                        </button>
+                    </div>
+                </div>
+            `;
+            messageWrapper.insertAdjacentHTML('beforeend', aiMessageHTML);
+
+            // Call typing effect function to display the AI response dynamically
+            typeMessageEffect(`${uniqueId}-text`, aiContent);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Optionally remove the loading message if an error occurs
+            document.getElementById(loadingMessageId).remove();
+        });
     });
-});
+
 
     function getCookie(name) {
         let cookieValue = null;

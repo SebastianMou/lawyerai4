@@ -94,16 +94,13 @@
 								{% endif %}
 							</a>
 							<div class="dropdown-menu dropdown-menu-start">
-								<a class="dropdown-item" href=""><i class="align-middle me-1" data-feather="user"></i> Profile</a>
-								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
-								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href=""><i class="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>
-								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a>
+								<a class="dropdown-item" href="{% url 'pages' %}"><i class="align-middle me-1" style="color: gray;" data-feather="settings"></i> Configuración y privacidad</a>
+								<a class="dropdown-item" href="#"><i class="align-middle me-1" style="color: gray;" data-feather="help-circle"></i> Centro de ayuda</a>
 								<div class="dropdown-divider"></div>
 								{% if user.is_authenticated %}
-									<a class="dropdown-item" href="{% url 'logout' %}">Log out</a>
+									<a class="dropdown-item" href="{% url 'logout' %}"><i style="color: gray;" class="align-middle me-2 fas fa-fw fa-sign-out-alt"></i> Cerrar sesión</a>
 								{% else %}
-									<a class="dropdown-item" href="{% url 'login' %}">Log in</a>
+									<a class="dropdown-item" href="{% url 'login' %}">Inicia sesión</a>
 								{% endif %}
 							</div>
 
@@ -371,14 +368,10 @@
 								<img style="width: 30px; height: auto;" src="{% static 'img/icons/user (1).png' %}" class="avatar img-fluid rounded" alt="Charles Hall" />
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
-								<a class="dropdown-item" href="pages-profile.html"><i class="align-middle me-1" data-feather="user"></i> Profile</a>
-								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
+								<a class="dropdown-item" href="{% url 'pages' %}"><i class="align-middle me-1" style="color: gray;" data-feather="settings"></i> Configuración y privacidad</a>
+								<a class="dropdown-item" href="#"><i class="align-middle me-1" style="color: gray;" data-feather="help-circle"></i> Centro de ayuda</a>
 								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="pages-settings.html"><i class="align-middle me-1" data-feather="settings"></i> Settings &
-									Privacy</a>
-								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a>
-								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="">Log out</a>
+								<a class="dropdown-item"  href=""><i style="color: gray;" class="align-middle me-2 fas fa-fw fa-sign-out-alt"></i> Cerrar sesión</a>
 							</div>
 						</li>
 					</ul>

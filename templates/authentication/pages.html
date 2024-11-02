@@ -1,0 +1,368 @@
+{% extends '../base.html' %}
+{% load static %}
+{% block title %}Profile Settings{% endblock %}
+
+{% block content %}
+<div class="row container-fluid">
+<h1 class="h3 mb-3">Settings</h1>
+
+    <div class="col-md-3 col-xl-2">
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Configuración del perfil</h5>
+            </div>
+
+            <div class="list-group list-group-flush" role="tablist">
+                <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#account"
+                    role="tab">
+                    Cuenta
+                </a>
+                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#password" role="tab">
+                    Contraseña
+                </a>
+                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#privacy_and_safety" role="tab">
+                    Privacidad y seguridad
+                </a>
+                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#" role="tab">
+                    Notificaciones por correo electrónico
+                </a>
+                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#delete_account" role="tab">
+                    Eliminar cuenta
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9 col-xl-10">
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="account" role="tabpanel">
+
+                <div class="card">
+                    <div class="card-header">
+
+                        <h5 class="card-title mb-0">Public info</h5>
+                    </div>
+                    <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    {% if messages %}
+                                        <div class="messages">
+                                            {% for message in messages %}
+                                                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+                                                    {{ message }}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+
+                                    <form id="profileForm1" method="POST" action="{% url 'pages' %}">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <label class="form-label" for="inputUsername">Nombre de usuario</label>
+                                            <input type="text" class="form-control" name="username" id="inputUsername" placeholder="Nombre de usuario" value="{{ user.username }}" maxlength="30">
+                                        </div>
+                                        <div class="row">
+                                            <div class="mb-3 col-md-6">
+                                                <label class="form-label" for="inputFirstName">Nombre</label>
+                                                <input type="text" class="form-control" name="first_name" id="inputFirstName" placeholder="Nombre" value="{{ user.first_name }}" maxlength="30">
+                                            </div>
+                                            <div class="mb-3 col-md-6">
+                                                <label class="form-label" for="inputLastName">Apellido</label>
+                                                <input type="text" class="form-control" name="last_name" id="inputLastName" placeholder="Apellido" value="{{ user.last_name }}" maxlength="30">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label" for="inputEmail4">Correo electrónico <small>(no editable)</small></label>
+                                            <input type="email" class="form-control" id="inputEmail4" placeholder="Correo electrónico" value="{{ user.email }}" readonly>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
+                                    </form>
+                                    
+                                    
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <img alt="Charles Hall" src="{% static 'img/icons/user (1).png' %}"
+                                            class="rounded-circle img-responsive mt-2" width="128" height="128" />
+                                        <!-- <div class="mt-2">
+                                            <span class="btn btn-primary"><i class="fas fa-upload"></i> Upload</span>
+                                        </div>
+                                        <small>For best results, use an image at least 128px by 128px in .jpg format</small> -->
+                                    </div>
+                                </div>
+                            </div>
+
+
+                    </div>
+                </div>
+
+                <!-- <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Private info</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="profileForm2">
+                            <div class="row">
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label" for="inputFirstName">First name</label>
+                                    <input type="text" class="form-control" id="inputFirstName" placeholder="First Name" value="{{ user_profile.user.first_name }}">
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label" for="inputLastName">Last name</label>
+                                    <input type="text" class="form-control" id="inputLastName" placeholder="Last Name" value="{{ user_profile.user.last_name }}">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="inputEmail4">Email <small>(non-editable)</small></label>
+                                <input type="email" class="form-control" id="inputEmail4" placeholder="Email" value="{{ user.email }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="inputAddress">Address</label>
+                                <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="inputAddress2">Address 2</label>
+                                <input type="text" class="form-control" id="inputAddress2"
+                                    placeholder="Apartment, studio, or floor">
+                            </div>
+                            <div class="row">
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label" for="inputCity">City</label>
+                                    <input type="text" class="form-control" id="inputCity">
+                                </div>
+                                <div class="mb-3 col-md-4">
+                                    <label class="form-label" for="inputState">State</label>
+                                    <select id="inputState" class="form-control">
+                                        <option selected>Choose...</option>
+                                        <option>...</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3 col-md-2">
+                                    <label class="form-label" for="inputZip">Zip</label>
+                                    <input type="text" class="form-control" id="inputZip">
+                                </div>
+                            </div>
+                            <button type="button" id="updateProfileButton2" class="btn btn-primary">Update Profile</button>
+                        </form>
+
+                    </div>
+                </div> -->
+
+            </div>
+            <div class="tab-pane fade" id="password" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Cambiar la contraseña</h5>
+
+                        <a href="{% url 'password_change' %}" class="btn btn-primary">Cambiar la contraseña &rarr;</a>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Has olvidado tu contraseña?</h5>
+
+                        <a href="{% url 'password_reset' %}" class="btn btn-primary">contraseña olvidada &rarr;</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="privacy_and_safety" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <h1>Anton Privacy and Safety Policy</h1>
+                        <h2>Introduction</h2>
+                        <p>Welcome to Anton, your AI-powered productivity assistant. At Anton, we are committed to protecting your privacy and ensuring the safety of your personal information. This Privacy and Safety Policy outlines how we collect, use, share, and protect your data. By using Anton, you agree to the terms of this policy.</p>
+                
+                        <h2>Information We Collect</h2>
+                        <h3>Personal Information</h3>
+                        <ul>
+                            <li><strong>Account Information:</strong> When you create an account, we collect information such as your name, email address, phone number, and password.</li>
+                            <li><strong>Profile Information:</strong> During the onboarding process, we may collect information about your preferences, goals, interests, and productivity habits.</li>
+                        </ul>
+                        <h3>Usage Data</h3>
+                        <ul>
+                            <li><strong>Activity Information:</strong> We collect data about your interactions with Anton, including tasks created, goals set, reminders, and notifications.</li>
+                            <li><strong>Device Information:</strong> We collect information about the devices you use to access Anton, such as IP address, device type, and operating system.</li>
+                        </ul>
+                
+                        <h2>How We Use Your Information</h2>
+                        <ul>
+                            <li><strong>Personalization:</strong> To provide a tailored experience based on your preferences, goals, and usage patterns.</li>
+                            <li><strong>Task and Goal Management:</strong> To help you manage your tasks and track your progress towards goals.</li>
+                            <li><strong>Reminders and Notifications:</strong> To send you reminders and notifications via your preferred method (phone, text, email, app notifications).</li>
+                            <li><strong>AI Recommendations:</strong> To offer AI-based insights and suggestions to improve your productivity and goal achievement.</li>
+                            <li><strong>Motivational Features:</strong> To provide features like Commitment Contracts, Accountability Groups, and Progress Streaks to keep you motivated.</li>
+                        </ul>
+                
+                        <h2>How We Share Your Information</h2>
+                        <ul>
+                            <li><strong>Service Providers:</strong> We may share your information with third-party service providers who help us operate and improve Anton. These providers are bound by confidentiality agreements and are not permitted to use your information for other purposes.</li>
+                            <li><strong>Legal Requirements:</strong> We may disclose your information if required by law, regulation, or legal process, or to protect the rights, property, or safety of Anton, our users, or others.</li>
+                        </ul>
+                
+                        <h2>Data Security</h2>
+                        <ul>
+                            <li><strong>Encryption:</strong> We use encryption to protect your personal information during transmission and storage.</li>
+                            <li><strong>Access Controls:</strong> We implement strict access controls to limit access to your information to authorized personnel only.</li>
+                            <li><strong>Regular Audits:</strong> We conduct regular security audits to identify and address potential vulnerabilities.</li>
+                        </ul>
+                
+                        <h2>User Controls</h2>
+                        <ul>
+                            <li><strong>Privacy Settings:</strong> You can manage your privacy settings and control how your information is used within the Anton app.</li>
+                            <li><strong>Data Access and Deletion:</strong> You have the right to access your personal information and request its deletion. You can do this through the app settings or by contacting our support team.</li>
+                        </ul>
+                
+                        <h2>Data Retention</h2>
+                        <p>We retain your personal information for as long as necessary to provide you with Anton’s services and to comply with legal obligations. If you choose to delete your account, we will delete your data in accordance with our data retention policy.</p>
+                
+                        <h2>Children’s Privacy</h2>
+                        <p>Anton is not intended for use by children under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have inadvertently collected such information, we will take steps to delete it as soon as possible.</p>
+                
+                        <h2>Changes to This Policy</h2>
+                        <p>We may update this Privacy and Safety Policy from time to time. We will notify you of any changes by posting the new policy on our website and within the Anton app. Your continued use of Anton after any changes constitutes your acceptance of the new policy.</p>
+                
+                        <h2>Contact Us</h2>
+                        <p>If you have any questions or concerns about this Privacy and Safety Policy or our data practices, please contact us at:</p>
+                        <p>Email: <a href="mailto:support@antonapp.com">support@antonapp.com</a><br>
+                        Address: Anton, Inc., 123 Productivity Lane, Suite 456, Tech City, TC 78910</p>
+                    </div>
+                </div>
+               
+            </div>
+
+            <div class="tab-pane fade" id="delete_account" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Eliminar Cuenta</h5>
+                        <p><b style="color: red;">Advertencia: </b>Hacer clic en este botón eliminará tu cuenta permanentemente</p>
+                        <!-- Botón para activar el modal -->
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            Eliminar cuenta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+  
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Confirmar eliminación de cuenta</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="post" action="{% url 'delete_account' %}">
+                {% csrf_token %}
+                <div class="alert alert-danger" role="alert" style="padding: 12px;">
+                    <b><span style="color: red;">Advertencia:</span> Al hacer clic en el botón de confirmación, la cuenta será <u style="color: red;">ELIMINADA</u> permanentemente. Los esfuerzos por recuperar la cuenta serán en vano.</b>
+                </div>
+                <hr>
+                <div class="form-group mb-2">
+                    <label for="confirmationInput">Escribe "ELIMINAR" para confirmar:</label>
+                    <input type="text" id="confirmationInput" class="form-control" onkeyup="checkInput()" placeholder="Escribe ELIMINAR aquí">
+                </div>
+                <button type="submit" class="btn btn-outline-danger" id="deleteButton" style="display: none;">Confirmar Eliminación de Cuenta</button>                
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function checkInput() {
+        var inputBox = document.getElementById("confirmationInput");
+        var deleteButton = document.getElementById("deleteButton");
+        if (inputBox.value.toUpperCase() === "ELIMINAR") {
+            deleteButton.style.display = "block";
+        } else {
+            deleteButton.style.display = "none";
+        }
+    }
+
+    document.getElementById('updateProfileButton1').addEventListener('click', function() {
+        const username = document.getElementById('inputUsername').value;
+        const phone_number = document.getElementById('inputPhone').value;
+
+        let data = {};
+        if (username !== "{{ user_profile.user.username }}") {
+            data.user = { username: username };
+        }
+        if (phone_number !== "{{ phone_number }}") {
+            data.phone_number = phone_number;
+        }
+
+        fetch('/api/update-profile/', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error: ' + data.error);
+            } else {
+                alert('Profile updated successfully');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('updateProfileButton2').addEventListener('click', function() {
+        const first_name = document.getElementById('inputFirstName').value;
+        const last_name = document.getElementById('inputLastName').value;
+
+        let data = {};
+        if (first_name !== "{{ user_profile.user.first_name }}") {
+            data.user = { first_name: first_name };
+        }
+        if (last_name !== "{{ user_profile.user.last_name }}") {
+            if (!data.user) data.user = {};
+            data.user.last_name = last_name;
+        }
+
+        fetch('/api/update-profile/', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error: ' + data.error);
+            } else {
+                alert('Name updated successfully');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+{% endblock %}

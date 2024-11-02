@@ -49,19 +49,19 @@
 					<div class="d-table-cell align-middle">
 
 						<div class="text-center mt-4">
-							<h1 class="h2">Get started</h1>
-							<p class="lead">
-								Start creating the best possible user experience for you customers.
-							</p>
+							<h1 class="h2">Empezar</h1>
+							<!-- <p class="lead">
+								Comience a crear la mejor experiencia de usuario posible para sus clientes.
+							</p> -->
 						</div>
 
 						<div class="card">
 							<div class="card-body">
 								<div class="m-sm-3">
 									<div class="d-grid gap-2 mb-3">
-										<a class="btn btn-google btn-lg" href="index.html"><i class="fab fa-fw fa-google"></i> Sign up with Google</a>
-										<a class="btn btn-facebook btn-lg" href="index.html"><i class="fab fa-fw fa-facebook-f"></i> Sign up with Facebook</a>
-										<a class="btn btn-microsoft btn-lg" href="index.html"><i class="fab fa-fw fa-microsoft"></i> Sign up with Microsoft</a>
+										<a class="btn btn-google btn-lg" href="index.html"><i class="fab fa-fw fa-google"></i> Regístrate con Google</a>
+										<a class="btn btn-facebook btn-lg" href="index.html"><i class="fab fa-fw fa-facebook-f"></i> Regístrate con Facebook</a>
+										<a class="btn btn-microsoft btn-lg" href="index.html"><i class="fab fa-fw fa-microsoft"></i> Regístrate con Microsoft</a>
 									</div>
 									<div class="row">
 										<div class="col">
@@ -72,6 +72,17 @@
 											<hr>
 										</div>
 									</div>
+
+									{% if messages %}
+										<div class="messages">
+											{% for message in messages %}
+												<div class="alert alert-primary {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" style="padding: 4px;" role="alert">
+													{{ message }}
+												</div>
+											{% endfor %}
+										</div>
+									{% endif %}
+
                                     <form method="POST">
 										{% csrf_token %}
 										<div class="form-group mb-3">
@@ -93,16 +104,15 @@
 											{{ form.password2 }}
 										</div>
 										<div class="d-grid">
-											<button type="submit" class="btn btn-primary">Register</button>
+											<button type="submit" class="btn btn-primary">Registro</button>
 										</div>
 									</form>
-									
 
 								</div>
 							</div>
 						</div>
 						<div class="text-center mb-3">
-							Already have account? <a href="{% url 'login' %}">Log In</a>
+							¿Ya tienes cuenta? <a href="{% url 'login' %}">Acceso</a>
 						</div>
 					</div>
 				</div>

@@ -92,7 +92,7 @@ def contract_project_delete(request, pk):
 
     return Response('Contract project deleted successfully :)')
 
-@api_view(['POST'])
+@api_view(['POST']) 
 def create_ai_chat_contract(request, contract_project_id):
     try:
         print("Starting create_ai_chat_contract function...")
@@ -139,7 +139,7 @@ def create_ai_chat_contract(request, contract_project_id):
             print("Generated summary text:", summary_text)
 
         # Build the prompt including the summary and recent messages
-        conversation_history = [{"role": "system", "content": "You are an AI assistant."}]
+        conversation_history = [{"role": "system", "content": "You are an AI assistant. Please respond in Markdown format."}]
         if summary_text:
             conversation_history.append({"role": "assistant", "content": f"Summary of previous conversation: {summary_text}"})
             print("Added summary to conversation history.")
@@ -151,8 +151,8 @@ def create_ai_chat_contract(request, contract_project_id):
 
         print("Final conversation history sent to OpenAI:", conversation_history)
 
-        # Add the latest user instruction
-        prompt = f"Highlight: {highlighted_text}\nInstruction: {instruction}\n" if highlighted_text else f"Instruction: {instruction}\n"
+        # Add the latest user instruction with Markdown request
+        prompt = f"Highlight: {highlighted_text}\nInstruction: {instruction}\nRespond in Markdown format.\n" if highlighted_text else f"Instruction: {instruction}\nRespond in Markdown format.\n"
         conversation_history.append({"role": "user", "content": prompt})
 
         # Call the OpenAI API with the structured conversation history

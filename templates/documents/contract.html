@@ -35,6 +35,7 @@
     <!-- TinyMCE script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.1.2/tinymce.min.js" referrerpolicy="origin"></script>
     <script src="{% static 'js/templates.js' %}"></script>
+    
     <style>
         body {
 			opacity: 0;
@@ -88,16 +89,13 @@
 								{% endif %}
 							</a>
 							<div class="dropdown-menu dropdown-menu-start">
-								<a class="dropdown-item" href=""><i class="align-middle me-1" data-feather="user"></i> Profile</a>
-								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
-								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href=""><i class="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>
-								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a>
+								<a class="dropdown-item" href="{% url 'pages' %}"><i class="align-middle me-1" data-feather="settings"></i> Configuración y privacidad</a>
+								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Centro de ayuda</a>
 								<div class="dropdown-divider"></div>
 								{% if user.is_authenticated %}
-									<a class="dropdown-item" href="{% url 'logout' %}">Log out</a>
+									<a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a>
 								{% else %}
-									<a class="dropdown-item" href="{% url 'login' %}">Log in</a>
+									<a class="dropdown-item" href="{% url 'login' %}">Iniciar sesión</a>
 								{% endif %}
 							</div>
 
@@ -2849,6 +2847,7 @@
 	</div>
 
 	<script src="{% static 'js/app.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.3/marked.min.js" integrity="sha512-kZ9BCD8vqCw2vJ1XG3EVZN5M5aRNxxMK3+uYuZPWc+TtW2Z1zSgmFlTIVHYHaWH0bH2lp2dUlB/1+M1h+lvfeg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 	<script>
         // Function to get CSRF token from cookies
@@ -3081,13 +3080,16 @@
                                 highlightHTML = `<div><span class="highlight">${chat.highlighted_text}</span></div>`;
                             }
 
+                            // Apply Markdown parsing for formatted display of AI response
+                            const formattedResponse = marked.parse(chat.ai_response);  // Format saved response with Markdown
+
                             chatMessage.innerHTML = `
                                 <div class="chat-bubble user-bubble">
                                     ${highlightHTML}
                                     <div>${chat.instruction}</div>
                                 </div>
                                 <div class="chat-bubble ai-bubble">
-                                    <div id="aiResponse_${chat.id}">${chat.ai_response}</div>
+                                    <div id="aiResponse_${chat.id}">${formattedResponse}</div>
                                     <button class="copy-button btn btn-outline-light btn-sm" data-response-id="aiResponse_${chat.id}" title="Copy AI response">
                                         <i class="align-middle me-2 far fa-fw fa-clipboard"></i>
                                     </button>
@@ -3113,6 +3115,7 @@
                     }
                 })
                 .catch(error => console.error('Error fetching chat history:', error));
+
             } else {
                 console.error('Contract Project ID is not defined in the button');
             }
@@ -3181,7 +3184,6 @@
             sendMessage(); // Only call sendMessage from here
         });
 
-        // Function to send the message
         function sendMessage() {
             const contractProjectId = popup.getAttribute('data-contract-id');
             const highlightedText = document.getElementById('highlightDisplay').textContent.trim() || '';  // Default to empty string if no highlight
@@ -3209,7 +3211,16 @@
             `;
             chatHistoryContainer.appendChild(userMessage);
 
-            // Scroll to the bottom after adding the user's message
+            // Display the loading message
+            const loadingMessageId = `loading-message-${Date.now()}`;
+            const loadingMessageHTML = `
+                <div class="chat-bubble ai-bubble" id="${loadingMessageId}">
+                    <span>Loading...</span>
+                </div>
+            `;
+            chatHistoryContainer.insertAdjacentHTML('beforeend', loadingMessageHTML);
+
+            // Scroll to the bottom to show the loading indicator
             chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
 
             // Clear the input field after sending the message
@@ -3234,15 +3245,22 @@
             })
             .then(response => response.json())
             .then(data => {
+                // Remove the loading message
+                document.getElementById(loadingMessageId).remove();
+
                 // Create a unique ID for this AI message
                 const uniqueId = `aiResponse_${data.id}_${Date.now()}`; // Use data.id and a timestamp to ensure uniqueness
 
-                // Create the AI's message bubble (left-aligned) with a copy and "Read Me" button
+                // Parse the AI response into formatted HTML
+                const formattedResponse = marked.parse(data.ai_response);
+
+                // Create the AI message container
                 const aiMessage = document.createElement('div');
                 aiMessage.classList.add('message');  // Match the history structure
+
                 aiMessage.innerHTML = `
                     <div class="chat-bubble ai-bubble">
-                        <div id="${uniqueId}"></div> <!-- Use the unique ID here -->
+                        <div id="${uniqueId}"></div> <!-- Empty container for typing effect -->
                         <button class="copy-button btn btn-outline-light btn-sm" data-response-id="${uniqueId}" title="Copy AI response">
                             <i class="align-middle me-2 far fa-fw fa-clipboard"></i>
                         </button>
@@ -3255,25 +3273,25 @@
                 // Append the AI message bubble to the chat history container
                 chatHistoryContainer.appendChild(aiMessage);
 
-                // Add typing effect for AI response with scrolling
+                // Implement the typing effect with HTML content
                 let i = 0;
-                const txt = data.ai_response;  // The AI-generated text
-                const speed = 5;
-                const responseElement = document.getElementById(uniqueId);  // Use the unique ID
+                const responseElement = document.getElementById(uniqueId);  // Target the container with uniqueId
+                const speed = 5; // Typing speed in milliseconds
 
                 function typeWriter() {
-                    if (i < txt.length) {
-                        responseElement.innerHTML += txt.charAt(i);
-                        i++;
+                    // Use innerHTML to add progressively from formattedResponse's HTML content
+                    responseElement.innerHTML = formattedResponse.slice(0, i);
+                    i++;
 
-                        // Scroll to the bottom with each new character
-                        chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
+                    // Scroll to the bottom with each new character
+                    chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
 
+                    if (i <= formattedResponse.length) {
                         setTimeout(typeWriter, speed);
                     }
                 }
 
-                typeWriter();  // Start typing effect
+                typeWriter(); // Start the typing effect
 
                 // Add copy event listener to the new copy button
                 const copyButton = aiMessage.querySelector('.copy-button');
@@ -3288,7 +3306,7 @@
                     });
                 });
 
-            // Add read event listener to the new read button
+                // Add read event listener to the new read button
                 const readButton = aiMessage.querySelector('.read-button');
                 let isSpeaking = false; // Track if the speech is currently playing
 
@@ -3323,6 +3341,7 @@
             })
             .catch(error => console.error('Error:', error));
         }
+
 
         // Function to auto-resize the textarea
         const textarea = document.getElementById('aiInput');

@@ -2,20 +2,21 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
 
-class CustomLoginForm(AuthenticationForm):
-    username = forms.CharField(
+
+class CustomLoginForm(forms.Form):
+    username_or_email = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control form-control-lg',
-            'placeholder': 'Enter your email',
+            'placeholder': 'Ingrese su nombre de usuario o correo electrónico',
         }),
-        label="Email"
+        label="Correo Electrónico o Nombre de Usuario"
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control form-control-lg',
-            'placeholder': 'Enter your password',
+            'placeholder': 'Ingresa tu contraseña',
         }),
-        label="Password"
+        label="Contraseña"
     )
 
 class RegisterForm(UserCreationForm):
@@ -23,14 +24,14 @@ class RegisterForm(UserCreationForm):
         required=True,
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Enter your email'
+            'placeholder': 'Ingresa tu correo electrónico'
         })
     )
 
     username = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Username'
+            'placeholder': 'Nombre de usuario'
         })
     )
 
@@ -38,7 +39,7 @@ class RegisterForm(UserCreationForm):
         required=True,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'First Name'
+            'placeholder': 'Nombre de pila'
         })
     )
 
@@ -46,21 +47,21 @@ class RegisterForm(UserCreationForm):
         required=True,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Last Name'
+            'placeholder': 'Apellido'
         })
     )
 
     password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Enter a password'
+            'placeholder': 'Introduzca una contraseña'
         })
     )
 
     password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Confirm your password'
+            'placeholder': 'Confirma tu contraseña'
         })
     )
 

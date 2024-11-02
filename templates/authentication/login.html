@@ -48,9 +48,9 @@
 					<div class="d-table-cell align-middle">
 
 						<div class="text-center mt-4">
-							<h1 class="h2">Welcome back!</h1>
+							<h1 class="h2">Bienvenido de nuevo!</h1>
 							<p class="lead">
-								Sign in to your account to continue
+								Inicie sesión en su cuenta para continuar
 							</p>
 						</div>
 
@@ -58,53 +58,52 @@
 							<div class="card-body">
 								<div class="m-sm-3">
 									<div class="d-grid gap-2 mb-3">
-										<a class="btn btn-google btn-lg" href="#"><i class="fab fa-fw fa-google"></i> Sign in with Google</a>
-										<a class="btn btn-facebook btn-lg" href="#"><i class="fab fa-fw fa-facebook-f"></i> Sign in with Facebook</a>
-										<a class="btn btn-microsoft btn-lg" href="#"><i class="fab fa-fw fa-microsoft"></i> Sign in with Microsoft</a>
+										<a class="btn btn-google btn-lg" href="#"><i class="fab fa-fw fa-google"></i> Iniciar sesión con Google</a>
+										<a class="btn btn-facebook btn-lg" href="#"><i class="fab fa-fw fa-facebook-f"></i> Iniciar sesión con Facebook</a>
+										<a class="btn btn-microsoft btn-lg" href="#"><i class="fab fa-fw fa-microsoft"></i> Iniciar sesión con Microsoft</a>
 									</div>
 									<div class="row">
 										<div class="col">
 											<hr>
 										</div>
-										<div class="col-auto text-uppercase d-flex align-items-center">Or</div>
+										<div class="col-auto text-uppercase d-flex align-items-center">O</div>
 										<div class="col">
 											<hr>
 										</div>
 									</div>
 
-									<!-- Django Form Start -->
+									{% if messages %}
+										<div class="messages">
+											{% for message in messages %}
+												<div class="alert alert-primary {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" style="padding: 4px;" role="alert">
+													{{ message }}
+												</div>
+											{% endfor %}
+										</div>
+									{% endif %}
+
 									<form method="post" action="{% url 'login' %}">
 										{% csrf_token %}
 										<div class="mb-3">
-											<label class="form-label">Email</label>
-											<!-- Render the username field from Django form -->
-											{{ form.username }}
+											<label class="form-label">Correo Electrónico o Nombre de Usuario</label>
+											{{ form.username_or_email }}  <!-- Updated field name -->
 										</div>
 										<div class="mb-3">
-											<label class="form-label">Password</label>
-											<!-- Render the password field from Django form -->
+											<label class="form-label">Contraseña</label>
 											{{ form.password }}
 											<small>
-												<a href="pages-reset-password.html">Forgot password?</a>
+												<a href="{% url 'password_reset' %}">¿Has olvidado tu contraseña?</a>
 											</small>
 										</div>
-										<div>
-											<div class="form-check align-items-center">
-												<input id="customControlInline" type="checkbox" class="form-check-input" value="remember-me" name="remember-me" checked>
-												<label class="form-check-label text-small" for="customControlInline">Remember me</label>
-											</div>
-										</div>
 										<div class="d-grid gap-2 mt-3">
-											<button type="submit" class="btn btn-lg btn-primary">Sign in</button>
+											<button type="submit" class="btn btn-lg btn-primary">Iniciar sesión</button>
 										</div>
 									</form>
-									<!-- Django Form End -->
-
 								</div>
 							</div>
 						</div>
 						<div class="text-center mb-3">
-							Don't have an account? <a href="{% url 'signup' %}">Sign up</a>
+							¿No tienes una cuenta? <a href="{% url 'signup' %}">Inscribirse</a>
 						</div>
 					</div>
 				</div>
