@@ -38,7 +38,8 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(function(error) {
                 console.error('Error fetching chat history:', error);
-            });
+            }
+        );
     }
 
     // Helper function to scroll with a slight delay for smoother experience
