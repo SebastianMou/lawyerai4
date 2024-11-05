@@ -17,15 +17,19 @@ from .forms import CustomLoginForm, RegisterForm
 from api.models import ContractProject, ChatSession
 
 # Create your views here.
+@login_required(login_url='/login/')  
 def index(request):
     return render(request, 'index.html')
 
+@login_required(login_url='/login/')  
 def chats(request):
     return render(request, 'chats.html')
 
+@login_required(login_url='/login/')  
 def contracts(request):
     return render(request, 'documents/contracts.html')
 
+@login_required(login_url='/login/')  
 def view_chat_session(request, session_id):
     try:
         # Retrieve the ChatSession object
@@ -209,6 +213,7 @@ def pages(request):
 
     return render(request, 'authentication/pages.html')
 
+@login_required(login_url='/login/')  
 def delete_account(request):
     if request.method == 'POST':
         deleteUser = User.objects.get(username=request.user)

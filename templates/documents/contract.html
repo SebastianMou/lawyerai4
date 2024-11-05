@@ -417,7 +417,7 @@
                         border-radius: 7px;
                         word-wrap: break-word;
                     }
-
+                    
                     /* Ensures chat bubbles don't overflow horizontally */
                     #chatHistoryContainer {
                         flex-direction: column;
@@ -435,11 +435,11 @@
 
                     .chat-bubble {
                         padding: 10px 15px;
-                        border-radius: 15px; /* Adjust to whichever value you prefer */
+                        border-radius: 15px;
                         margin-bottom: 10px;
-                        max-width: 90%; /* Same max-width for both */
+                        max-width: 90%;
                         word-wrap: break-word;
-                        display: block; /* Use block if you want them stacked, inline-block will put them next to each other */
+                        display: block;
                     }
 
                     .highlight {
@@ -515,6 +515,53 @@
                     .read-button:hover {
                         background-color: #0056b3;
                     }
+
+                    /* Skeleton loading animation styles for ai-bubble */
+                    .ai-bubble.loading {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 5px;
+                        font-weight: normal; /* Remove bold for skeleton loading */
+                        background-color: rgba(128, 128, 128, 0.089); /* Slightly lighter background */
+                        padding: 10px 15px; /* Maintain padding */
+                        width: 100%; /* Ensure container takes full width */
+                        box-sizing: border-box; /* Include padding in width calculations */
+                    }
+
+                    /* Skeleton line styles */
+                    .skeleton-line {
+                        width: 100%; /* Make skeleton lines take full width */
+                        max-width: calc(100% - 20px); /* Reduce slightly to fit within padding */
+                        height: 10px;
+                        background-color: #e0e0e0;
+                        position: relative;
+                        overflow: hidden;
+                        border-radius: 4px;
+                    }
+
+                    /* Enhanced Shimmer effect for skeleton line */
+                    .skeleton-line::before {
+                        content: '';
+                        display: block;
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        height: 100%;
+                        width: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.152), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4), transparent);
+                        animation: loadingAnimation 1.5s infinite;
+                    }
+
+                    /* Animation keyframes */
+                    @keyframes loadingAnimation {
+                        0% {
+                            left: -100%;
+                        }
+                        100% {
+                            left: 100%;
+                        }
+                    }
+
                 </style>
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
                     <i style="padding: 5px; margin-right: 9%px;" class="fas fa-exclamation-triangle"></i>
@@ -568,9 +615,10 @@
                     <div class="side-popup" id="createSubtaskPopup">
                         <div style="padding: 12px;" class="d-flex">
                             <h2>Chat de IA</h2>
+                            <button class="btn btn-outline-secondary btn-sm" id="deleteChatButton" data-contract-id="{{ contract.id }}"><i style="color: gray;" class="align-middle me-2 far fa-fw fa-trash-alt"></i></button>
                             <button type="button" class="btn-close ms-auto" id="closePopup" aria-label="Close"></button>
                         </div>
-
+                        
                         <!-- AI Interaction Section -->
                         <div id="chat-container" style="padding: 12px;">
                             <div id="chatHistoryContainer" class="chat-history-container">
@@ -3009,7 +3057,6 @@
             });
         });
 
-
         var searchInput = document.getElementById('templateSearch');
         if (searchInput) {
             searchInput.addEventListener('input', function () {
@@ -3128,11 +3175,15 @@
             copyButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const responseId = this.getAttribute('data-response-id');
-                    const aiResponse = document.getElementById(responseId).textContent;
+                    const aiResponse = document.getElementById(responseId).innerHTML; // Use innerHTML for rich text
 
-                    // Copy the AI response to the clipboard
-                    navigator.clipboard.writeText(aiResponse)
-                    .catch(err => {
+                    // Copy the AI response as rich text to the clipboard
+                    navigator.clipboard.write([
+                        new ClipboardItem({
+                            "text/html": new Blob([aiResponse], { type: "text/html" }),
+                            "text/plain": new Blob([document.getElementById(responseId).innerText], { type: "text/plain" })
+                        })
+                    ]).catch(err => {
                         console.error('Failed to copy AI response: ', err);
                     });
                 });
@@ -3214,8 +3265,10 @@
             // Display the loading message
             const loadingMessageId = `loading-message-${Date.now()}`;
             const loadingMessageHTML = `
-                <div class="chat-bubble ai-bubble" id="${loadingMessageId}">
-                    <span>Loading...</span>
+                <div class="chat-bubble ai-bubble loading" id="${loadingMessageId}">
+                    <span class="skeleton-line"></span>
+                    <span class="skeleton-line"></span>
+                    <span class="skeleton-line"></span>
                 </div>
             `;
             chatHistoryContainer.insertAdjacentHTML('beforeend', loadingMessageHTML);
@@ -3297,11 +3350,15 @@
                 const copyButton = aiMessage.querySelector('.copy-button');
                 copyButton.addEventListener('click', function() {
                     const responseId = this.getAttribute('data-response-id');
-                    const aiResponse = document.getElementById(responseId).textContent;
+                    const aiResponse = document.getElementById(responseId).innerHTML; // Use innerHTML for rich text
 
-                    // Copy the AI response to the clipboard
-                    navigator.clipboard.writeText(aiResponse)
-                    .catch(err => {
+                    // Copy the AI response as rich text to the clipboard
+                    navigator.clipboard.write([
+                        new ClipboardItem({
+                            "text/html": new Blob([aiResponse], { type: "text/html" }),
+                            "text/plain": new Blob([document.getElementById(responseId).innerText], { type: "text/plain" })
+                        })
+                    ]).catch(err => {
                         console.error('Failed to copy AI response: ', err);
                     });
                 });
@@ -3397,6 +3454,30 @@
                 chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight; // Scroll to the bottom
             }
         });
+
+        document.getElementById('deleteChatButton').addEventListener('click', function() {
+            const contractProjectId = this.getAttribute('data-contract-id');
+            const url = `http://127.0.0.1:7000/api/delete-chat-history-contract/${contractProjectId}/`;
+
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message); // Success message
+                    // Optionally clear the chat history display in the UI
+                    document.getElementById('chatHistoryContainer').innerHTML = '';
+                } else if (data.error) {
+                    alert(data.error); // Error message
+                }
+            })
+            .catch(error => console.error('Error deleting chat history:', error));
+        });
+
 
 
 

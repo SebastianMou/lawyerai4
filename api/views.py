@@ -125,7 +125,7 @@ def create_ai_chat_contract(request, contract_project_id):
             print("Older messages to summarize:", older_messages)
 
             summary_prompt = [
-                {"role": "system", "content": "Summarize the following conversation."},
+                {"role": "system", "content": "Resume la siguiente conversación."},
                 {"role": "user", "content": older_messages}
             ]
 
@@ -139,9 +139,27 @@ def create_ai_chat_contract(request, contract_project_id):
             print("Generated summary text:", summary_text)
 
         # Build the prompt including the summary and recent messages
-        conversation_history = [{"role": "system", "content": "You are an AI assistant. Please respond in Markdown format."}]
+        conversation_history = [
+            {
+                "role": "system",
+                "content": (
+                    "Eres un asistente legal en una plataforma de creación de documentos, enfocado en ayudar a los usuarios "
+                    "a organizar, redactar y mejorar texto, especialmente en el contexto de contratos legales y documentos formales. "
+                    "Responde en español, usando un tono profesional y claro. Utiliza el formato Markdown para organizar las respuestas "
+                    "de manera estructurada, con listas, encabezados y ejemplos cuando sea útil.\n\n"
+                    "Tu función principal es servir como copiloto legal para el usuario, ayudándolo a:\n\n"
+                    "- **Organizar y dar formato a textos**: Asegúrate de que el texto esté bien estructurado y profesional.\n"
+                    "- **Proveer información legal**: Responde preguntas sobre el proceso legal en México y ofrece explicaciones "
+                    "generales sobre temas como custodia, contratos, mediación, y otros procedimientos relevantes.\n"
+                    "- **Sugerir opciones de redacción profesional**: Ayuda a mejorar el tono y estilo de los textos para que "
+                    "suenen formales y legales.\n\n"
+                    "Recuerda siempre incluir un recordatorio de que el usuario debe consultar a un abogado para obtener asesoramiento "
+                    "legal personalizado, ya que eres solo una herramienta de apoyo y no reemplazas la asesoría profesional."
+                )
+            }
+        ]
         if summary_text:
-            conversation_history.append({"role": "assistant", "content": f"Summary of previous conversation: {summary_text}"})
+            conversation_history.append({"role": "assistant", "content": f"Resumen de la conversación anterior: {summary_text}"})
             print("Added summary to conversation history.")
 
         # Append recent messages to the prompt
@@ -198,6 +216,22 @@ def get_chat_history_contract(request, contract_project_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+@api_view(['DELETE'])
+def delete_chat_history_contract(request, contract_project_id):
+    try:
+        # Filter chat history for the specific contract and delete all related messages
+        chat_history = AIHighlightChat.objects.filter(contract_project_id=contract_project_id)
+        deleted_count, _ = chat_history.delete()
+        
+        print(f"Deleted {deleted_count} chat messages for contract project ID {contract_project_id}.")
+        return JsonResponse({'message': f'{deleted_count} chat messages deleted successfully.'}, status=200)
+
+    except ContractProject.DoesNotExist:
+        return JsonResponse({'error': 'Contract project not found'}, status=404)
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
 ##################################################################################################################
 
 @api_view(['POST'])
@@ -211,7 +245,7 @@ def create_chat_session(request):
             return Response({"error": "Message content is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Generate a session name based on the user input question
-        prompt_for_name = f"Generate a concise and meaningful chat session name based on the following question: '{user_input}'"
+        prompt_for_name = f"Genere un nombre de sesión de chat conciso y significativo basado en la siguiente pregunta: '{user_input}'"
         session_name_response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -246,7 +280,7 @@ def create_chat_session(request):
             # Concatenate older messages for the summary
             older_messages = " ".join([msg.content for msg in list(chat_history)[:-15]])
             summary_prompt = [
-                {"role": "system", "content": "Summarize the following conversation."},
+                {"role": "system", "content": "Resume la siguiente conversación."},
                 {"role": "user", "content": older_messages}
             ]
             # Generate summary for older messages
@@ -258,7 +292,25 @@ def create_chat_session(request):
             summary_text = summary_response.choices[0].message.content.strip()
 
         # Build the AI's response prompt including summary and recent messages
-        messages = [{"role": "system", "content": "You are a helpful assistant and your name is creator."}]
+        messages = [
+            {
+                "role": "system", 
+                "content": (
+                    "Eres un asistente legal nombre Anton enfocado en proporcionar orientación en asuntos legales en México. "
+                    "Responde de manera estructurada y profesional, y utiliza un lenguaje claro y accesible. "
+                    "Utiliza el formato de markdown para que las respuestas sean claras y bien organizadas, incluyendo "
+                    "listas, encabezados y énfasis cuando sea necesario. Evita dar consejos específicos que solo un "
+                    "abogado calificado puede brindar; en su lugar, proporciona opciones generales, procesos legales típicos "
+                    "y pasos recomendados. Siempre incluye un recordatorio de que el usuario debe consultar a un abogado para "
+                    "consejos personalizados.\n\n"
+                    "Al responder, considera lo siguiente:\n\n"
+                    "- **Haz preguntas aclaratorias al usuario** para entender mejor su situación.\n"
+                    "- **Ofrece opciones legales comunes en México**, como mediación, convenios estipulados, o procesos de modificación de custodia.\n"
+                    "- **Explica cada opción** en términos simples y menciona cualquier documento o proceso requerido.\n\n"
+                    "Recuerda siempre enfocar las respuestas en el contexto legal de México y evitar suposiciones o interpretaciones personales."
+                )
+            }
+        ]
         if summary_text:
             messages.append({"role": "assistant", "content": f"Summary of previous conversation: {summary_text}"})
 
@@ -340,7 +392,25 @@ def send_message_to_chat_session(request, session_id):
             summary_text = summary_response.choices[0].message.content.strip()
 
         # Build the prompt including the summary and recent messages
-        messages = [{"role": "system", "content": "You are a therapist that helps coupled with problems in their relationship an you name is chatsessionor"}]
+        messages = [
+            {
+                "role": "system", 
+                "content": (
+                    "Eres un asistente legal nombre Anton enfocado en proporcionar orientación en asuntos legales en México. "
+                    "Responde de manera estructurada y profesional, y utiliza un lenguaje claro y accesible. "
+                    "Utiliza el formato de markdown para que las respuestas sean claras y bien organizadas, incluyendo "
+                    "listas, encabezados y énfasis cuando sea necesario. Evita dar consejos específicos que solo un "
+                    "abogado calificado puede brindar; en su lugar, proporciona opciones generales, procesos legales típicos "
+                    "y pasos recomendados. Siempre incluye un recordatorio de que el usuario debe consultar a un abogado para "
+                    "consejos personalizados.\n\n"
+                    "Al responder, considera lo siguiente:\n\n"
+                    "- **Haz preguntas aclaratorias al usuario** para entender mejor su situación.\n"
+                    "- **Ofrece opciones legales comunes en México**, como mediación, convenios estipulados, o procesos de modificación de custodia.\n"
+                    "- **Explica cada opción** en términos simples y menciona cualquier documento o proceso requerido.\n\n"
+                    "Recuerda siempre enfocar las respuestas en el contexto legal de México y evitar suposiciones o interpretaciones personales."
+                )
+            }
+        ]
         if summary_text:
             messages.append({"role": "assistant", "content": f"Summary of previous conversation: {summary_text}"})
 

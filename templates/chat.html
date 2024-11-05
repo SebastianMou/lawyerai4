@@ -73,6 +73,53 @@
     -webkit-appearance: none;
     /* Removes default textarea styling in Webkit browsers */
   }
+
+    /* Skeleton loading animation styles */
+    .ai-message.loading {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        font-weight: normal; /* Remove bold for skeleton loading */
+        background-color: rgba(128, 128, 128, 0.089); /* Slightly lighter background */
+        padding: 10px; /* Maintain padding */
+        width: 100%; /* Ensure container takes full width */
+        box-sizing: border-box; /* Include padding in width calculations */
+    }
+
+    /* Skeleton line styles */
+    .skeleton-line {
+        width: 100%; /* Make skeleton lines take full width */
+        max-width: calc(100% - 20px); /* Reduce slightly to fit within padding */
+        height: 10px;
+        background-color: #e0e0e0;
+        position: relative;
+        overflow: hidden;
+        border-radius: 4px;
+    }
+
+    /* Shimmer effect for skeleton line */
+    .skeleton-line::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: -100%;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.152), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4), transparent);
+        animation: loadingAnimation 1.5s infinite;
+    }
+
+    /* Animation keyframes */
+    @keyframes loadingAnimation {
+        0% {
+            left: -100%;
+        }
+        100% {
+            left: 100%;
+        }
+    }
+
 </style>
 
 <div class="container-fluid d-flex flex-column chat-container">
@@ -109,13 +156,13 @@
   }
 
   .user-message, .ai-message {
-    background-color: rgba(128, 128, 128, 0.074);
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 10px;
-    max-width: 75%;
-    display: inline-block;
-  }
+        background-color: rgba(128, 128, 128, 0.074);
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 75%;
+        display: inline-block;
+    }
 
   .user-message {
       background-color: #19222c;
@@ -127,12 +174,12 @@
   }
 
   .ai-message {
-    font-weight: bold;
-    text-align: left;
-    align-self: flex-start;
-    float: left;
-    clear: both;
-  }
+        font-weight: bold;
+        text-align: left;
+        align-self: flex-start;
+        float: left;
+        clear: both;
+    }
 
   /* Scrollbar customization */
   .list-wrapper-messages::-webkit-scrollbar {
@@ -193,6 +240,7 @@
     }
 
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.3/marked.min.js" integrity="sha512-kZ9BCD8vqCw2vJ1XG3EVZN5M5aRNxxMK3+uYuZPWc+TtW2Z1zSgmFlTIVHYHaWH0bH2lp2dUlB/1+M1h+lvfeg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -207,15 +255,13 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(function(data) {
                 messageWrapper.innerHTML = '';
-
                 data.messages.forEach(function(message) {
                     const formattedContent = formatMessageContent(message.content);
                     const uniqueId = `message-${message.id}`;
                     const messageHTML = `
                         <div class="${message.sender === 'user' ? 'user-message' : 'ai-message'}" id="${uniqueId}">
                             <div>
-                                <strong>${message.sender === 'user' ? 'You' : 'AI'}:</strong> 
-                                <span class="message-text" id="${uniqueId}-text">${formattedContent}</span>
+                                <span class="message-text-content" id="${uniqueId}-text">${formattedContent}</span>
                             </div>
                             ${message.sender === 'AI' ? `
                                 <button onclick="copyToClipboard('${uniqueId}-text')" class="copy-button">
@@ -227,43 +273,72 @@ document.addEventListener('DOMContentLoaded', function() {
                             ` : ''}
                         </div>
                     `;
+
                     messageWrapper.insertAdjacentHTML('beforeend', messageHTML);
                 });
+
+                scrollToBottom(); // Scroll down after loading history
             })
             .catch(function(error) {
                 console.error('Error fetching chat history:', error);
             });
     }
 
-    function typeMessageEffect(elementId, formattedText, speed = 10) {
+    // Helper function to scroll with a slight delay for smoother experience
+    function smoothScrollToBottom() {
+        setTimeout(() => {
+            messageWrapper.scrollTop = messageWrapper.scrollHeight;
+        }, 100); // Small delay for smoother transition
+    }
+
+    // Helper function to observe only message content text for each message
+    function observeMessageContent(element) {
+        const observer = new MutationObserver((mutationsList) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === "characterData") {
+                    scrollToBottom();
+                    break;
+                }
+            }
+        });
+        observer.observe(element, { characterData: true, subtree: true });
+    }
+
+    // Scroll to the bottom function
+    function scrollToBottom() {
+        messageWrapper.scrollTop = messageWrapper.scrollHeight;
+    }
+
+    function typeMessageEffect(elementId, formattedText, speed = 2) {
         const element = document.getElementById(elementId);
+        element.innerHTML = ""; // Clear the element before starting typing effect
+
         let index = 0;
 
-        // Split formattedText into an array of small chunks or words
-        const words = formattedText.split(/(\s+)/); // Splits by spaces but keeps them in the array
-
         function typeWriter() {
-            if (index < words.length) {
-                // Append the next word or space chunk
-                element.innerHTML += words[index];
-                index++;
+            if (index < formattedText.length) {
+                // Append the next chunk of characters as HTML (interpreting HTML tags correctly)
+                element.innerHTML = formattedText.substring(0, index + 4);
+                index += 4;
 
-                // Scroll to the bottom with each new addition
-                element.parentElement.scrollTop = element.parentElement.scrollHeight;
-
+                // Set a delay for the next chunk
                 setTimeout(typeWriter, speed);
+
+                // Scroll to bottom during typing
+                smoothScrollToBottom();
+            } else {
+                // Final scroll to ensure visibility at the end of typing
+                smoothScrollToBottom();
             }
         }
 
-        typeWriter();  // Start typing effect
+        // Start the typing effect
+        typeWriter();
     }
 
     function formatMessageContent(content) {
-        return content
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/- (.*?)(?=\n|$)/g, '<li>$1</li>')
-            .replace(/\n/g, '<br>')
-            .replace(/<li>/, '<ul><li>').replace(/<\/li>$/, '</li></ul>');
+        // Use the marked library to convert markdown to HTML
+        return marked.parse(content);
     }
 
     loadChatHistory();
@@ -296,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const uniqueId = `user-message-${Date.now()}`;
         const userMessageHTML = `
             <div class="user-message" id="${uniqueId}">
-                <strong>You:</strong> <span class="message-text" id="${uniqueId}-text">${userMessage}</span>
+                <span class="message-text" id="${uniqueId}-text">${userMessage}</span>
             </div>
         `;
         messageWrapper.insertAdjacentHTML('beforeend', userMessageHTML);
@@ -305,14 +380,20 @@ document.addEventListener('DOMContentLoaded', function() {
         chatInput.style.height = 'auto';
         chatInput.focus();
 
+        smoothScrollToBottom(); // Scroll down after user message
+
         // Display the loading message
         const loadingMessageId = `loading-message-${Date.now()}`;
         const loadingMessageHTML = `
             <div class="ai-message loading" id="${loadingMessageId}">
-                <strong>AI:</strong> <span>Loading...</span>
+                <span class="skeleton-line"></span>
+                <span class="skeleton-line"></span>
+                <span class="skeleton-line"></span>
             </div>
         `;
         messageWrapper.insertAdjacentHTML('beforeend', loadingMessageHTML);
+
+        smoothScrollToBottom(); // Scroll while loading is visible
 
         const data = { message: userMessage };
 
@@ -333,13 +414,13 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById(loadingMessageId).remove();
 
             let aiContent = data.messages[data.messages.length - 1].content;
-            aiContent = formatMessageContent(aiContent); // Format AI content
+            aiContent = formatMessageContent(aiContent); // Format AI content with markdown
             const uniqueId = `ai-message-${Date.now()}`;
 
             // Create an empty container for the AI message
             const aiMessageHTML = `
                 <div class="ai-message" id="${uniqueId}">
-                    <strong>AI:</strong> <span class="message-text" id="${uniqueId}-text"></span>
+                    <span class="message-text" id="${uniqueId}-text"></span>
                     <div>
                         <button onclick="copyToClipboard('${uniqueId}-text')" class="copy-button">
                             <i class="align-middle me-2 far fa-fw fa-clipboard"></i>copiar
@@ -354,6 +435,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Call typing effect function to display the AI response dynamically
             typeMessageEffect(`${uniqueId}-text`, aiContent);
+
         })
         .catch(error => {
             console.error('Error:', error);
@@ -361,7 +443,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById(loadingMessageId).remove();
         });
     });
-
 
     function getCookie(name) {
         let cookieValue = null;
@@ -378,6 +459,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return cookieValue;
     }
 
+    function scrollToBottom() {
+        messageWrapper.scrollTop = messageWrapper.scrollHeight;
+    }
+
+
     messageWrapper.addEventListener('click', function(event) {
         if (event.target.closest('.read-button')) {
             const button = event.target.closest('.read-button');
@@ -387,9 +473,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     window.copyToClipboard = function(elementId) {
-        const textToCopy = document.getElementById(elementId).innerText;
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            
+        const element = document.getElementById(elementId);
+        const htmlToCopy = element.innerHTML; // Get the HTML content of the message
+
+        // Use Clipboard API to write HTML directly to the clipboard
+        navigator.clipboard.write([
+            new ClipboardItem({
+                "text/html": new Blob([htmlToCopy], { type: "text/html" }),
+                "text/plain": new Blob([element.innerText], { type: "text/plain" })
+            })
+        ]).then(() => {
+            console.log("Rich text copied successfully!");
         }).catch((error) => {
             console.error("Failed to copy text: ", error);
         });

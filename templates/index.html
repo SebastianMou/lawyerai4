@@ -3,190 +3,490 @@
 
 {% block content %}
 <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-    }
-  
-    /* Default positioning for larger screens */
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  #chat-form {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    width: calc(100% - 290px);
+    /* Adjusting width based on sidebar (typically 250px) */
+    padding-right: 15px;
+    z-index: 1;
+    /* Ensure the chat form is below the sidebar */
+  }
+
+  .input-group {
+    display: flex;
+    padding-bottom: 10px;
+  }
+
+  /* Styling the input and button with rounded corners */
+  .input-group .form-control {
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+  }
+
+  .input-group .btn {
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+  }
+
+  /* Sidebar styling to ensure it sits above the form */
+  .sidebar {
+    z-index: 1000;
+    /* Set a higher z-index for the sidebar */
+  }
+
+  /* When the screen width is 991px or less, make the form take up full width */
+  @media (max-width: 991px) {
     #chat-form {
-      position: fixed;
-      bottom: 0px;
-      right: 0px;
-      width: calc(100% - 290px); /* Adjusting width based on sidebar (typically 250px) */
+      width: 100%;
+      /* Make the form full width */
       padding-right: 15px;
-      z-index: 1; /* Ensure the chat form is below the sidebar */
+      /* Remove padding */
+      padding-left: 15px;
+      /* Remove padding */
     }
-  
-    .input-group {
-      display: flex;
-      padding-bottom: 10px;
-    }
-  
-    /* Styling the input and button with rounded corners */
-    .input-group .form-control {
-      border-top-left-radius: 15px;
-      border-bottom-left-radius: 15px;
-    }
-  
-    .input-group .btn {
-      border-top-right-radius: 15px;
-      border-bottom-right-radius: 15px;
-    }
-  
-    /* Sidebar styling to ensure it sits above the form */
-    .sidebar {
-      z-index: 1000; /* Set a higher z-index for the sidebar */
-    }
-  
-    /* When the screen width is 991px or less, make the form take up full width */
-    @media (max-width: 991px) {
-      #chat-form {
-        width: 100%; /* Make the form full width */
-        padding-right: 15px; /* Remove padding */
-        padding-left: 15px; /* Remove padding */
-      }
+  }
+
+  /* Style the textarea to look like an input */
+  .input-like {
+    resize: none;
+    height: 40px;
+    /* Fixed height to look like an input initially */
+    padding: 0.375rem 0.75rem;
+    /* Standard input padding */
+    border-radius: 0.25rem;
+    /* Rounded corners like an input */
+    border: 1px solid #ced4da;
+    /* Input border */
+    font-size: 1rem;
+    /* Match input font size */
+    line-height: 1.5;
+    /* Match input line height */
+    appearance: none;
+    /* Removes default textarea styling */
+    -webkit-appearance: none;
+    /* Removes default textarea styling in Webkit browsers */
+  }
+
+    /* Skeleton loading animation styles */
+    .ai-message.loading {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        font-weight: normal; /* Remove bold for skeleton loading */
+        background-color: rgba(128, 128, 128, 0.089); /* Slightly lighter background */
+        padding: 10px; /* Maintain padding */
+        width: 100%; /* Ensure container takes full width */
+        box-sizing: border-box; /* Include padding in width calculations */
     }
 
-        /* Style the textarea to look like an input */
-    .input-like {
-      resize: none;
-      height: 40px; /* Fixed height to look like an input initially */
-      padding: 0.375rem 0.75rem; /* Standard input padding */
-      border-radius: 0.25rem; /* Rounded corners like an input */
-      border: 1px solid #ced4da; /* Input border */
-      font-size: 1rem; /* Match input font size */
-      line-height: 1.5; /* Match input line height */
-      appearance: none; /* Removes default textarea styling */
-      -webkit-appearance: none; /* Removes default textarea styling in Webkit browsers */
+    /* Skeleton line styles */
+    .skeleton-line {
+        width: 100%; /* Make skeleton lines take full width */
+        max-width: calc(100% - 20px); /* Reduce slightly to fit within padding */
+        height: 10px;
+        background-color: #e0e0e0;
+        position: relative;
+        overflow: hidden;
+        border-radius: 4px;
     }
-  </style>
+
+    /* Shimmer effect for skeleton line */
+    .skeleton-line::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: -100%;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.152), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4), transparent);
+        animation: loadingAnimation 1.5s infinite;
+    }
+
+    /* Animation keyframes */
+    @keyframes loadingAnimation {
+        0% {
+            left: -100%;
+        }
+        100% {
+            left: 100%;
+        }
+    }
+
+</style>
   
-<div class="container-fluid d-flex flex-column">
+<div class="container-fluid d-flex flex-column chat-container">
 
   <div id="list-wrapper-messages" class="list-wrapper-messages">
     <!-- Messages will appear here -->
   </div>
 
-  <form id="chat-form">
+  <form id="chat-form" class="mt-auto">
       <div class="input-group">
-          <textarea class="form-control input-like" placeholder="Type a message..." id="chat-input"></textarea>
-          <button class="btn btn-primary" type="submit">Send</button>
+          <textarea class="form-control input-like" placeholder="Type a message..." id="chat-input" rows="1"></textarea>
+          <button class="btn btn-primary" type="submit"><i class="fas fa-paper-plane"></i></button>
       </div>
   </form>
 </div>
-
-<script>
-
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('chat-form');
-  const chatInput = document.getElementById('chat-input');
-  const messageWrapper = document.getElementById('list-wrapper-messages');
-  let sessionId = null;  // Store the session ID after the first message
-
-  // Function to get CSRF token for secure requests
-  function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-          const cookies = document.cookie.split(';');
-          for (let i = 0; i < cookies.length; i++) {
-              const cookie = cookies[i].trim();
-              if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                  break;
-              }
-          }
-      }
-      return cookieValue;
+<style>
+  .chat-container {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      height: 86vh;
+      display: flex;
+      flex-direction: column;
   }
 
-  const csrftoken = getCookie('csrftoken');
+  .list-wrapper-messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #fff;
+  }
 
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const userMessage = chatInput.value;
-
-    // Ensure there's a message to send
-    if (!userMessage.trim()) {
-      return;
+  .user-message, .ai-message {
+        background-color: rgba(128, 128, 128, 0.074);
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 75%;
+        display: inline-block;
     }
 
-    let url;
-    let method = 'POST';
+  .user-message {
+      background-color: #19222c;
+      text-align: left;
+      align-self: flex-end;
+      float: right;
+      clear: both;
+      color: white;
+  }
 
-    if (sessionId === null) {
-      // If there's no session ID, create a new chat session
-      url = 'http://127.0.0.1:7000/api/chatsessions/create/';
-    } else {
-      // If a session already exists, send the message to the existing session
-      url = `http://127.0.0.1:7000/api/chatsessions/${sessionId}/send_message/`;
+  .ai-message {
+        font-weight: bold;
+        text-align: left;
+        align-self: flex-start;
+        float: left;
+        clear: both;
     }
 
-    // Prepare data for the POST/PUT request
-    const data = {
-      message: userMessage
+  /* Scrollbar customization */
+  .list-wrapper-messages::-webkit-scrollbar {
+      width: 8px;
+  }
+
+  .list-wrapper-messages::-webkit-scrollbar-track {
+      background: #f1f1f1;
+  }
+
+  .list-wrapper-messages::-webkit-scrollbar-thumb {
+      background-color: #888;
+      border-radius: 10px;
+      border: 3px solid #f1f1f1;
+  }
+
+  .list-wrapper-messages::-webkit-scrollbar-thumb:hover {
+      background: #555;
+  }
+
+  /* Optional: styling the send button */
+  .btn-primary {
+      border-radius: 0 10px 10px 0;
+  }
+
+  /* Textarea styling */
+  textarea {
+      border-radius: 10px 0 0 10px;
+      resize: none;
+  }
+
+    .copy-button {
+        margin-left: 8px;
+        padding: 4px 8px;
+        font-size: 12px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+    }
+    .copy-button:hover {
+        background-color: #0056b3;
+    }
+
+    .read-button {
+        margin-left: 8px;
+        padding: 4px 8px;
+        font-size: 12px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+    }
+    .read-button:hover {
+        background-color: #0056b3;
+    }
+
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.3/marked.min.js" integrity="sha512-kZ9BCD8vqCw2vJ1XG3EVZN5M5aRNxxMK3+uYuZPWc+TtW2Z1zSgmFlTIVHYHaWH0bH2lp2dUlB/1+M1h+lvfeg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const messageWrapper = document.getElementById('list-wrapper-messages');
+    let sessionId = null;  // Store the session ID after the first message
+    let isSpeaking = false;
+
+    // Function to get CSRF token for secure requests
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    // Load chat history if there's an existing session
+    function loadChatHistory() {
+        if (sessionId !== null) {
+            fetch(`/api/chatsessions/${sessionId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    messageWrapper.innerHTML = '';
+                    data.messages.forEach(message => {
+                        displayMessage(message.sender, message.content, message.id);
+                    });
+                    scrollToBottom();
+                })
+                .catch(error => console.error('Error fetching chat history:', error));
+        }
+    }
+
+    // Smooth scrolling to the bottom of the chat
+    function smoothScrollToBottom() {
+        setTimeout(() => {
+            messageWrapper.scrollTop = messageWrapper.scrollHeight;
+        }, 100); // Small delay for smoother transition
+    }
+
+    // Format message content with Markdown
+    function formatMessageContent(content) {
+        return marked.parse(content);
+    }
+
+    // Display messages in the chat
+    function displayMessage(sender, content, id) {
+        const formattedContent = formatMessageContent(content);
+        const uniqueId = `message-${id || Date.now()}`;
+        const messageHTML = `
+            <div class="${sender === 'user' ? 'user-message' : 'ai-message'}" id="${uniqueId}">
+                <div>
+                    <span class="message-text-content" id="${uniqueId}-text">${formattedContent}</span>
+                </div>
+                ${sender === 'AI' ? `
+                    <button onclick="copyToClipboard('${uniqueId}-text')" class="copy-button">
+                        <i class="align-middle me-2 far fa-fw fa-clipboard"></i>copiar
+                    </button>
+                    <button data-text-id="${uniqueId}-text" class="read-button">
+                        <span id="${uniqueId}-icon"><i style="color: white;" class="align-middle me-2 fas fa-volume-up"></i></span>Leer
+                    </button>
+                ` : ''}
+            </div>
+        `;
+        messageWrapper.insertAdjacentHTML('beforeend', messageHTML);
+    }
+
+    // Typing effect for AI responses
+    function typeMessageEffect(elementId, formattedText, speed = 2) {
+        const element = document.getElementById(elementId);
+        element.innerHTML = ""; // Clear the element before starting typing effect
+
+        let index = 0;
+
+        function typeWriter() {
+            if (index < formattedText.length) {
+                element.innerHTML = formattedText.substring(0, index + 4); // Show text in chunks of 4 characters
+                index += 4;
+                setTimeout(typeWriter, speed);
+                smoothScrollToBottom();
+            } else {
+                smoothScrollToBottom(); // Final scroll after typing
+            }
+        }
+
+        typeWriter(); // Start typing effect
+    }
+
+    // Handle form submission for new messages
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const userMessage = chatInput.value.trim();
+        if (!userMessage) return;
+
+        let url;
+        if (sessionId === null) {
+            // Create a new session if not already created
+            url = 'http://127.0.0.1:7000/api/chatsessions/create/';
+        } else {
+            // Use existing session
+            url = `http://127.0.0.1:7000/api/chatsessions/${sessionId}/send_message/`;
+        }
+
+        const data = { message: userMessage };
+
+        // Display the user's message
+        const uniqueId = `user-message-${Date.now()}`;
+        const userMessageHTML = `
+            <div class="user-message" id="${uniqueId}">
+                <span class="message-text">${userMessage}</span>
+            </div>
+        `;
+        messageWrapper.insertAdjacentHTML('beforeend', userMessageHTML);
+        chatInput.value = '';
+        chatInput.style.height = 'auto';
+        chatInput.focus();
+        smoothScrollToBottom();
+
+        // Show loading skeleton for AI response
+        const loadingMessageId = `loading-message-${Date.now()}`;
+        const loadingMessageHTML = `
+            <div class="ai-message loading" id="${loadingMessageId}">
+                <span class="skeleton-line"></span>
+                <span class="skeleton-line"></span>
+                <span class="skeleton-line"></span>
+            </div>
+        `;
+        messageWrapper.insertAdjacentHTML('beforeend', loadingMessageHTML);
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (sessionId === null) {
+                sessionId = data.id;
+            }
+            document.getElementById(loadingMessageId).remove(); // Remove loading skeleton
+
+            // Display AI response with typing effect
+            const aiMessage = data.messages[data.messages.length - 1];
+            const aiContent = formatMessageContent(aiMessage.content);
+            const uniqueId = `ai-message-${Date.now()}`;
+            const aiMessageHTML = `
+                <div class="ai-message" id="${uniqueId}">
+                    <span class="message-text" id="${uniqueId}-text"></span>
+                    <div>
+                        <button onclick="copyToClipboard('${uniqueId}-text')" class="copy-button">
+                            <i class="align-middle me-2 far fa-fw fa-clipboard"></i>copiar
+                        </button>
+                        <button data-text-id="${uniqueId}-text" class="read-button">
+                            <span id="${uniqueId}-icon"><i style="color: white;" class="align-middle me-2 fas fa-volume-up"></i></span>Leer
+                        </button>
+                    </div>
+                </div>
+            `;
+            messageWrapper.insertAdjacentHTML('beforeend', aiMessageHTML);
+            typeMessageEffect(`${uniqueId}-text`, aiContent); // Typing effect
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById(loadingMessageId).remove(); // Remove loading skeleton on error
+        });
+    });
+
+    // Enable read-aloud and copy-to-clipboard functionality
+    messageWrapper.addEventListener('click', function(event) {
+        if (event.target.closest('.read-button')) {
+            const button = event.target.closest('.read-button');
+            const elementId = button.getAttribute('data-text-id');
+            toggleReadAloud(elementId);
+        }
+    });
+
+    window.copyToClipboard = function(elementId) {
+        const element = document.getElementById(elementId);
+        const htmlToCopy = element.innerHTML;
+
+        navigator.clipboard.write([
+            new ClipboardItem({
+                "text/html": new Blob([htmlToCopy], { type: "text/html" }),
+                "text/plain": new Blob([element.innerText], { type: "text/plain" })
+            })
+        ]).then(() => {
+            console.log("Rich text copied successfully!");
+        }).catch(error => console.error("Failed to copy text: ", error));
     };
 
-    // Send the message to the API
-    fetch(url, {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken
-      },
-      body: JSON.stringify(data)
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(function(data) {
-      console.log('Data received:', data);
+    function toggleReadAloud(elementId) {
+        const iconElement = document.getElementById(`${elementId.replace('-text', '')}-icon`);
 
-      if (sessionId === null) {
-        // Store the session ID for future messages
-        sessionId = data.id;
-      }
+        if (isSpeaking) {
+            window.speechSynthesis.cancel();
+            isSpeaking = false;
+            iconElement.innerHTML = '<i style="color: white;" class="align-middle me-2 fas fas fa-volume-up"></i>';
+        } else {
+            const textToRead = document.getElementById(elementId).innerText;
+            const speech = new SpeechSynthesisUtterance(textToRead);
+            speech.lang = 'es-ES';
 
-      // Display user message
-      const userMessageHTML = `
-        <div class="user-message">
-          <strong>User:</strong> ${userMessage}
-        </div>
-      `;
-      messageWrapper.innerHTML += userMessageHTML;
+            iconElement.innerHTML = '<i class="align-middle me-2 far fa-fw fa-pause-circle"></i>';
 
-      // Display AI response
-      const aiMessageHTML = `
-        <div class="ai-message">
-          <strong>AI:</strong> ${data.messages[data.messages.length - 1].content}
-        </div>
-      `;
-      messageWrapper.innerHTML += aiMessageHTML;
+            speech.onend = () => {
+                isSpeaking = false;
+                iconElement.innerHTML = '<i style="color: white;" class="align-middle me-2 fas fas fa-volume-up"></i>';
+            };
 
-      // Clear the input field after sending
-      chatInput.value = '';
-      chatInput.focus();
-    })
-    .catch(error => {
-      console.error('Error:', error);
+            window.speechSynthesis.speak(speech);
+            isSpeaking = true;
+        }
+    }
+
+    // Limit maximum height of the textarea
+    chatInput.style.maxHeight = '150px';
+
+    // Submit on Enter (without Shift) and auto-resize the textarea
+    chatInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault(); // Prevent new line and submit
+            form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
     });
-  });
+
+    chatInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = `${this.scrollHeight}px`;
+    });
+
+    loadChatHistory(); // Initial chat history load
 });
-
-  const textarea = document.getElementById('chat-input');
-
-  // Auto-resize the textarea as the user types
-  textarea.addEventListener('input', function() {
-      this.style.height = 'auto'; // Reset height
-      this.style.height = this.scrollHeight + 'px'; // Expand based on scroll height
-  });
-
-  // Optional: Limit maximum height for the textarea
-  textarea.style.maxHeight = '150px'; // Prevent it from growing too large
 </script>
 
 
