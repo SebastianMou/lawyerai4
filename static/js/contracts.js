@@ -1,3 +1,5 @@
+const baseUrl = "https://antoncopiloto.pythonanywhere.com";
+
 function leaded_contractsjs() {
     console.log('leaded contractsjs :)')
 }
@@ -23,7 +25,7 @@ leaded_contractsjs()
     
     function buildList() {
         var wrapper = document.getElementById('list-wrapper-contracts');
-        var url = 'http://127.0.0.1:7000/api/contract-project/';
+        var url = '${baseUrl}/api/contract-project/';
     
         fetch(url)
         .then((resp) => resp.json())
@@ -83,11 +85,11 @@ leaded_contractsjs()
     form.addEventListener('submit', function(e){
         e.preventDefault();
         console.log('Form Submitted');
-        var url = 'http://127.0.0.1:7000/api/contract-create/';
+        var url = '${baseUrl}/api/contract-create/';
         var method = 'POST';
     
         if (avtiveItem != null) {
-            url = `http://127.0.0.1:7000/api/contract-update/${avtiveItem.id}/`;
+            url = `${baseUrl}/api/contract-update/${avtiveItem.id}/`;
             method = 'PUT';
         }
     
@@ -136,7 +138,7 @@ leaded_contractsjs()
         }
     
         console.log('Delete clicked:', item);
-        var url = `http://127.0.0.1:7000/api/contract-delete/${item.id}/`;
+        var url = `${baseUrl}/api/contract-delete/${item.id}/`;
     
         fetch(url, {
             method: 'DELETE',

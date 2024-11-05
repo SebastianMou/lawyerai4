@@ -1,3 +1,5 @@
+const baseUrl = "https://antoncopiloto.pythonanywhere.com";
+
 // Function to get CSRF token from cookies
 function getCookie(name) {
     let cookieValue = null;
@@ -33,7 +35,7 @@ function saveChanges() {
     var name = document.getElementById('name').value;
     var description = tinymce.get('description').getContent();
     var contractId = document.getElementById('description').dataset.contractId;
-    var url = `http://127.0.0.1:7000/api/contract-update/${contractId}/`;
+    var url = `${baseUrl}/api/contract-update/${contractId}/`;
 
     fetch(url, {
         method: 'PUT',
@@ -390,7 +392,7 @@ function sendMessage() {
     document.querySelector('.template-buttons').style.display = 'none';  // Hide template buttons
 
     // Make the API call to submit the message
-    fetch(`http://127.0.0.1:7000/api/create-ai-chat-contract/${contractProjectId}/`, {
+    fetch(`${baseUrl}/api/create-ai-chat-contract/${contractProjectId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -563,7 +565,7 @@ window.addEventListener('load', function() {
 document.getElementById('deleteChatButton').addEventListener('click', function() {
     if (confirm("Are you sure you want to delete this chat?")) { // Confirmation prompt
         const contractProjectId = this.getAttribute('data-contract-id');
-        const url = `http://127.0.0.1:7000/api/delete-chat-history-contract/${contractProjectId}/`;
+        const url = `${baseUrl}/api/delete-chat-history-contract/${contractProjectId}/`;
 
         fetch(url, {
             method: 'DELETE',
