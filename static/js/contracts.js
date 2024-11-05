@@ -25,7 +25,7 @@ leaded_contractsjs()
     
     function buildList() {
         var wrapper = document.getElementById('list-wrapper-contracts');
-        var url = '${baseUrl}/api/contract-project/';
+        var url = `${baseUrl}/api/contract-project/`;
     
         fetch(url)
         .then((resp) => resp.json())
@@ -85,7 +85,7 @@ leaded_contractsjs()
     form.addEventListener('submit', function(e){
         e.preventDefault();
         console.log('Form Submitted');
-        var url = '${baseUrl}/api/contract-create/';
+        var url = `${baseUrl}/api/contract-create/`;
         var method = 'POST';
     
         if (avtiveItem != null) {
