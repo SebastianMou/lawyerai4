@@ -1,11 +1,7 @@
-const baseUrl = "https://antoncopiloto.pythonanywhere.com";
-
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const messageWrapper = document.getElementById('list-wrapper-messages');
-    const sessionId = {{ chat_session.id }};
-    let isSpeaking = false;
 
     function loadChatHistory() {
         fetch(`${baseUrl}/api/chatsessions/${sessionId}/`)
@@ -30,16 +26,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             ` : ''}
                         </div>
                     `;
-
                     messageWrapper.insertAdjacentHTML('beforeend', messageHTML);
                 });
-
-                scrollToBottom(); // Scroll down after loading history
+                scrollToBottom();
             })
-            .catch(function(error) {
-                console.error('Error fetching chat history:', error);
-            }
-        );
+            .catch(error => console.error('Error fetching chat history:', error));
     }
 
     // Helper function to scroll with a slight delay for smoother experience
