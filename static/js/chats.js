@@ -1,4 +1,4 @@
-const baseUrl = "antoncopiloto.pythonanywhere.com";
+const baseUrl = "https://antoncopiloto.pythonanywhere.com";
 
 // Function to get CSRF token for AJAX requests
 function getCookie(name) {
