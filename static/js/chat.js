@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatInput = document.getElementById('chat-input');
     const messageWrapper = document.getElementById('list-wrapper-messages');
 
+    // Define isSpeaking at the top to track the speaking state globally
+    let isSpeaking = false;
+
     function loadChatHistory() {
         fetch(`${baseUrl}/api/chatsessions/${sessionId}/`)
             .then(response => response.json())
@@ -211,7 +214,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function scrollToBottom() {
         messageWrapper.scrollTop = messageWrapper.scrollHeight;
     }
-
 
     messageWrapper.addEventListener('click', function(event) {
         if (event.target.closest('.read-button')) {
