@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const messageWrapper = document.getElementById('list-wrapper-messages');
+    let isGeneratingResponse = false;
 
     // Define isSpeaking at the top to track the speaking state globally
     let isSpeaking = false;
@@ -117,9 +118,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Modified submit handler to use the typing effect
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+    
+        if (isGeneratingResponse) {
+            return; // Prevent form submission while AI is generating a response
+        }
+    
+        // Immediately set isGeneratingResponse to true
+        isGeneratingResponse = true;
+        chatInput.disabled = true; // Disable input to prevent further user input
+    
         const userMessage = chatInput.value;
-        if (!userMessage.trim()) return;
-
+        if (!userMessage.trim()) {
+            isGeneratingResponse = false; // Reset state if input is empty
+            chatInput.disabled = false;
+            return;
+        }
+    
         const uniqueId = `user-message-${Date.now()}`;
         const userMessageHTML = `
             <div class="user-message" id="${uniqueId}">
@@ -127,13 +141,11 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         messageWrapper.insertAdjacentHTML('beforeend', userMessageHTML);
-
+    
         chatInput.value = '';
         chatInput.style.height = 'auto';
-        chatInput.focus();
-
         smoothScrollToBottom(); // Scroll down after user message
-
+    
         // Display the loading message
         const loadingMessageId = `loading-message-${Date.now()}`;
         const loadingMessageHTML = `
@@ -144,11 +156,11 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         messageWrapper.insertAdjacentHTML('beforeend', loadingMessageHTML);
-
+    
         smoothScrollToBottom(); // Scroll while loading is visible
-
+    
         const data = { message: userMessage };
-
+    
         fetch(`${baseUrl}/api/chatsessions/${sessionId}/send_message/`, {
             method: 'POST',
             headers: {
@@ -164,12 +176,18 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(function(data) {
             // Remove the loading message
             document.getElementById(loadingMessageId).remove();
-
+    
+            // Ensure messages are returned from the response
+            if (!data.messages || data.messages.length === 0) {
+                throw new Error('No messages returned from the server');
+            }
+    
+            // Display the AI's response
             let aiContent = data.messages[data.messages.length - 1].content;
             aiContent = formatMessageContent(aiContent); // Format AI content with markdown
             const uniqueId = `ai-message-${Date.now()}`;
-
-            // Create an empty container for the AI message
+    
+            // Create a container for the AI message
             const aiMessageHTML = `
                 <div class="ai-message" id="${uniqueId}">
                     <span class="message-text" id="${uniqueId}-text"></span>
@@ -184,17 +202,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
             messageWrapper.insertAdjacentHTML('beforeend', aiMessageHTML);
-
+    
             // Call typing effect function to display the AI response dynamically
             typeMessageEffect(`${uniqueId}-text`, aiContent);
-
+    
+            // Re-enable input and reset state
+            isGeneratingResponse = false;
+            chatInput.disabled = false;
+            chatInput.focus();
         })
         .catch(error => {
             console.error('Error:', error);
             // Optionally remove the loading message if an error occurs
             document.getElementById(loadingMessageId).remove();
+    
+            // Re-enable input and reset state on error
+            isGeneratingResponse = false;
+            chatInput.disabled = false;
+            chatInput.focus();
         });
     });
+    
 
     function getCookie(name) {
         let cookieValue = null;

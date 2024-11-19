@@ -1,4 +1,5 @@
 {% load static %}
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -49,6 +50,7 @@
 					<div class="d-table-cell align-middle">
 
 						<div class="text-center mt-4">
+							<img class="img-fluid d-block mx-auto" src="{% static 'img/icons/Anton Logo 1.png' %}" alt="" style="width: 25%;">
 							<h1 class="h2">Empezar</h1>
 							<!-- <p class="lead">
 								Comience a crear la mejor experiencia de usuario posible para sus clientes.
@@ -59,15 +61,13 @@
 							<div class="card-body">
 								<div class="m-sm-3">
 									<div class="d-grid gap-2 mb-3">
-										<a class="btn btn-google btn-lg" href="index.html"><i class="fab fa-fw fa-google"></i> Regístrate con Google</a>
-										<a class="btn btn-facebook btn-lg" href="index.html"><i class="fab fa-fw fa-facebook-f"></i> Regístrate con Facebook</a>
-										<a class="btn btn-microsoft btn-lg" href="index.html"><i class="fab fa-fw fa-microsoft"></i> Regístrate con Microsoft</a>
+										<a class="btn btn-google btn-lg" href="{% provider_login_url 'google' %}"><i class="align-middle me-2 fab fa-fw fa-google"></i> Regístrate con Google</a>
 									</div>
 									<div class="row">
 										<div class="col">
 											<hr>
 										</div>
-										<div class="col-auto text-uppercase d-flex align-items-center">Or</div>
+										<div class="col-auto text-uppercase d-flex align-items-center">O</div>
 										<div class="col">
 											<hr>
 										</div>

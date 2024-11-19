@@ -1,6 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.utils.encoding import force_bytes, force_str
@@ -11,6 +10,15 @@ from django.core.mail import EmailMessage
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt
+from google.oauth2 import id_token
+import requests
+from django.conf import settings
+from google.auth.transport import requests
+
+from io import BytesIO
+from xhtml2pdf import pisa
 
 from .tokens import account_activation_token
 from .forms import CustomLoginForm, RegisterForm  
@@ -38,6 +46,7 @@ def view_chat_session(request, session_id):
     except ChatSession.DoesNotExist:
         return HttpResponse("Sesión de chat no encontrada.", status=404)
 
+@login_required(login_url='/login/')  
 def contract(request, pk):
     # Retrieve the ContractProject object based on its primary key (pk)
     contract = get_object_or_404(ContractProject, pk=pk)
@@ -219,3 +228,65 @@ def delete_account(request):
         deleteUser = User.objects.get(username=request.user)
         deleteUser.delete()
         return redirect('login')
+
+def download_contract_pdf(request, pk):
+    contract_project = get_object_or_404(ContractProject, pk=pk)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{contract_project.name}.pdf"'
+
+    html_content = contract_project.description
+    source_html = f"<html><body>{html_content}</body></html>"
+    result_file = BytesIO()
+    
+    # Convert HTML to PDF
+    pisa_status = pisa.CreatePDF(
+        source_html,
+        dest=result_file)
+
+    # Return PDF response
+    if pisa_status.err:
+        return HttpResponse('We had some errors <pre>' + html_content + '</pre>')
+    result_file.seek(0)
+    response.write(result_file.read())
+    result_file.close()
+    return response
+
+@login_required(login_url='/login/')  
+def search(request):
+    query = request.GET.get('search', '')
+
+    contract_projects = ContractProject.objects.filter(name__icontains=query)
+    chat_sessions = ChatSession.objects.filter(name__icontains=query)
+
+    context = {
+        'contract_projects': contract_projects,
+        'chat_sessions': chat_sessions,
+        'query': query,
+    }
+    return render(request, 'search.html', context)
+
+@login_required(login_url='/login/')  
+def search(request):
+    query = request.GET.get('searched', '')
+
+    # Get the current logged-in user
+    user = request.user
+
+    # Search for ContractProject related to the logged-in user
+    contract_projects_list = ContractProject.objects.filter(owner=user, name__icontains=query)
+    paginator_cp = Paginator(contract_projects_list, 5)  # Adjust the number per page as needed
+    page_number_cp = request.GET.get('page_cp', 1)
+    contract_projects = paginator_cp.get_page(page_number_cp)
+
+    # Search for ChatSession related to the logged-in user
+    chat_sessions_list = ChatSession.objects.filter(owner=user, name__icontains=query)
+    paginator_cs = Paginator(chat_sessions_list, 5)  # Adjust the number per page as needed
+    page_number_cs = request.GET.get('page_cs', 1)
+    chat_sessions = paginator_cs.get_page(page_number_cs)
+
+    context = {
+        'contract_projects': contract_projects,
+        'chat_sessions': chat_sessions,
+        'query': query,
+    }
+    return render(request, 'search/search_chatandcontract.html', context)

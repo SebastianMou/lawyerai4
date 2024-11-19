@@ -36,7 +36,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.1.2/tinymce.min.js" referrerpolicy="origin"></script>
     <script src="{% static 'js/templates.js' %}"></script>
 
-    
     <style>
         body {
 			opacity: 0;
@@ -105,45 +104,103 @@
 					</div>
 				</div>
 
+                <style>
+					.chat-link {
+						color: #adb5bd; /* Inherits the color from the parent element */
+						text-decoration: none; /* Removes underline */
+						cursor: pointer; /* Keeps the pointer cursor to signify clickable */
+					}
+					.chat-link:hover {
+						text-decoration: none; /* Ensures no underline appears on hover */
+						color: darkgray; /* Changes color on hover for a slight interaction hint */
+					}
+					.chat-item {
+						padding-bottom: 8px; /* Adds space below each chat session item */
+					}
+					.sidebar-session-link.active {
+						background: linear-gradient(90deg, rgba(59, 125, 221, .1), rgba(59, 125, 221, .088) 50%, transparent);
+						border-left-color: #3b7ddd;
+						color: #e9ecef;
+						padding: 10px;
+					}
+				</style>
+
 				<ul class="sidebar-nav">
 					<li class="sidebar-header">
 						Pages
 					</li>
-					<!-- <li class="sidebar-item">
-						<a data-bs-target="#dashboards" data-bs-toggle="collapse" class="sidebar-link">
-							<i class="align-middle" data-feather="sliders" style="color: #5784db;"></i> <span class="align-middle">Dashboards</span>
+					
+					<li class="sidebar-item">
+						<a data-bs-toggle="collapse" href="#dashboards" class="sidebar-link" aria-expanded="true" aria-controls="dashboards">
+							<i class="align-middle me-2 far fa-fw fa-comment-dots"></i> <span class="align-middle">Diálogos</span>
 						</a>
-                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
-                            <a class="sidebar-link" href=""><i class="align-middle me-2 far fa-fw fa-file-alt"></i> Resumen del acuerdo</a>
-                        </ul>
-                        
-                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
-                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-balance-scale"></i> Comparar acuerdos</a>
-                        </ul>
-                        
-                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
-                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-file-signature"></i> Crear un acuerdo</a>
-                        </ul>
-                        
-                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
-                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-language"></i> Traducción de documentos</a>
-                        </ul>
-                        
-                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
-                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-file-image"></i> Imagen a texto</a>
-                        </ul>
-                        
-                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
-                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-cog"></i> Configuración</a>
-                        </ul>
-					</li> -->
-
-					<li class="sidebar-item  {% if request.resolver_match.url_name == 'chats' %}active{% endif %}"">
-						<a class="sidebar-link" href="{% url 'chats' %}">
-							<i class="align-middle me-2 far fa-fw fa-comment-dots"></i> <span class="align-middle">Chats</span>
-						</a>
+						<ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
+							<li>
+								<a class="sidebar-link" href="{% url 'chats' %}">
+									<i class="fas fa-list-alt"></i> Todos los Diálogos
+								</a>
+							</li>
+							<!-- Properly using an UL for chat sessions -->
+							<li id="list-wrapper-chats" style="padding-left: 38px;"></li>
+						</ul>
 					</li>
-
+					</ul>
+					<script>
+						document.addEventListener('DOMContentLoaded', function() {
+							function buildListChats() {
+								var wrapper = document.getElementById('list-wrapper-chats');
+								var url = 'http://127.0.0.1:7000/api/chatsessions/';
+								var currentPath = window.location.pathname; // Get current URL path
+					
+								fetch(url)
+								.then((resp) => resp.json())
+								.then(function(data) {
+									console.log('Data chat name:', data);
+									wrapper.innerHTML = '';
+					
+									var sessionsToShow = data.reverse().slice(0, 10); // Limit to 10 sessions
+					
+									sessionsToShow.forEach(function(session) {
+										var sessionName = session.name ? session.name : 'Sesión sin nombre';
+										var truncatedName = sessionName.length > 22 ? sessionName.substring(0, 22) + '...' : sessionName;
+					
+										var sessionElement = document.createElement('a');
+										sessionElement.href = `/chat/${session.id}/`;
+										sessionElement.className = "sidebar-session-link chat-link";
+										sessionElement.innerHTML = `&rarr; ${truncatedName}`;
+					
+										// Check if the current window's path is the session link path
+										if (currentPath === `/chat/${session.id}/`) {
+											sessionElement.classList.add('active'); // Add 'active' class if the path matches
+										}
+					
+										var listItem = document.createElement('li');
+										listItem.className = "chat-item";
+										listItem.appendChild(sessionElement);
+										wrapper.appendChild(listItem);
+									});
+					
+									if (data.length > 10) {
+										var readMoreItem = document.createElement('li');
+										readMoreItem.className = "chat-item";
+										var readMoreLink = document.createElement('a');
+										readMoreLink.href = "{% url 'chats' %}"; // Make sure Django template renders this
+										readMoreLink.className = "sidebar-session-link";
+										readMoreLink.innerHTML = "Ver más sesiones...";
+										readMoreItem.appendChild(readMoreLink);
+										wrapper.appendChild(readMoreItem);
+									}
+								})
+								.catch(function(error) {
+									console.error('Error:', error);
+									wrapper.innerHTML = '<div class="text-muted">No se pudieron cargar las sesiones de diálogo.</div>';
+								});
+							}
+					
+							buildListChats();
+						});
+					</script>
+                    
 					<li class="sidebar-item {% if request.resolver_match.url_name == 'contracts' %}active{% endif %}"">
 						<a class="sidebar-link " href="{% url 'contracts' %}">
 							<i class="align-middle me-2 fas fa-fw fa-file-contract"></i> <span class="align-middle">Contratos</span>
@@ -184,7 +241,6 @@
 				</div> -->
 			</div>
 		</nav>
-
 
 		<div class="main">
 
@@ -377,10 +433,25 @@
                     }
 
                     .plantillas-icon-btn .plantillas-icon {
-                        color: rgba(0, 0, 255, 0.538);
+                        color: gray;
                     }
 
                     .plantillas-icon-btn:hover .plantillas-icon {
+                        color: white;
+                    }
+
+                    .copy-icon-btn .copy-icon {
+                        color: rgba(0, 0, 255, 0.567);
+                    }
+
+                    .copy-icon-btn:hover .copy-icon {
+                        color: white;
+                    }
+
+                    .pdf-icon {
+                        color: red;
+                    }
+                    .pdf-icon-btn:hover .pdf-icon {
                         color: white;
                     }
 
@@ -581,11 +652,18 @@
                                         placeholder="Introduzca el nombre del proyecto" value="{{ contract.name }}">
                                 </div>
                                 <!-- Button trigger modal -->
-                                <button type="button" class="btn btn-outline-primary plantillas-icon-btn" data-bs-toggle="modal"
-                                    data-bs-target="#exampleModal" style="margin-top: 4px; margin-bottom: 4px; border-radius: 28px;">
+                                <button type="button" class="btn btn-outline-secondary plantillas-icon-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" style="margin-top: 4px; margin-bottom: 4px; border-radius: 28px;">
                                     <i class="align-middle me-2 far fa-fw fa-file-alt plantillas-icon"></i>Plantillas
                                 </button>
-
+                                <button class="btn btn-outline-primary copy-icon-btn" style="margin-top: 4px; margin-bottom: 4px; border-radius: 28px;" id="copy-button">
+                                    <i class="align-middle me-2 far fa-fw fa-clipboard copy-icon"></i>Copiar Doc
+                                </button>
+                                <button class="btn btn-outline-danger pdf-icon-btn" style="margin-top: 4px; margin-bottom: 4px; border-radius: 28px;">
+                                    <a class="dropdown-item" href="{% url 'download_contract_pdf' pk=contract.id %}">
+                                        <i class="align-middle me-2 far fa-fw fa-file-pdf pdf-icon"></i>PDF
+                                    </a>
+                                </button>
+                                
                                 <!-- Description Field -->
                                 <div class="form-group">
                                     <textarea id="description" name="description" class="form-control" placeholder="Introduzca la descripción del proyecto" rows="10" data-contract-id="{{ contract.id }}">
@@ -602,7 +680,10 @@
                                         <li>
                                             <button type="submit" class="dropdown-item"><i style="color: gray;" class="align-middle me-2 far fa-fw fa-save"></i> Guardar</button>
                                         </li>
-                                        <li><a class="dropdown-item" href="#"><i style="color: gray;" class="align-middle me-2 far fa-fw fa-file-pdf"></i> PDF</a></li>
+                                        <li><a class="dropdown-item" id="downloadPdf" href="#">
+                                            <i style="color: gray;" class="align-middle me-2 far fa-fw fa-file-pdf"></i> Download PDF
+                                        </a></li>
+                                        
                                         <li>
                                             <button class="dropdown-item" id="openSubtaskPopup" data-contract-id="{{ contract.id }}">
                                                 <i style="color: gray;" class="align-middle me-2 fab fa-fw fa-rocketchat"></i> Chat de IA
@@ -613,7 +694,6 @@
                             </form>
                         </div>
                     </div>
-
                     <!-- Side Panel for AI chat -->
                     <div class="side-popup" id="createSubtaskPopup">
                         <div style="padding: 12px;" class="d-flex align-items-center">
@@ -2874,7 +2954,6 @@
                                                         </div>
                                                     </div>
 
-
                                                 </div>
                                             </div>
                                         </div>
@@ -2887,7 +2966,6 @@
                                 </div>
 
                             </div>
-                            
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                             </div>
@@ -2901,8 +2979,35 @@
 	<script src="{% static 'js/app.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.3/marked.min.js" integrity="sha512-kZ9BCD8vqCw2vJ1XG3EVZN5M5aRNxxMK3+uYuZPWc+TtW2Z1zSgmFlTIVHYHaWH0bH2lp2dUlB/1+M1h+lvfeg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{% static 'js/contract.js' %}?v=1"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 	<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const copyButton = document.getElementById('copy-button'); // Ensure you have a button with this ID in your HTML
+
+            copyButton.addEventListener('click', function() {
+                const editorContent = tinymce.get('description').getContent({format: 'html'}); // Get HTML content from TinyMCE
+                const data = new ClipboardItem({
+                    "text/html": new Blob([editorContent], {type: "text/html"})
+                });
+
+                navigator.clipboard.write([data]).then(function() {
+                    console.log('Successfully copied to clipboard');
+                    copyButton.innerHTML = '<i class="align-middle me-2 fas fa-fw fa-check copy-icon"></i>Copiado'; // Update button text
+                    // Optionally, reset the button text after a delay
+                    setTimeout(function() {
+                        copyButton.innerHTML = '<i class="align-middle me-2 far fa-fw fa-clipboard copy-icon"></i>Copiar Doc';
+                    }, 2000); // Reset text after 2 seconds
+                }).catch(function(error) {
+                    console.error('Could not copy text: ', error);
+                });
+            });
+        });
+
         // ################################################################################################################################################################################
 		// Main Search on base html file
 		function searchItems() {

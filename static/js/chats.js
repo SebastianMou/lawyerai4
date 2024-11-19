@@ -1,5 +1,6 @@
-const baseUrl = "https://antoncopiloto.pythonanywhere.com";
-
+const baseUrl = "http://127.0.0.1:7000";
+// http://127.0.0.1:7000
+// https://antoncopiloto.pythonanywhere.com
 // Function to get CSRF token for AJAX requests
 function getCookie(name) {
     let cookieValue = null;
@@ -85,7 +86,7 @@ function editChatItem(item) {
 }
 
 function deleteChatItem(item) {
-    if (!confirm('Are you sure you want to delete this chat session?')) {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta sesión de chat?')) {
         return;
     }
 
@@ -106,6 +107,6 @@ function deleteChatItem(item) {
     })
     .catch(function(error) {
         console.error('Error deleting item:', error);
-        alert('Unable to delete the chat session. Please try again.');
+        alert('No se puede eliminar la sesión de chat. Inténtalo de nuevo.');
     });
 }

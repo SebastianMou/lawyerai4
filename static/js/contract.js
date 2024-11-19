@@ -1,5 +1,6 @@
-const baseUrl = "https://antoncopiloto.pythonanywhere.com";
-
+const baseUrl = "http://127.0.0.1:7000";
+// http://127.0.0.1:7000
+// https://antoncopiloto.pythonanywhere.com
 // Function to get CSRF token from cookies
 function getCookie(name) {
     let cookieValue = null;
@@ -64,7 +65,6 @@ function saveChanges() {
 
 document.getElementById('description').addEventListener('input', debouncedAutosave);
 
-
 // Initialize TinyMCE for the description field
 tinymce.init({
     selector: '#description',
@@ -73,14 +73,16 @@ tinymce.init({
     menubar: 'file edit view insert format tools table help',
     height: '85vh',
     width: '100%',
+    language: 'es_MX',
+    language_url: '/static/tinymce/langs/es_MX.js',
+    language_load: true,
     setup: function (editor) {
         editor.on('init', function () {
             // Set the initial content to the textarea's value
             var initialContent = document.getElementById('description').value;
             editor.setContent(initialContent);
             editor.getContainer().style.width = '100%'; // Ensures the editor container fills its parent
-        });    
-
+        });
 
         // Detect text selection and display it in the HTML element
         editor.on('mouseup keyup', function () {
@@ -112,6 +114,23 @@ tinymce.init({
     }
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    const copyButton = document.getElementById('copy-button'); // Ensure you have a button with this ID in your HTML
+
+    copyButton.addEventListener('click', function() {
+        const editorContent = tinymce.get('description').getContent({format: 'html'}); // Get HTML content from TinyMCE
+        const data = new ClipboardItem({
+            "text/html": new Blob([editorContent], {type: "text/html"})
+        });
+
+        navigator.clipboard.write([data]).then(function() {
+            console.log('Successfully copied to clipboard');
+        }).catch(function(error) {
+            console.error('Could not copy text: ', error);
+        });
+    });
+});
+
 // Add an event listener to clear highlighted text when the highlight display is clicked
 const highlightDisplay = document.getElementById('highlightDisplay');
 const templateButtons = document.querySelector('.template-buttons'); // Template buttons container
@@ -131,7 +150,6 @@ document.getElementById('contractProjectForm').addEventListener('submit', functi
     e.preventDefault(); // Prevent the form from submitting the traditional way
     saveChanges(); // Manually trigger a save
 });
-
 
 // main.js (or your current file)
 document.querySelectorAll('.template-button').forEach(button => {
@@ -190,11 +208,17 @@ if (searchInput) {
 const openSubtaskPopupButton = document.getElementById('openSubtaskPopup');
 const popup = document.getElementById('createSubtaskPopup');
 const mainContent = document.querySelector('.main-content');
+let isPopupActive = false;
 
 // Open the side panel and dynamically set the data-contract-id attribute
 openSubtaskPopupButton.addEventListener('click', function() {
+    if (isPopupActive) {
+        return; // Prevent multiple popup actions while one is active
+    }
+
     const contractProjectId = this.getAttribute('data-contract-id'); // Get the project ID from the button's data attribute
     if (contractProjectId) {
+        isPopupActive = true; 
         popup.setAttribute('data-contract-id', contractProjectId);  // Set the project ID on the popup
         console.log('Subtask popup opened with Contract Project ID:', contractProjectId);  // Log the correct ID
         popup.classList.add('active');
@@ -267,8 +291,12 @@ openSubtaskPopupButton.addEventListener('click', function() {
             } else {
                 console.log('No chat history found.');
             }
+            isPopupActive = false; 
         })
-        .catch(error => console.error('Error fetching chat history:', error));
+        .catch(error => {
+            console.error('Error fetching chat history:', error);
+            isPopupActive = false; // Reset state on error
+        });
 
     } else {
         console.error('Contract Project ID is not defined in the button');
@@ -334,6 +362,7 @@ const closePopupButton = document.getElementById('closePopup');
 closePopupButton.addEventListener('click', function() {
     popup.classList.remove('active');
     mainContent.style.marginRight = '0';
+    isPopupActive = false; 
 });
 
 // Send AI request and display response
@@ -343,6 +372,13 @@ aiSendButton.addEventListener('click', function() {
 });
 
 function sendMessage() {
+    if (isPopupActive) {
+        console.log("Another action is in progress. Please wait.");
+        return; // Prevent sending a new message while another action is ongoing
+    }
+
+    isPopupActive = true; 
+
     const contractProjectId = popup.getAttribute('data-contract-id');
     const highlightedText = document.getElementById('highlightDisplay').textContent.trim() || '';  // Default to empty string if no highlight
     const instruction = textarea.value.trim();  // Trim user input to avoid empty space submission
@@ -350,6 +386,7 @@ function sendMessage() {
     // Check if both fields are empty
     if (!highlightedText && !instruction) {
         console.log("Nothing to send, both highlighted text and instruction are empty.");
+        isPopupActive = false; 
         return;
     }
 
@@ -448,6 +485,8 @@ function sendMessage() {
 
             if (i <= formattedResponse.length) {
                 setTimeout(typeWriter, speed);
+            } else {
+                isPopupActive = false; // Reset state after the typing effect is complete
             }
         }
 
@@ -503,9 +542,11 @@ function sendMessage() {
         // Scroll to the bottom after receiving the AI's message
         chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        isPopupActive = false; // Reset state on error
+    });
 }
-
 
 // Function to auto-resize the textarea
 const textarea = document.getElementById('aiInput');
@@ -586,3 +627,4 @@ document.getElementById('deleteChatButton').addEventListener('click', function()
         .catch(error => console.error('Error deleting chat history:', error));
     }
 });
+

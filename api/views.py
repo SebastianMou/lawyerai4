@@ -12,6 +12,7 @@ import json
 import openai
 import random
 from rest_framework.views import APIView
+from rest_framework import status, pagination
 
 from .models import ContractProject, AIHighlightChat, ChatSession, Message
 from .serializer import ContractProjectSerializer, AIHighlightChatSerializer, MessageSerializer, ChatSessionSerializer
@@ -346,7 +347,6 @@ def create_chat_session(request):
         print(f"Error occurred: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_message_to_chat_session(request, session_id):
@@ -529,3 +529,42 @@ def delete_chat_session(request, session_id):
     except Exception as e:
         print(f"Error occurred: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def search_api(request):
+    if request.method == 'GET':
+        user = request.user
+        if not user.is_authenticated:
+            return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        query = request.query_params.get('query', '')
+        # Filter using the correct field names, assuming `owner` is the foreign key to the User model
+        chat_sessions_query = ChatSession.objects.filter(owner=user, name__icontains=query)
+        contract_projects_query = ContractProject.objects.filter(owner=user, name__icontains=query)
+
+        # Pagination setup
+        paginator = pagination.PageNumberPagination()
+        paginator.page_size = 10  # Customize the page size as needed
+
+        # Paginate ChatSession results
+        paginated_chat_sessions = paginator.paginate_queryset(chat_sessions_query, request)
+        chat_serializer = ChatSessionSerializer(paginated_chat_sessions, many=True, context={'request': request})
+
+        # Paginate ContractProject results
+        paginated_contract_projects = paginator.paginate_queryset(contract_projects_query, request)
+        contract_serializer = ContractProjectSerializer(paginated_contract_projects, many=True, context={'request': request})
+
+        # Combine results
+        result = {
+            'chat_sessions': chat_serializer.data,
+            'contract_projects': contract_serializer.data,
+            'pagination': {
+                'next': paginator.get_next_link(),
+                'previous': paginator.get_previous_link(),
+                'count': paginator.page.paginator.count,
+                'total_pages': paginator.page.paginator.num_pages,
+            }
+        }
+        return Response(result)
+    else:
+        return Response({"error": "GET request required"}, status=status.HTTP_400_BAD_REQUEST)

@@ -16,6 +16,9 @@ urlpatterns = [
     path('pages/', views.pages, name='pages'),
     path('delete_account/', views.delete_account, name='delete_account'),
 
+    path('contract_project/<int:pk>/download_pdf/', views.download_contract_pdf, name='download_contract_pdf'),
+    path('search/', views.search, name='search'),
+
     path('signup/', views.signup, name='signup'),
     # activación de la cuenta de usuario por correo electrónico
     path('activate/<uidb64>/<token>', views.activate, name='activate'),

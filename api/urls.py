@@ -3,7 +3,6 @@ from . import views
 
 urlpatterns = [
     path('', views.apiOverview, name='api-overview'),
-    
     # Contract Project URLs
     path('contract-project/', views.contract_project, name='contract-project'),
     path('contract-detail/<int:pk>/', views.contract_project_detail, name='contract-detail'),
@@ -15,6 +14,8 @@ urlpatterns = [
     path('create-ai-chat-contract/<int:contract_project_id>/', views.create_ai_chat_contract, name='create-ai-chat-contract'),
     path('get-chat-history-contract/<int:contract_project_id>/', views.get_chat_history_contract, name='get-chat-history-contract'),
     path('delete-chat-history-contract/<int:contract_project_id>/', views.delete_chat_history_contract, name='delete-chat-history-contract'),
+
+    path('search/', views.search_api, name='api_search'),
 
     # Chat Session Lawyer URLs
     path('chatsessions/', views.list_chat_sessions, name='list_chat_sessions'),

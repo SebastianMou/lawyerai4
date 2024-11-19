@@ -1,7 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -109,45 +108,104 @@
 					</div>
 				</div>
 
+				<style>
+					.chat-link {
+						color: #adb5bd; /* Inherits the color from the parent element */
+						text-decoration: none; /* Removes underline */
+						cursor: pointer; /* Keeps the pointer cursor to signify clickable */
+					}
+					.chat-link:hover {
+						text-decoration: none; /* Ensures no underline appears on hover */
+						color: darkgray; /* Changes color on hover for a slight interaction hint */
+					}
+					.chat-item {
+						padding-bottom: 8px; /* Adds space below each chat session item */
+					}
+					.sidebar-session-link.active {
+						background: linear-gradient(90deg, rgba(59, 125, 221, .1), rgba(59, 125, 221, .088) 50%, transparent);
+						border-left-color: #3b7ddd;
+						color: #e9ecef;
+						padding: 10px;
+					}
+				</style>
+				
 				<ul class="sidebar-nav">
 					<li class="sidebar-header">
 						Pages
 					</li>
-					<!-- <li class="sidebar-item">
-						<a data-bs-target="#dashboards" data-bs-toggle="collapse" class="sidebar-link">
-							<i class="align-middle" data-feather="sliders" style="color: #5784db;"></i> <span class="align-middle">Dashboards</span>
+					
+					<li class="sidebar-item">
+						<a data-bs-toggle="collapse" href="#dashboards" class="sidebar-link" aria-expanded="true" aria-controls="dashboards">
+							<i class="align-middle me-2 far fa-fw fa-comment-dots"></i> <span class="align-middle">Diálogos</span>
 						</a>
-                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
-                            <a class="sidebar-link" href=""><i class="align-middle me-2 far fa-fw fa-file-alt"></i> Resumen del acuerdo</a>
-                        </ul>
-                        
-                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
-                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-balance-scale"></i> Comparar acuerdos</a>
-                        </ul>
-                        
-                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
-                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-file-signature"></i> Crear un acuerdo</a>
-                        </ul>
-                        
-                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
-                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-language"></i> Traducción de documentos</a>
-                        </ul>
-                        
-                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
-                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-file-image"></i> Imagen a texto</a>
-                        </ul>
-                        
-                        <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
-                            <a class="sidebar-link" href=""><i class="align-middle me-2 fas fa-fw fa-cog"></i> Configuración</a>
-                        </ul>
-					</li> -->
-
-					<li class="sidebar-item  {% if request.resolver_match.url_name == 'chats' %}active{% endif %}"">
-						<a class="sidebar-link" href="{% url 'chats' %}">
-							<i class="align-middle me-2 far fa-fw fa-comment-dots"></i> <span class="align-middle">Chats</span>
-						</a>
+						<ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
+							<li>
+								<a class="sidebar-link" href="{% url 'chats' %}">
+									<i class="fas fa-list-alt"></i> Todos los Diálogos
+								</a>
+							</li>
+							<!-- Properly using an UL for chat sessions -->
+							<li id="list-wrapper-chats" style="padding-left: 38px;"></li>
+						</ul>
 					</li>
-
+					
+				</ul>
+				<script>
+					document.addEventListener('DOMContentLoaded', function() {
+						function buildListChats() {
+							var wrapper = document.getElementById('list-wrapper-chats');
+							var url = 'http://127.0.0.1:7000/api/chatsessions/';
+							var currentPath = window.location.pathname; // Get current URL path
+				
+							fetch(url)
+							.then((resp) => resp.json())
+							.then(function(data) {
+								console.log('Data chat name:', data);
+								wrapper.innerHTML = '';
+				
+								var sessionsToShow = data.reverse().slice(0, 10); // Limit to 10 sessions
+				
+								sessionsToShow.forEach(function(session) {
+									var sessionName = session.name ? session.name : 'Sesión sin nombre';
+									var truncatedName = sessionName.length > 22 ? sessionName.substring(0, 22) + '...' : sessionName;
+				
+									var sessionElement = document.createElement('a');
+									sessionElement.href = `/chat/${session.id}/`;
+									sessionElement.className = "sidebar-session-link chat-link";
+									sessionElement.innerHTML = `&rarr; ${truncatedName}`;
+				
+									// Check if the current window's path is the session link path
+									if (currentPath === `/chat/${session.id}/`) {
+										sessionElement.classList.add('active'); // Add 'active' class if the path matches
+									}
+				
+									var listItem = document.createElement('li');
+									listItem.className = "chat-item";
+									listItem.appendChild(sessionElement);
+									wrapper.appendChild(listItem);
+								});
+				
+								if (data.length > 10) {
+									var readMoreItem = document.createElement('li');
+									readMoreItem.className = "chat-item";
+									var readMoreLink = document.createElement('a');
+									readMoreLink.href = "{% url 'chats' %}"; // Make sure Django template renders this
+									readMoreLink.className = "sidebar-session-link";
+									readMoreLink.innerHTML = "Ver más sesiones...";
+									readMoreItem.appendChild(readMoreLink);
+									wrapper.appendChild(readMoreItem);
+								}
+							})
+							.catch(function(error) {
+								console.error('Error:', error);
+								wrapper.innerHTML = '<div class="text-muted">No se pudieron cargar las sesiones de diálogo.</div>';
+							});
+						}
+				
+						buildListChats();
+					});
+				</script>
+																				
 					<li class="sidebar-item {% if request.resolver_match.url_name == 'contracts' %}active{% endif %}"">
 						<a class="sidebar-link " href="{% url 'contracts' %}">
 							<i class="align-middle me-2 fas fa-fw fa-file-contract"></i> <span class="align-middle">Contratos</span>
@@ -197,12 +255,11 @@
 				</a>
 
 				<!-- Main Search on base html file -->
-				<form method="POST" class="d-none d-sm-inline-block position-relative" action="">
-					{% csrf_token %}
+				<form class="d-none d-sm-inline-block position-relative" action="{% url 'search' %}" method="get">
 					<div class="input-group input-group-navbar">
-						<input name="searched" type="text" class="form-control" placeholder="Search…" aria-label="Search" id="searchQuery" onkeyup="searchItems()" value="{% if searched %}{{ searched }}{% endif %}">
-						<button class="btn" type="button">
-							<i class="align-middle" data-feather="search"></i>
+						<input name="searched" type="text" class="form-control" placeholder="Buscar..." aria-label="Search" id="searchQuery" value="{% if searched %}{{ searched }}{% endif %}" oninput="fetchSearchResults()">
+						<button class="btn" type="submit">
+							<i class="align-middle" data-feather="search" style="color: black;"></i>
 						</button>
 					</div>
 					<div id="autocompleteResults" class="list-group position-absolute"></div>
@@ -397,67 +454,57 @@
 	</div>
 
 	<script src="{% static 'js/app.js' %}"></script>
-
+	<style>
+		.category-header {
+			font-weight: bold;
+			padding: 8px 10px;
+			background-color: #19222ce8;
+			border-bottom: 1px solid #ccc;
+			color: #333;
+		}
+		.list-group-item {
+			padding: 6px 10px;
+			border: none;
+		}
+		.list-group-item-action:hover {
+			background-color: #e9ecef;
+		}
+		</style>
+		
 	<script>
-		// Main Search on base html file
-		function searchItems() {
-			const query = document.getElementById('searchQuery').value;
-			if (query.length < 2) {
-				document.getElementById('autocompleteResults').innerHTML = '';
+		fetchSearchResults()
+		function fetchSearchResults() {
+			const input = document.getElementById('searchQuery');
+			const resultsDiv = document.getElementById('autocompleteResults');
+			const query = input.value;
+
+			if (query.length <  1) { // Optionally check for a minimum length before searching
+				resultsDiv.innerHTML = '';
 				return;
 			}
 
-			Promise.all([
-				fetch(`/api/tasks/search/?q=${query}`).then(response => response.json()),
-				fetch(`/api/categories/search/?q=${query}`).then(response => response.json())
-			])
-			.then(([taskData, categoryData]) => {
-				console.log('Task Data:', taskData);  // Debugging
-				console.log('Category Data:', categoryData);  // Debugging
+			fetch(`/api/search/?query=${encodeURIComponent(query)}`)
+				.then(response => response.json())
+				.then(data => {
+					let resultsHtml = '';
 
-				const autocompleteResults = document.getElementById('autocompleteResults');
-				autocompleteResults.innerHTML = '';
+					if (data.chat_sessions.length > 0) {
+						resultsHtml += `<div class='category-header' style='color: white;'><i class="align-middle me-2 far fa-fw fa-comment-dots"></i> Diálogos</div>`; // Header for chat sessions
+						data.chat_sessions.forEach(item => {
+							resultsHtml += `<a href="/chat/${item.id}/" class="list-group-item list-group-item-action">${item.name}</a>`;
+						});
+					}
 
-				if (categoryData.length > 0) {
-					const categoryHeader = document.createElement('div');
-					categoryHeader.className = 'list-group-item active';
-					categoryHeader.textContent = 'Categories';
-					autocompleteResults.appendChild(categoryHeader);
+					if (data.contract_projects.length > 0) {
+						resultsHtml += `<div class='category-header' style='color: white;'><i style="color: white;" class="align-middle me-2 far fa-fw fa-file-word"></i> Contracto Proyectos</div>`; // Header for contract projects
+						data.contract_projects.forEach(item => {
+							resultsHtml += `<a href="/contract/${item.id}/" class="list-group-item list-group-item-action">${item.name}</a>`;
+						});
+					}
 
-					categoryData.forEach(category => {
-						const categoryItem = document.createElement('a');
-						categoryItem.href = `/task-list/${category.id}/`; // Link to category detail page
-						categoryItem.className = 'list-group-item list-group-item-action';
-						categoryItem.innerHTML = `<strong>${category.name}</strong><br><small>Created on: ${new Date(category.created_at).toLocaleDateString()}</small>`;
-						autocompleteResults.appendChild(categoryItem);
-					});
-				}
-
-				if (taskData.length > 0) {
-					const taskHeader = document.createElement('div');
-					taskHeader.className = 'list-group-item active';
-					taskHeader.textContent = 'Tasks';
-					autocompleteResults.appendChild(taskHeader);
-
-					taskData.forEach(task => {
-						const taskItem = document.createElement('a');
-						taskItem.href = `/task-list/${task.category_id}/`; // Link to task detail page
-						taskItem.className = 'list-group-item list-group-item-action';
-						taskItem.innerHTML = `<strong>${task.title}</strong> - <small>${task.category_name || 'No Category'}</small><br><small>Created on: ${new Date(task.created_at).toLocaleDateString()}</small>`;
-						autocompleteResults.appendChild(taskItem);
-					});
-				}
-			})
-			.catch(error => console.error('Error:', error));
+					resultsDiv.innerHTML = resultsHtml;
+				});
 		}
-
-		// Add event listener for clicks outside the input and results box
-		document.addEventListener('click', function(event) {
-			const isClickInside = document.getElementById('searchQuery').contains(event.target) || document.getElementById('autocompleteResults').contains(event.target);
-			if (!isClickInside) {
-				document.getElementById('autocompleteResults').innerHTML = '';
-			}
-		});
 
 		// Yearly progress bar
 		const startOfYear = new Date(new Date().getFullYear(), 0, 1);

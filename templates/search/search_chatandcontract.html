@@ -1,0 +1,73 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-3">
+    <!-- Row for both tables -->
+    <div class="row">
+
+        <!-- Column for Contract Projects -->
+        <div class="col-md-6">
+            <h2>Contract Projects</h2>
+            {% if contract_projects.has_other_pages %}
+            <div>
+                {% if contract_projects.has_previous %}
+                <a href="?search={{ query }}&page_cp={{ contract_projects.previous_page_number }}&page_cs={{ chat_sessions.number }}">Previous</a>
+                {% endif %}
+                <span>Page {{ contract_projects.number }} of {{ contract_projects.paginator.num_pages }}</span>
+                {% if contract_projects.has_next %}
+                <a href="?search={{ query }}&page_cp={{ contract_projects.next_page_number }}&page_cs={{ chat_sessions.number }}">Next</a>
+                {% endif %}
+            </div>
+            {% endif %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Project Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in contract_projects %}
+                    <tr>
+                        <td><a href="{% url 'contract' project.id %}">{{ project.name }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Column for Chat Sessions -->
+        <div class="col-md-6">
+            <h2>Chat Sessions</h2>
+            {% if chat_sessions.has_other_pages %}
+            <div>
+                {% if chat_sessions.has_previous %}
+                <a href="?search={{ query }}&page_cs={{ chat_sessions.previous_page_number }}&page_cp={{ contract_projects.number }}">Previous</a>
+                {% endif %}
+                <span>Page {{ chat_sessions.number }} of {{ chat_sessions.paginator.num_pages }}</span>
+                {% if chat_sessions.has_next %}
+                <a href="?search={{ query }}&page_cs={{ chat_sessions.next_page_number }}&page_cp={{ contract_projects.number }}">Next</a>
+                {% endif %}
+            </div>
+            {% endif %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Session Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in chat_sessions %}
+                    <tr>
+                        <td><a href="{% url 'chat' session.id %}">{{ session.name }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+
+{% endblock %}
