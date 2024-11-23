@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import ContractProject, AIHighlightChat, ChatSession, Message
+from .models import ContractProject, AIHighlightChat, ChatSession, Message, Feedback, ContractSteps
 
 class AIHighlightChatSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,3 +25,16 @@ class ChatSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChatSession
         fields = ['id', 'name', 'created_at', 'updated_at', 'owner', 'messages']
+
+class ContractStepsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContractSteps
+        fields = '__all__'
+        extra_kwargs = {
+            'user': {'required': False}  # Make `user` optional during validation
+        }
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = ['id', 'user', 'feedback_type', 'message', 'email', 'phone_number', 'created_at']

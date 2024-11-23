@@ -14,8 +14,8 @@ import random
 from rest_framework.views import APIView
 from rest_framework import status, pagination
 
-from .models import ContractProject, AIHighlightChat, ChatSession, Message
-from .serializer import ContractProjectSerializer, AIHighlightChatSerializer, MessageSerializer, ChatSessionSerializer
+from .models import ContractProject, AIHighlightChat, ChatSession, Message, ContractSteps
+from .serializer import ContractProjectSerializer, AIHighlightChatSerializer, MessageSerializer, ChatSessionSerializer, FeedbackSerializer, ContractStepsSerializer
 
 openai.api_key = settings.OPENAI_API_KEY
 
@@ -568,3 +568,29 @@ def search_api(request):
         return Response(result)
     else:
         return Response({"error": "GET request required"}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Only authenticated users can access
+def contract_steps(request):
+    # Exclude `user` from the data to avoid validation errors
+    data = request.data.copy()  # Make a mutable copy of request data
+    data.pop('user', None)  # Remove the user field if present
+
+    serializer = ContractStepsSerializer(data=data)
+    if serializer.is_valid():
+        # Save the instance and set the user
+        serializer.save(user=request.user if request.user.is_authenticated else None)
+        return Response(serializer.data, status=201)
+    else:
+        print(serializer.errors)  # Debugging purpose
+        return Response(serializer.errors, status=400)
+    
+@api_view(['POST'])
+def feed_back(request):
+    serializer = FeedbackSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user if request.user.is_authenticated else None)
+        return Response(serializer.data, status=201)
+    else:
+        print(serializer.errors)
+        return Response(serializer.errors, status=400)

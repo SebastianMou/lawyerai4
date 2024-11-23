@@ -18,6 +18,8 @@ urlpatterns = [
 
     path('contract_project/<int:pk>/download_pdf/', views.download_contract_pdf, name='download_contract_pdf'),
     path('search/', views.search, name='search'),
+    path('feedback/', views.feedback, name='feedback'),
+    path('contract-stepbystep/', views.contract_stepbystep, name='contract_stepbystep'),
 
     path('signup/', views.signup, name='signup'),
     # activación de la cuenta de usuario por correo electrónico

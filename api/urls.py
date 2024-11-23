@@ -16,6 +16,8 @@ urlpatterns = [
     path('delete-chat-history-contract/<int:contract_project_id>/', views.delete_chat_history_contract, name='delete-chat-history-contract'),
 
     path('search/', views.search_api, name='api_search'),
+    path('feed-back/', views.feed_back, name='feed-back'),
+    path('contract-steps/', views.contract_steps, name='contract-steps'),
 
     # Chat Session Lawyer URLs
     path('chatsessions/', views.list_chat_sessions, name='list_chat_sessions'),

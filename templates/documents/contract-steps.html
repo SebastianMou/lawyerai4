@@ -1,0 +1,526 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.1.2/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: 'textarea', // Targets all <textarea> elements
+        menubar: false, // Disable the menu bar (optional)
+        toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist outdent indent', // Customize toolbar (optional)
+        plugins: 'lists', // Include plugins as needed
+        branding: false, // Remove "Powered by TinyMCE" branding (optional)
+        height: 300, // Set the height of the editor
+        language: 'es' // Set the language to Spanish (optional)
+    });
+</script>
+<style>
+    .fa-question-circle {
+        color: gray;
+        transition: color 0.3s ease; /* Smooth transition */
+    }
+
+    .fa-question-circle:hover {
+        color: black; /* Change color on hover */
+    }
+
+    .info-icon {
+        cursor: pointer;
+        color: #0d6efd;
+    }
+
+    .info-icon:hover + .tooltip-text {
+        display: block;
+    }
+
+    .tooltip-text {
+        display: none;
+        position: absolute;
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 10;
+        font-size: 0.9em;
+        max-width: 250px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.633);
+    }
+</style>
+<style>
+    /* Step indicator container */
+    #stepIndicators {
+        margin: 20px 0;
+        position: relative;
+        width: 100%;
+    }
+
+    /* The connecting line */
+    #stepIndicators::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: #ddd; /* Inactive line color */
+        z-index: 0;
+    }
+
+    /* Step indicator circles */
+    .step-indicator {
+        position: relative;
+        width: 30px;
+        height: 30px;
+        border: 2px solid #ddd;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        z-index: 1;
+        transition: all 0.3s ease;
+    }
+
+    .step-indicator.active {
+        border-color: #0d6efd;
+        background-color: #0d6efd;
+        color: white;
+        font-weight: bold;
+    }
+
+    /* Line segment for active sections */
+    .step-indicator.active::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: -50%;
+        width: 100%;
+        height: 2px;
+        background-color: #0d6efd; /* Active line color */
+        z-index: -1;
+    }
+
+    .step-indicator:first-child.active::before {
+        content: none; /* No line before the first circle */
+    }
+</style>
+
+<div class="container">
+    <!-- <p>Complete los campos a continuación para generar un contrato profesional paso a paso.</p> -->
+
+    <div class="container" style="margin-top: 25px;">
+        <div class="d-flex justify-content-between align-items-center mb-3 position-relative" id="stepIndicators">
+            <!-- Dynamically generated indicators -->
+        </div>
+
+        <!-- Carousel -->
+        <div id="contractCarousel" class="carousel slide" data-bs-ride="false" data-bs-interval="false">
+            <div class="carousel-inner">
+                <form id="contractForm" novalidate>
+                    <!-- Step 1 -->
+                    <div class="carousel-item active">
+                        <div class="text-end">
+                            <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i></button>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Título del Contrato:</label>
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Escriba el título del contrato. Esto aparecerá en la parte superior del documento."></i>
+                            <input type="text" id="title" name="title" class="form-control" maxlength="255" required placeholder="Ejemplo: Contrato de Arrendamiento de Vivienda" style="border: none; border-bottom: 1px solid gray; background: none; border-radius: 0; outline: none; box-shadow: none;">
+                        </div> 
+                        <div>
+                            <h4>legal</h4>
+                            <hr>
+                            <h4>asdfkjasd;f</h4>
+                            <hr>
+                            <h4>a;sdlkfjkass</h4>
+                        </div>                   
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+                            <label for="party_one_name" class="form-label">Nombre de la Primera Parte:</label> 
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Ingrese el nombre completo de la primera parte del contrato. Puede ser una persona o empresa."></i>
+
+                            <input type="text" id="party_one_name" name="party_one_name" class="form-control" maxlength="255" placeholder="Ejemplo: Juan Pérez" style="border: none; border-bottom: 1px solid gray; background: none; border-radius: 0; outline: none; box-shadow: none;">
+
+                        </div>
+                        <br>
+                        <div class="mb-3">
+                            <label for="party_one_role" class="form-label">Rol de la Primera Parte: (opcional)</label> 
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Indique el rol o función de la primera parte en este contrato (por ejemplo, Propietario)."></i>
+
+                            <input type="text" id="party_one_role" name="party_one_role" class="form-control" maxlength="255" placeholder="Ejemplo: Propietario" style="border: none; border-bottom: 1px solid gray; background: none; border-radius: 0; outline: none; box-shadow: none;">
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+                            <label for="party_two_name" class="form-label">Nombre de la Segunda Parte:</label> 
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Ingrese el nombre completo de la segunda parte del contrato. Puede ser una persona o empresa."></i>
+
+                            <input type="text" id="party_two_name" name="party_two_name" class="form-control" maxlength="255" placeholder="Ejemplo: María López" style="border: none; border-bottom: 1px solid gray; background: none; border-radius: 0; outline: none; box-shadow: none;">
+                        </div>
+                        <br>
+                        <div class="mb-3">
+                            <label for="party_two_role" class="form-label">Rol de la Segunda Parte: (opcional)</label> 
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Indique el rol o función de la segunda parte en este contrato (por ejemplo, Inquilino)."></i>
+
+                            <input type="text" id="party_two_role" name="party_two_role" class="form-control" maxlength="255" placeholder="Ejemplo: Inquilino" style="border: none; border-bottom: 1px solid gray; background: none; border-radius: 0; outline: none; box-shadow: none;">
+                        </div>
+                    </div>
+
+                    <!-- Step 6 -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+                            <label for="effective_date" class="form-label">Fecha de Inicio:</label> 
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Seleccione la fecha en que este contrato entrará en vigor."></i>
+
+                            <input type="date" id="effective_date" name="effective_date" class="form-control" style="border: none; border-bottom: 1px solid gray; background: none; border-radius: 0; outline: none; box-shadow: none;">
+                        </div>
+                    </div>
+
+                    <!-- Step 7 -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+                            <label for="purpose" class="form-label">Propósito o Descripción:</label> 
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Proporcione una breve descripción del propósito del contrato."></i>
+
+                            <textarea id="purpose" name="purpose" class="form-control" rows="4" placeholder="Ejemplo: Este contrato establece los términos para alquilar un departamento en la Ciudad de México."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Step 8 -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+                            <label for="obligations" class="form-label">Obligaciones y Responsabilidades:</label> 
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Describa las responsabilidades de cada parte involucrada en este contrato."></i>
+
+                            <textarea id="obligations" name="obligations" class="form-control" rows="4" placeholder="Ejemplo: El propietario se compromete a mantener la propiedad en buenas condiciones."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Step 9 -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+                            <label for="payment_terms" class="form-label">Términos de Pago: (Opcional)</label> <small>Si el contrato no involucra transacciones financieras (por ejemplo, acuerdos no monetarios, NDAs), esto puede omitirse.</small>
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Especifique los términos de pago, como montos y fechas de vencimiento (opcional)."></i>
+
+                            <textarea id="payment_terms" name="payment_terms" class="form-control" rows="4" placeholder="Ejemplo: El inquilino pagará $10,000 MXN mensuales el primer día de cada mes."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Step 10 -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+                            <label for="duration" class="form-label">Duración: (Opcional)</label><small>Algunos contratos (por ejemplo, acuerdos indefinidos) no requieren una duración específica.</small>
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Indique la duración del contrato (por ejemplo, 12 meses)."></i>
+
+                            <input type="text" id="duration" name="duration" class="form-control" maxlength="255" placeholder="Ejemplo: 12 meses" style="border: none; border-bottom: 1px solid gray; background: none; border-radius: 0; outline: none; box-shadow: none;">
+                        </div>
+                    </div>
+
+                    <!-- Step 11 -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+                            <label for="termination_clause" class="form-label">Cláusula de Terminación:</label><small>Aunque se recomienda para mayor claridad, algunos contratos (por ejemplo, transacciones únicas) pueden no necesitar condiciones de terminación.</small>
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Defina las condiciones bajo las cuales este contrato puede ser terminado."></i>
+
+                            <textarea id="termination_clause" name="termination_clause" class="form-control" rows="4" placeholder="Ejemplo: El contrato podrá ser terminado con un aviso de 30 días."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Step 12 -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+                            <label for="confidentiality_clause" class="form-label">Cláusula de Confidencialidad:</label>
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Describa cualquier requisito de confidencialidad que aplique a este contrato (opcional)."></i>
+
+                            <textarea id="confidentiality_clause" name="confidentiality_clause" class="form-control" rows="4" placeholder="Ejemplo: Ambas partes acuerdan mantener la información confidencial."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Step 13 -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+                            <label for="dispute_resolution" class="form-label">Resolución de Disputas:</label>
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Especifique cómo se resolverán las disputas relacionadas con este contrato (por ejemplo, arbitraje)."></i>
+
+                            <textarea id="dispute_resolution" name="dispute_resolution" class="form-control" rows="4" placeholder="Ejemplo: Las disputas se resolverán mediante arbitraje."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Step 14 -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+                            <label for="penalties_for_breach" class="form-label">Penalizaciones por Incumplimiento:</label>
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Defina las penalizaciones aplicables en caso de incumplimiento del contrato."></i>
+
+                            <textarea id="penalties_for_breach" name="penalties_for_breach" class="form-control" rows="4" placeholder="Ejemplo: El incumplimiento resultará en una multa del 10%."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Step 15 -->
+                    <div class="carousel-item">
+                        <div class="form-check mb-3">
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+                            <input type="checkbox" id="notary_required" name="notary_required" class="form-check-input">
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Indique si se requiere la presencia de un notario para este contrato."></i>
+
+                            <label for="notary_required" class="form-check-label">¿Requiere Notario?</label> 
+                            
+                        </div>
+                    </div>
+
+                    <!-- Step 16 -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <!-- Existing form content remains unchanged -->
+                                    <button type="submit" id="submitButton" class="btn btn-success mt-2" style="border-radius: 50px;">
+                                        Finalizar <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <label for="attachments" class="form-label">Adjuntar Documentos:</label>
+                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Suba documentos relevantes como anexos o comprobantes."></i>
+
+                            <input type="file" id="attachments" name="attachments" class="form-control">
+                        </div>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<script>
+document.getElementById("contractForm").addEventListener("submit", async function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const form = event.target;
+    const formData = new FormData(form); // Gather all form data, including files
+
+    try {
+        const response = await fetch("http://127.0.0.1:7000/api/contract-steps/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCSRFToken(), // Include CSRF token if necessary
+            },
+            body: formData, // Send FormData directly
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            alert("Contract steps successfully saved!");
+            console.log("Response:", data); // Debug response in the console
+        } else {
+            const errorData = await response.json();
+            alert("Failed to save contract steps. Check console for details.");
+            console.error("Error:", errorData); // Debug error response in the console
+        }
+    } catch (error) {
+        console.error("Unexpected error:", error);
+        alert("An unexpected error occurred. Check console for details.");
+    }
+});
+
+function getCSRFToken() {
+    const name = "csrftoken";
+    const cookies = document.cookie.split("; ");
+    for (let cookie of cookies) {
+        const [key, value] = cookie.split("=");
+        if (key === name) {
+            return value;
+        }
+    }
+    return "";
+}
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const totalSteps = 14; // Total number of steps
+        const stepIndicatorsContainer = document.getElementById('stepIndicators');
+        const carousel = document.getElementById('contractCarousel');
+
+        // Generate step indicators with connecting lines
+        for (let i = 1; i <= totalSteps; i++) {
+            const indicator = document.createElement('span');
+            indicator.classList.add('step-indicator');
+            if (i === 1) indicator.classList.add('active'); // Mark the first step as active
+            indicator.textContent = i;
+            stepIndicatorsContainer.appendChild(indicator);
+        }
+
+        // Update indicators and lines when the carousel slides
+        carousel.addEventListener('slid.bs.carousel', function (event) {
+            const indicators = document.querySelectorAll('.step-indicator');
+            const currentStep = event.to; // 0-based index of the current step
+
+            // Reset all indicators
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index <= currentStep);
+            });
+        });
+    });
+</script>
+
+
+
+
+{% endblock %}
+
+

@@ -180,10 +180,11 @@ def activateEmail(request, user, to_email):
 def check_email(request):
     return render(request, 'authentication/check_email.html')
 
+@login_required(login_url='/login/')  
 def invoice(request):
     return render(request, 'invoice.html')
 
-@login_required
+@login_required(login_url='/login/')  
 def pages(request):
     if request.method == 'POST':
         user = request.user
@@ -290,3 +291,11 @@ def search(request):
         'query': query,
     }
     return render(request, 'search/search_chatandcontract.html', context)
+
+@login_required(login_url='/login/')  
+def feedback(request):
+    return render(request, 'search/feedback.html')
+
+@login_required(login_url='/login/')  
+def contract_stepbystep(request):
+    return render(request, 'documents/contract-steps.html')

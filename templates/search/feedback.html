@@ -1,0 +1,121 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<br>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <img class="img-fluid d-block mx-auto" src="{% static 'img/icons/Anton Logo 1.png' %}" alt="" style="width: 6%;">
+            <h1 class="text-center">retroalimentación</h1>
+
+            <div class="row">
+                <div class="col">
+                    <div class="card" style="border-radius: 50px; height: 80px;">
+                        <div class="card-body">
+                            <small style="color: gray;">Correo Electrónico</small>
+                            <p style="font-weight: bold;">gtsgtagtw123@gmail.com</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card" style="border-radius: 50px; height: 80px;">
+                        <div class="card-body">
+                            <small style="color: gray;">Numero de Telefono</small>
+                            <p style="font-weight: bold;">+52 (744) 505-5734</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="feedback-container" class="container mt-4">
+                <form id="feedbackForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="feedback_type" class="form-label">Tipo de Feedback:</label>
+                        <select name="feedback_type" id="feedback_type" class="form-select" required>
+                            <option value="bug">Error</option>
+                            <option value="complaint">Queja</option>
+                            <option value="suggestion">Sugerencia</option>
+                            <option value="other">Otro</option>
+                        </select>
+                    </div>
+            
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Mensaje:</label>
+                        <textarea id="message" name="message" rows="4" class="form-control" required></textarea>
+                    </div>
+            
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo Electrónico (Opcional):</label>
+                        <input type="email" id="email" name="email" class="form-control">
+                    </div>
+            
+                    <div class="mb-3">
+                        <label for="phone_number" class="form-label">Número de Teléfono (Opcional):</label>
+                        <input type="text" id="phone_number" name="phone_number" maxlength="15" class="form-control">
+                    </div>
+            
+                    <button type="button" id="submitFeedback" class="btn btn-primary">Enviar</button>
+                </form>
+            </div>
+            
+            <div id="success-message" class="container mt-4 text-center" style="display: none;">
+                <div class="card">
+                    <div class="card-body">
+                        <center>
+                            <i style="color: green; font-size: 3rem;" class="align-middle me-2 far fa-fw fa-check-circle"></i>
+                            <br>
+                            <h2>¡Tu retroalimentación ha sido enviado con éxito!</h2>
+                        </center>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                document.getElementById('submitFeedback').addEventListener('click', function() {
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    const feedbackType = document.getElementById('feedback_type').value;
+                    const message = document.getElementById('message').value;
+                    const email = document.getElementById('email').value;
+                    const phoneNumber = document.getElementById('phone_number').value;
+            
+                    var url = 'http://127.0.0.1:7000/api/feed-back/';
+                    
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({
+                            feedback_type: feedbackType,
+                            message: message,
+                            email: email,
+                            phone_number: phoneNumber
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.id) {
+                            // Hide the form and show success message
+                            document.getElementById('feedbackForm').style.display = 'none';
+                            document.getElementById('success-message').style.display = 'block';
+                        } else {
+                            console.log('Errores:', data);
+                            alert('Ocurrió un error. Por favor, verifica tu entrada.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Ocurrió un error al enviar el feedback.');
+                    });
+                });
+            </script>
+            
+            
+
+        </div>
+    </div>
+</div>
+{% endblock %}
