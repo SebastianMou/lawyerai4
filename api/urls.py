@@ -18,6 +18,8 @@ urlpatterns = [
     path('search/', views.search_api, name='api_search'),
     path('feed-back/', views.feed_back, name='feed-back'),
     path('contract-steps/', views.contract_steps, name='contract-steps'),
+    path('generate-suggestions/', views.generate_suggestions, name='generate-suggestions'),
+    path('generate-ai-text/', views.generate_ai_text, name='generate-ai-text'),
 
     # Chat Session Lawyer URLs
     path('chatsessions/', views.list_chat_sessions, name='list_chat_sessions'),

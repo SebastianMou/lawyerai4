@@ -120,21 +120,21 @@
                     <!-- Step 1 -->
                     <div class="carousel-item active">
                         <div class="text-end">
-                            <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i></button>
+                            <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                            </button>
                         </div>
-
+                
                         <div class="mb-3">
                             <label for="title" class="form-label">Título del Contrato:</label>
-                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Escriba el título del contrato. Esto aparecerá en la parte superior del documento."></i>
-                            <input type="text" id="title" name="title" class="form-control" maxlength="255" required placeholder="Ejemplo: Contrato de Arrendamiento de Vivienda" style="border: none; border-bottom: 1px solid gray; background: none; border-radius: 0; outline: none; box-shadow: none;">
-                        </div> 
-                        <div>
-                            <h4>legal</h4>
-                            <hr>
-                            <h4>asdfkjasd;f</h4>
-                            <hr>
-                            <h4>a;sdlkfjkass</h4>
-                        </div>                   
+                            <input type="text" id="title" name="title" class="form-control" maxlength="255" required placeholder="Ejemplo: Contrato de Arrendamiento de Vivienda" style="border: none; border-bottom: 1px solid gray;">
+                        </div>
+                
+                        <!-- Suggestion box -->
+                        <div id="suggestionBox" style="display: none; font-style: italic; color: gray;">
+                            <!-- Suggestions will be dynamically added here -->
+                        </div>
+
                     </div>
 
                     <!-- Step 2 -->
@@ -215,6 +215,7 @@
                             <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Seleccione la fecha en que este contrato entrará en vigor."></i>
 
                             <input type="date" id="effective_date" name="effective_date" class="form-control" style="border: none; border-bottom: 1px solid gray; background: none; border-radius: 0; outline: none; box-shadow: none;">
+
                         </div>
                     </div>
 
@@ -233,10 +234,21 @@
                                     </button>    
                                 </div>
                             </div>
-                            <label for="purpose" class="form-label">Propósito o Descripción:</label> 
-                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Proporcione una breve descripción del propósito del contrato."></i>
+                            <div class="mb-3">
+                                <label for="purpose" class="form-label">Propósito o Descripción:</label>
+                                <textarea id="purpose" name="purpose" class="form-control"></textarea>
+                            
+                                <button class="btn btn-primary form-control" type="button" style="margin-top: 12px; border-radius: 50px;" onclick="generateAIText('purpose', event)">
+                                    Reescribir Párrafo
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                                      </svg>
+                                </button>
+                            
+                                <div id="purpose-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
 
-                            <textarea id="purpose" name="purpose" class="form-control" rows="4" placeholder="Ejemplo: Este contrato establece los términos para alquilar un departamento en la Ciudad de México."></textarea>
+                            </div>
+
                         </div>
                     </div>
 
@@ -255,10 +267,20 @@
                                     </button>    
                                 </div>
                             </div>
-                            <label for="obligations" class="form-label">Obligaciones y Responsabilidades:</label> 
-                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Describa las responsabilidades de cada parte involucrada en este contrato."></i>
-
-                            <textarea id="obligations" name="obligations" class="form-control" rows="4" placeholder="Ejemplo: El propietario se compromete a mantener la propiedad en buenas condiciones."></textarea>
+                            <div class="mb-3">
+                                <label for="obligations" class="form-label">Obligaciones y Responsabilidades:</label>
+                                <textarea id="obligations" name="obligations" class="form-control"></textarea>
+                            
+                                <button class="btn btn-primary form-control" type="button" style="margin-top: 12px; border-radius: 50px;" onclick="generateAIText('obligations', event)">
+                                    Reescribir Párrafo
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                                      </svg>
+                                </button>
+                            
+                                <div id="obligations-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+                            </div>
+                            
                         </div>
                     </div>
 
@@ -277,10 +299,23 @@
                                     </button>    
                                 </div>
                             </div>
-                            <label for="payment_terms" class="form-label">Términos de Pago: (Opcional)</label> <small>Si el contrato no involucra transacciones financieras (por ejemplo, acuerdos no monetarios, NDAs), esto puede omitirse.</small>
-                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Especifique los términos de pago, como montos y fechas de vencimiento (opcional)."></i>
 
-                            <textarea id="payment_terms" name="payment_terms" class="form-control" rows="4" placeholder="Ejemplo: El inquilino pagará $10,000 MXN mensuales el primer día de cada mes."></textarea>
+                            <div class="mb-3">
+                                <label for="payment_terms" class="form-label">Términos de Pago: (Opcional)</label> <small>Si el contrato no involucra transacciones financieras (por ejemplo, acuerdos no monetarios, NDAs), esto puede omitirse.</small>
+                                <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Especifique los términos de pago, como montos y fechas de vencimiento (opcional)."></i>
+
+                                <textarea id="payment_terms" name="payment_terms" class="form-control" rows="4" placeholder="Ejemplo: El inquilino pagará $10,000 MXN mensuales el primer día de cada mes."></textarea>
+
+                                <button class="btn btn-primary form-control" style="border-radius: 50px; margin-top: 12px;" onclick="generateAIText('payment_terms', event)">
+                                    Reescribir Párrafo 
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                                    </svg>
+                                </button>
+                                
+                                <div id="payment_terms-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+                            </div>
+                            
                         </div>
                     </div>
 
@@ -321,10 +356,23 @@
                                     </button>    
                                 </div>
                             </div>
-                            <label for="termination_clause" class="form-label">Cláusula de Terminación:</label><small>Aunque se recomienda para mayor claridad, algunos contratos (por ejemplo, transacciones únicas) pueden no necesitar condiciones de terminación.</small>
-                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Defina las condiciones bajo las cuales este contrato puede ser terminado."></i>
 
-                            <textarea id="termination_clause" name="termination_clause" class="form-control" rows="4" placeholder="Ejemplo: El contrato podrá ser terminado con un aviso de 30 días."></textarea>
+                            <div class="mb-3">
+                                <label for="termination_clause" class="form-label">Cláusula de Terminación:</label><small>Aunque se recomienda para mayor claridad, algunos contratos (por ejemplo, transacciones únicas) pueden no necesitar condiciones de terminación.</small>
+                                <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Defina las condiciones bajo las cuales este contrato puede ser terminado."></i>
+    
+                                <textarea id="termination_clause" name="termination_clause" class="form-control" rows="4" placeholder="Ejemplo: El contrato podrá ser terminado con un aviso de 30 días."></textarea>
+    
+                                <button class="btn btn-primary form-control" style="border-radius: 50px; margin-top: 12px;" onclick="generateAIText('termination_clause', event)">
+                                    Reescribir Párrafo 
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                                      </svg>
+                                </button>
+
+                                <div id="termination_clause-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+                            </div>
+                            
                         </div>
                     </div>
 
@@ -343,10 +391,23 @@
                                     </button>    
                                 </div>
                             </div>
-                            <label for="confidentiality_clause" class="form-label">Cláusula de Confidencialidad:</label>
-                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Describa cualquier requisito de confidencialidad que aplique a este contrato (opcional)."></i>
 
-                            <textarea id="confidentiality_clause" name="confidentiality_clause" class="form-control" rows="4" placeholder="Ejemplo: Ambas partes acuerdan mantener la información confidencial."></textarea>
+                            <div class="mb-3">
+                                <label for="confidentiality_clause" class="form-label">Cláusula de Confidencialidad:</label>
+                                <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Describa cualquier requisito de confidencialidad que aplique a este contrato (opcional)."></i>
+    
+                                <textarea id="confidentiality_clause" name="confidentiality_clause" class="form-control" rows="4" placeholder="Ejemplo: Ambas partes acuerdan mantener la información confidencial."></textarea>
+    
+                                <button class="btn btn-primary form-control" style="border-radius: 50px; margin-top: 12px;" onclick="generateAIText('confidentiality_clause', event)">
+                                    Reescribir Párrafo 
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                                      </svg>
+                                </button>
+
+                                <div id="confidentiality_clause-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+    
+                            </div>
                         </div>
                     </div>
 
@@ -365,10 +426,24 @@
                                     </button>    
                                 </div>
                             </div>
-                            <label for="dispute_resolution" class="form-label">Resolución de Disputas:</label>
-                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Especifique cómo se resolverán las disputas relacionadas con este contrato (por ejemplo, arbitraje)."></i>
 
-                            <textarea id="dispute_resolution" name="dispute_resolution" class="form-control" rows="4" placeholder="Ejemplo: Las disputas se resolverán mediante arbitraje."></textarea>
+                            <div class="mb-3">
+                                <label for="dispute_resolution" class="form-label">Resolución de Disputas:</label>
+                                <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Especifique cómo se resolverán las disputas relacionadas con este contrato (por ejemplo, arbitraje)."></i>
+    
+                                <textarea id="dispute_resolution" name="dispute_resolution" class="form-control" rows="4" placeholder="Ejemplo: Las disputas se resolverán mediante arbitraje."></textarea>
+
+                                <button class="btn btn-primary form-control" style="border-radius: 50px; margin-top: 12px;" onclick="generateAIText('dispute_resolution', event)">
+                                    Reescribir Párrafo 
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                                    </svg>
+                                </button>
+
+                                <div id="dispute_resolution-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+
+                            </div>
+                            
                         </div>
                     </div>
 
@@ -387,10 +462,24 @@
                                     </button>    
                                 </div>
                             </div>
-                            <label for="penalties_for_breach" class="form-label">Penalizaciones por Incumplimiento:</label>
-                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Defina las penalizaciones aplicables en caso de incumplimiento del contrato."></i>
 
-                            <textarea id="penalties_for_breach" name="penalties_for_breach" class="form-control" rows="4" placeholder="Ejemplo: El incumplimiento resultará en una multa del 10%."></textarea>
+                            <div class="mb-3">
+                                <label for="penalties_for_breach" class="form-label">Penalizaciones por Incumplimiento:</label>
+                                <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Defina las penalizaciones aplicables en caso de incumplimiento del contrato."></i>
+    
+                                <textarea id="penalties_for_breach" name="penalties_for_breach" class="form-control" rows="4" placeholder="Ejemplo: El incumplimiento resultará en una multa del 10%."></textarea>
+    
+                                <button class="btn btn-primary form-control" style="border-radius: 50px; margin-top: 12px;" onclick="generateAIText('penalties_for_breach', event)">
+                                    Reescribir Párrafo 
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                                      </svg>
+                                </button>
+
+                                <div id="penalties_for_breach-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+
+                            </div>
+                           
                         </div>
                     </div>
 
@@ -404,9 +493,10 @@
                                     </button>
                                 </div>
                                 <div class="col text-end">
-                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
-                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
-                                    </button>    
+                                    <!-- Existing form content remains unchanged -->
+                                    <button type="submit" id="submitButton" class="btn btn-success mt-2" style="border-radius: 50px;">
+                                        Finalizar <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>
                                 </div>
                             </div>
                             <input type="checkbox" id="notary_required" name="notary_required" class="form-check-input">
@@ -414,29 +504,6 @@
 
                             <label for="notary_required" class="form-check-label">¿Requiere Notario?</label> 
                             
-                        </div>
-                    </div>
-
-                    <!-- Step 16 -->
-                    <div class="carousel-item">
-                        <div class="mb-3">
-                            <div class="row">
-                                <div class="col">
-                                    <button type="button" class="btn btn-secondary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
-                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
-                                    </button>
-                                </div>
-                                <div class="col text-end">
-                                    <!-- Existing form content remains unchanged -->
-                                    <button type="submit" id="submitButton" class="btn btn-success mt-2" style="border-radius: 50px;">
-                                        Finalizar <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <label for="attachments" class="form-label">Adjuntar Documentos:</label>
-                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Suba documentos relevantes como anexos o comprobantes."></i>
-
-                            <input type="file" id="attachments" name="attachments" class="form-control">
                         </div>
                     </div>
                 </form>
@@ -447,52 +514,170 @@
     
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+
 <script>
-document.getElementById("contractForm").addEventListener("submit", async function (event) {
-    event.preventDefault(); // Prevent the default form submission
+    let contractId = null; // Store the contract ID after the first save
 
-    const form = event.target;
-    const formData = new FormData(form); // Gather all form data, including files
+    // Listen for input in the title field
+    document.getElementById("title").addEventListener("input", async function (event) {
+        const userInput = event.target.value;
 
-    try {
-        const response = await fetch("http://127.0.0.1:7000/api/contract-steps/", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCSRFToken(), // Include CSRF token if necessary
-            },
-            body: formData, // Send FormData directly
+        if (userInput.length > 2) { // Trigger the API call only for meaningful input
+            try {
+                const response = await fetch("http://127.0.0.1:7000/api/generate-suggestions/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken(),
+                    },
+                    body: JSON.stringify({ input: userInput }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    populateSuggestions(data.suggestions);
+
+                    // Show the suggestion box if there are any suggestions
+                    const suggestionBox = document.getElementById("suggestionBox");
+                    suggestionBox.style.display =
+                        data.suggestions.some((s) => s) ? "block" : "none";
+                } else {
+                    console.error("Error:", data);
+                }
+            } catch (error) {
+                console.error("Unexpected error:", error);
+            }
+        }
+    });
+
+    // Function to populate suggestions dynamically
+    function populateSuggestions(suggestions) {
+        const suggestionBox = document.getElementById("suggestionBox");
+        suggestionBox.innerHTML = ""; // Clear previous suggestions
+
+        suggestions.forEach((suggestionText, index) => {
+            if (suggestionText) {
+                // Create <h3> for the suggestion
+                const suggestionElement = document.createElement("h4");
+                suggestionElement.textContent = suggestionText;
+                suggestionElement.style.cursor = "pointer"; // Add pointer cursor
+                suggestionElement.onclick = function (e) {
+                    e.preventDefault(); // Prevent default behavior
+                    e.stopPropagation(); // Stop event propagation
+                    document.getElementById("title").value = suggestionText; // Insert clicked suggestion
+                    suggestionBox.style.display = "none"; // Hide suggestions
+                };
+
+                // Add the suggestion <h3> to the suggestion box
+                suggestionBox.appendChild(suggestionElement);
+
+                // Add a horizontal rule (<hr>) after each suggestion, except the last one
+                if (index < suggestions.length - 1) {
+                    const hr = document.createElement("hr");
+                    suggestionBox.appendChild(hr);
+                }
+            }
         });
-
-        if (response.ok) {
-            const data = await response.json();
-            alert("Contract steps successfully saved!");
-            console.log("Response:", data); // Debug response in the console
-        } else {
-            const errorData = await response.json();
-            alert("Failed to save contract steps. Check console for details.");
-            console.error("Error:", errorData); // Debug error response in the console
-        }
-    } catch (error) {
-        console.error("Unexpected error:", error);
-        alert("An unexpected error occurred. Check console for details.");
     }
-});
 
-function getCSRFToken() {
-    const name = "csrftoken";
-    const cookies = document.cookie.split("; ");
-    for (let cookie of cookies) {
-        const [key, value] = cookie.split("=");
-        if (key === name) {
-            return value;
+    document.querySelectorAll(".btn[data-bs-slide='next']").forEach((button) => {
+        button.addEventListener("click", async function (event) {
+            tinymce.triggerSave(); // Save TinyMCE content to its underlying <textarea>
+
+            const form = document.getElementById("contractForm");
+            const formData = new FormData(form); // Gather all form data, including TinyMCE content
+
+            if (contractId) {
+                formData.append("id", contractId); // Include the contract ID for updates
+            }
+
+            try {
+                const response = await fetch("http://127.0.0.1:7000/api/contract-steps/", {
+                    method: contractId ? "PUT" : "POST", // Determine method dynamically
+                    headers: {
+                        "X-CSRFToken": getCSRFToken(), // Include CSRF token
+                    },
+                    body: formData, // Send FormData directly
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (!contractId) {
+                        contractId = data.id; // Store the contract ID for subsequent updates
+                    }
+                    console.log("Response:", data); // Debug response
+                } else {
+                    const errorData = await response.json();
+                    alert("Failed to save contract steps. Check console for details.");
+                    console.error("Error:", errorData); // Debug error response
+                }
+            } catch (error) {
+                console.error("Unexpected error:", error);
+                alert("An unexpected error occurred. Check console for details.");
+            }
+        });
+    });
+
+    async function generateAIText(fieldId, event) {
+        if (event) {
+            event.preventDefault(); // Prevent form submission
+        }
+
+        const editor = tinymce.get(fieldId); // Get content from TinyMCE editor (if applicable)
+        const userInput = editor ? editor.getContent({ format: "text" }).trim() : ""; // Extract plain text content
+
+        const outputDiv = document.getElementById(`${fieldId}-ai-output`);
+
+        if (!userInput) {
+            alert("Por favor, ingrese algún texto para generar el contenido.");
+            return;
+        }
+
+        try {
+            const response = await fetch("http://127.0.0.1:7000/api/generate-ai-text/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken(),
+                },
+                body: JSON.stringify({ field: fieldId, input: userInput }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Use Marked.js to format the generated Markdown content
+                const formattedText = marked.parse(data.generated_text); // `marked.parse` is the correct method in Marked.js v4+
+                outputDiv.innerHTML = formattedText; // Render HTML into the output div
+            } else {
+                const errorData = await response.json();
+                console.error("Error:", errorData);
+                alert("Error al generar el texto. Consulte la consola para más detalles.");
+            }
+        } catch (error) {
+            console.error("Unexpected error:", error);
+            alert("Error inesperado. Consulte la consola para más detalles.");
         }
     }
-    return "";
-}
 
+
+    // Function to retrieve CSRF token
+    function getCSRFToken() {
+        const name = "csrftoken";
+        const cookies = document.cookie.split("; ");
+        for (let cookie of cookies) {
+            const [key, value] = cookie.split("=");
+            if (key === name) {
+                return value;
+            }
+        }
+        return "";
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
-        const totalSteps = 14; // Total number of steps
+        const totalSteps = 13; // Total number of steps
         const stepIndicatorsContainer = document.getElementById('stepIndicators');
         const carousel = document.getElementById('contractCarousel');
 

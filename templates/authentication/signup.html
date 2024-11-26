@@ -41,6 +41,7 @@
   data-sidebar-position: left (default), right
   data-sidebar-layout: default (default), compact
 -->
+<script src="https://apis.google.com/js/platform.js" async defer></script>
 
 <body data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default">
 	<main class="d-flex w-100 h-100">
@@ -62,6 +63,7 @@
 								<div class="m-sm-3">
 									<div class="d-grid gap-2 mb-3">
 										<a class="btn btn-google btn-lg" href="{% provider_login_url 'google' %}"><i class="align-middle me-2 fab fa-fw fa-google"></i> Regístrate con Google</a>
+										  
 									</div>
 									<div class="row">
 										<div class="col">
@@ -121,6 +123,43 @@
 	</main>
 
 	<script src="{% static 'js/app.js' %}"></script>
+	<script>
+		function onSignIn(googleUser) {
+		  // Get profile information
+		  var profile = googleUser.getBasicProfile();
+		  var name = profile.getName();
+		  var image = profile.getImageUrl();
+		  var email = profile.getEmail();
+	  
+		  // Display user info on the top-right corner
+		  document.getElementById('google-profile').innerHTML = `
+			<img src="${image}" alt="Profile" style="width: 30px; border-radius: 50%;">
+			<span>${name}</span>
+		  `;
+		}
+	  
+		function renderGoogleSignInButton() {
+		  gapi.signin2.render('google-login-button', {
+			scope: 'profile email',
+			width: 200,
+			height: 50,
+			longtitle: true,
+			theme: 'dark',
+			onsuccess: onSignIn
+		  });
+		}
+	  
+		window.onload = function () {
+		  gapi.load('auth2', function () {
+			gapi.auth2.init({
+			  client_id: 'YOUR_GOOGLE_CLIENT_ID'
+			}).then(function () {
+			  renderGoogleSignInButton();
+			});
+		  });
+		};
+	  </script>
+	  
 
 </body>
 

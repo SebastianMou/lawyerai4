@@ -299,3 +299,10 @@ def feedback(request):
 @login_required(login_url='/login/')  
 def contract_stepbystep(request):
     return render(request, 'documents/contract-steps.html')
+
+
+
+
+
+
+

@@ -64,14 +64,14 @@ class ContractSteps(models.Model):
     obligations = HTMLField(blank=True, null=True)  # Responsibilities/Obligations (Optional)
     payment_terms = HTMLField(blank=True, null=True)  # Payment terms (Optional)
     duration = models.CharField(max_length=255, blank=True, null=True)  # Contract duration (Optional)
-    termination_clause = models.TextField(blank=True, null=True)  # Conditions for termination (Optional)
+    termination_clause = HTMLField(blank=True, null=True)  # Conditions for termination (Optional)
 
     # Optional Fields
     confidentiality_clause = HTMLField(blank=True, null=True)  # Confidentiality clause (Optional)
     dispute_resolution = HTMLField(blank=True, null=True)  # Dispute resolution terms (Optional)
     penalties_for_breach = HTMLField(blank=True, null=True)  # Penalty clause (Optional)
     notary_required = models.BooleanField(default=False)  # Whether a notary is required (Optional)
-    attachments = models.FileField(upload_to="contract_attachments/", blank=True, null=True)  # Additional documents (Optional)
+    # attachments = models.FileField(upload_to="contract_attachments/", blank=True, null=True)  # Additional documents (Optional)
 
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)  # When the contract was created

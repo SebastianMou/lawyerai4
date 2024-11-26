@@ -569,22 +569,122 @@ def search_api(request):
     else:
         return Response({"error": "GET request required"}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])  # Only authenticated users can access
+@api_view(['POST', 'PUT'])
+@permission_classes([IsAuthenticated])
 def contract_steps(request):
-    # Exclude `user` from the data to avoid validation errors
-    data = request.data.copy()  # Make a mutable copy of request data
-    data.pop('user', None)  # Remove the user field if present
+    try:
+        if request.method == 'POST':
+            serializer = ContractStepsSerializer(data=request.data)
+            if serializer.is_valid():
+                # Automatically assign the user
+                serializer.save(user=request.user)
+                return Response({"id": serializer.instance.id, "message": "Contract created successfully"}, status=201)
+            else:
+                return Response(serializer.errors, status=400)
 
-    serializer = ContractStepsSerializer(data=data)
-    if serializer.is_valid():
-        # Save the instance and set the user
-        serializer.save(user=request.user if request.user.is_authenticated else None)
-        return Response(serializer.data, status=201)
-    else:
-        print(serializer.errors)  # Debugging purpose
-        return Response(serializer.errors, status=400)
-    
+        
+        elif request.method == 'PUT':
+            # Update an existing contract step
+            contract_id = request.data.get("id")  # Ensure the primary key is provided
+            try:
+                contract = ContractSteps.objects.get(id=contract_id, user=request.user)
+            except ContractSteps.DoesNotExist:
+                return Response({"error": "Contract not found"}, status=404)
+            
+            serializer = ContractStepsSerializer(contract, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message": "Contract updated successfully"}, status=200)
+            else:
+                return Response(serializer.errors, status=400)
+    except Exception as e:
+        print(f"Unexpected error: {e}")  # Debugging
+        return Response({"error": "An unexpected error occurred."}, status=500)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_suggestions(request):
+    try:
+        user_input = request.data.get("input", "").strip()
+        if not user_input:
+            return Response({"error": "Input is required"}, status=400)
+
+        print(f"Received input: {user_input}")
+
+        openai.api_key = settings.OPENAI_API_KEY
+
+        # Create a prompt to generate three suggestions
+        prompt = (
+            f"You are an AI assistant that generates professional contract names based on user input. "
+            f"Suggest three professional or legal contract names for the input: '{user_input}'. "
+            f"If the input doesn't fit a legal name, make them sound more professional. (Don't format it in a list like adding numbers or dashes)"
+        )
+
+        # Call OpenAI API
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You suggest three professional or legal contract names."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=100,
+            temperature=0.7,
+            n=1
+        )
+
+        suggestions_text = response.choices[0].message.content.strip()
+        suggestions = suggestions_text.split("\n")
+
+        # Ensure we have exactly three suggestions
+        suggestions = [s.strip() for s in suggestions if s.strip()][:3]
+
+        return Response({"suggestions": suggestions}, status=200)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response({"error": "Failed to generate suggestions."}, status=500)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def generate_ai_text(request):
+    try:
+        user_input = request.data.get("input", "").strip()
+        field = request.data.get("field", "unknown")
+
+        if not user_input:
+            return Response({"error": "Input text is required."}, status=400)
+
+        print(f"Received input for field '{field}': {user_input}")
+
+        openai.api_key = settings.OPENAI_API_KEY
+
+        # Create a prompt to reorganize the input text
+        prompt = (
+            f"You are a legal assistant AI. Reorganize the following text into a professional, legal-sounding format, using Markdown for headers, bullet points, and other formatting where appropriate:\n\n"
+            f"{user_input}"
+        )
+
+        # Call OpenAI API
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You assist in generating professional and legal-sounding text."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=150,
+            temperature=0.7,
+            n=1
+        )
+
+        generated_text = response.choices[0].message.content.strip()
+
+        return Response({"generated_text": generated_text}, status=200)
+
+    except Exception as e:
+        print(f"Error generating AI text: {e}")
+        return Response({"error": "Failed to generate AI text."}, status=500)
+
 @api_view(['POST'])
 def feed_back(request):
     serializer = FeedbackSerializer(data=request.data)
