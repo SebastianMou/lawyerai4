@@ -1,0 +1,182 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Document container */
+    .document-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    /* Paper styling */
+    .paper {
+        background-color: #fff;
+        width: 8.5in;
+        height: 11in;
+        padding: 1in;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ccc;
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    /* Header styling */
+    .header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .header h1 {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    /* Body text styling */
+    .body {
+        text-align: justify;
+        line-height: 1.6;
+        font-size: 14px;
+    }
+    .body h2 {
+        font-size: 18px;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+
+    /* Footer styling */
+    .footer {
+        position: absolute;
+        bottom: 0.5in;
+        left: 0.5in;
+        right: 0.5in;
+        text-align: center;
+        font-size: 12px;
+        color: #777;
+    }
+</style>
+
+<div class="document-container" id="document-container">
+    <div class="paper" id="template-page">
+        <div class="header">
+            <h1>Document Title</h1>
+        </div>
+        <div class="body" id="content-container">
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Example content -->
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+            <p>More content goes here...</p>
+            <!-- Add more content dynamically or manually -->
+        </div>
+        <div class="footer">
+            <p>Page 1</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function paginateContent() {
+        const container = document.getElementById('document-container');
+        const templatePage = document.getElementById('template-page');
+        const contentContainer = document.getElementById('content-container');
+        const content = Array.from(contentContainer.children); // Grab all content blocks
+
+        let currentPage = templatePage;
+        let currentBody = contentContainer;
+        const pageHeight = currentBody.offsetHeight; // Max height for content inside a page
+        let pageCounter = 1;
+
+        // Create a new page dynamically
+        function createNewPage() {
+            const newPage = templatePage.cloneNode(true); // Clone the page template
+            newPage.querySelector('.footer p').textContent = `Page ${++pageCounter}`; // Update page number
+            const newBody = newPage.querySelector('.body');
+            newBody.innerHTML = ''; // Clear the body for new content
+            container.appendChild(newPage);
+            return newBody;
+        }
+
+        // Distribute content across pages
+        let tempContainer = document.createElement('div'); // Temporary container to measure content height
+        document.body.appendChild(tempContainer); // Add to DOM for accurate height calculation
+
+        content.forEach((block) => {
+            tempContainer.appendChild(block.cloneNode(true)); // Add block to measure height
+            const blockHeight = tempContainer.scrollHeight;
+
+            if (currentBody.scrollHeight + blockHeight > pageHeight) {
+                // If adding the block exceeds the page height, move to a new page
+                currentBody = createNewPage();
+            }
+
+            currentBody.appendChild(block); // Add block to the current page
+            tempContainer.innerHTML = ''; // Clear temp container for the next block
+        });
+
+        tempContainer.remove(); // Clean up temporary container
+    }
+
+    window.onload = paginateContent;
+</script>
+{% endblock %}

@@ -1,0 +1,789 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5">
+    <meta name="author" content="AdminKit">
+    <meta name="keywords"
+        content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="shortcut icon" href="{% static 'img/icons/Anton Logo 1.png' %}" />
+
+    <link rel="canonical" href="https://demo.adminkit.io/" />
+
+    <title>{% block title %}Anton.{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link class="js-stylesheet" href="{% static 'css/light.css' %}?v=1" rel="stylesheet">
+    <link class="js-stylesheet" href="{% static 'css/hero.css' %}?v=1" rel="stylesheet">
+
+</head>
+
+<body>
+    <style>
+        .gallery {
+            width: 100%;
+        }
+
+        .gallery-container {
+            align-items: center;
+            display: flex;
+            height: 400px;
+            margin: 0 auto;
+            max-width: 1000px;
+            position: relative;
+        }
+
+        .gallery-item {
+            height: 200px;
+            opacity: 0;
+            position: absolute;
+            transition: all 1.0s ease-in-out;
+            /* Reduced duration for faster sliding */
+            width: 330px;
+            z-index: 0;
+            border-radius: 15px;
+            background-size: contain;
+        }
+
+        .gallery-item-1 {
+            left: 15%;
+            opacity: .4;
+            transform: translateX(-50%);
+        }
+
+        .gallery-item-2,
+        .gallery-item-4 {
+            height: 250px;
+            opacity: 0.8;
+            width: 388px;
+            z-index: 1;
+        }
+
+        .gallery-item-2 {
+            left: 30%;
+            transform: translateX(-50%);
+        }
+
+        .gallery-item-3 {
+            box-shadow: -2px 5px 33px 6px rgba(0, 0, 0, 0.35);
+            height: 300px;
+            opacity: 1;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 430px;
+            z-index: 2;
+        }
+
+        .gallery-item-4 {
+            left: 70%;
+            transform: translateX(-50%);
+        }
+
+        .gallery-item-5 {
+            left: 80%;
+            opacity: .4;
+            transform: translateX(-50%);
+        }
+
+        .gallery-controls-previous {
+            position: relative;
+        }
+
+        .gallery-controls-previous::before {
+            border: solid #000;
+            border-width: 0 5px 5px 0;
+            content: '';
+            display: inline-block;
+            height: 5px;
+            left: -30px;
+            padding: 10px;
+            position: absolute;
+            top: 25%;
+            transform: rotate(135deg) translateY(-50%);
+            transition: left 0.15s ease-in-out;
+            width: 5px;
+        }
+
+        .gallery-controls-previous:hover::before {
+            left: -40px;
+        }
+
+        .gallery-controls-next {
+            position: relative;
+        }
+
+        .gallery-controls-next::before {
+            border: solid #000;
+            border-width: 0 5px 5px 0;
+            content: '';
+            display: inline-block;
+            height: 5px;
+            padding: 10px;
+            position: absolute;
+            right: -30px;
+            top: 45%;
+            transform: rotate(-45deg) translateY(-50%);
+            transition: right 0.15s ease-in-out;
+            width: 5px;
+        }
+
+        .gallery-controls-next:hover::before {
+            right: -40px;
+        }
+
+        .gallery-nav {
+            bottom: -15px;
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            padding: 0;
+            position: absolute;
+            width: 100%;
+        }
+
+        .gallery-nav li {
+            background: #ccc;
+            border-radius: 50%;
+            height: 10px;
+            margin: 0 16px;
+            width: 10px;
+        }
+
+        .gallery-nav li.gallery-item-selected {
+            background: #555;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:wght@400;600&display=swap');
+
+        .navbar-transparent {
+            background-color: transparent !important;
+            border: none !important;
+            /* Remove any borders */
+            box-shadow: none !important;
+            /* Remove shadow */
+        }
+
+        .btn-glow {
+            position: relative;
+            animation: pulse 5s infinite; /* Pulsing by default */
+            transition: box-shadow 0.3s ease-in-out; /* Smooth transition for hover */
+        }
+
+        .btn-glow:hover {
+            animation: none; /* Stop pulsing when hovered */
+            box-shadow: 0 0 15px #6382e0, 0 0 25px #9a2ce3, 0 0 35px #6382e0; /* Persistent glow on hover */
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 10px #9a2ce3, 0 0 20px #9a2ce3, 0 0 30px #9a2ce3;
+            }
+
+            50% {
+                box-shadow: 0 0 20px #3498db, 0 0 40px #3498db, 0 0 60px #3498db;
+            }
+
+            100% {
+                box-shadow: 0 0 10px #9a2ce3, 0 0 20px #9a2ce3, 0 0 30px #9a2ce3;
+            }
+        }
+
+        .ibm-plex-sans-semibold {
+            font-family: "IBM Plex Sans", sans-serif;
+            font-weight: 800;
+            font-size: 2.9em;
+
+            font-style: normal;
+        }
+
+        .icon-text-container {
+            position: relative;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .icon-text-container h1 {
+            position: relative;
+            color: white;
+            font-family: "IBM Plex Sans", sans-serif;
+        }
+
+        .top-left-icon,
+        .bottom-right-icon {
+            position: absolute;
+            width: 34px;
+            /* Adjust size */
+            height: 34px;
+            fill: #ffffff;
+            /* Icon color */
+        }
+
+        .top-left-icon {
+            top: -17px;
+            /* Adjust positioning */
+            left: -24px;
+        }
+
+        .bottom-right-icon {
+            bottom: -10px;
+            /* Adjust positioning */
+            right: -25px;
+        }
+
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
+
+
+        h1 {
+            text-align: center;
+        }
+
+        ul {
+            --col-gap: 2rem;
+            --row-gap: 2rem;
+            --line-w: 0.25rem;
+            display: grid;
+            grid-template-columns: var(--line-w) 1fr;
+            grid-auto-columns: max-content;
+            column-gap: var(--col-gap);
+            list-style: none;
+            width: min(60rem, 90%);
+            margin-inline: auto;
+        }
+
+        /* line */
+        ul::before {
+            content: "";
+            grid-column: 1;
+            grid-row: 1 / span 20;
+            background: rgb(225, 225, 225);
+            border-radius: calc(var(--line-w) / 2);
+        }
+
+        /* columns*/
+
+        /* row gaps */
+        ul li:not(:last-child) {
+            margin-bottom: var(--row-gap);
+        }
+
+        /* card */
+        ul li {
+            grid-column: 2;
+            --inlineP: 1.5rem;
+            margin-inline: var(--inlineP);
+            grid-row: span 2;
+            display: grid;
+            grid-template-rows: min-content min-content min-content;
+        }
+
+        /* date */
+        ul li .date {
+            --dateH: 3rem;
+            height: var(--dateH);
+            margin-inline: calc(var(--inlineP) * -1);
+
+            text-align: center;
+            background-color: var(--accent-color);
+
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+
+            display: grid;
+            place-content: center;
+            position: relative;
+
+            border-radius: calc(var(--dateH) / 2) 0 0 calc(var(--dateH) / 2);
+        }
+
+        /* date flap */
+        ul li .date::before {
+            content: "";
+            width: var(--inlineP);
+            aspect-ratio: 1;
+            background: var(--accent-color);
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2) 100%, transparent);
+            position: absolute;
+            top: 100%;
+
+            clip-path: polygon(0 0, 100% 0, 0 100%);
+            right: 0;
+        }
+
+        /* circle */
+        ul li .date::after {
+            content: "";
+            position: absolute;
+            width: 2rem;
+            aspect-ratio: 1;
+            background: var(--bgColor);
+            border: 0.3rem solid var(--accent-color);
+            border-radius: 50%;
+            top: 50%;
+
+            transform: translate(50%, -50%);
+            right: calc(100% + var(--col-gap) + var(--line-w) / 2);
+        }
+
+        /* title descr */
+        ul li .title,
+        ul li .descr {
+            background: var(--bgColor);
+            position: relative;
+            padding-inline: 1.5rem;
+        }
+
+        ul li .title {
+            overflow: hidden;
+            padding-block-start: 1.5rem;
+            padding-block-end: 1rem;
+            font-weight: 500;
+        }
+
+        ul li .descr {
+            padding-block-end: 1.5rem;
+            font-weight: 300;
+        }
+
+        /* shadows */
+        ul li .title::before,
+        ul li .descr::before {
+            content: "";
+            position: absolute;
+            width: 90%;
+            height: 0.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            left: 50%;
+            border-radius: 50%;
+            filter: blur(4px);
+            transform: translate(-50%, 50%);
+        }
+
+        ul li .title::before {
+            bottom: calc(100% + 0.125rem);
+        }
+
+        ul li .descr::before {
+            z-index: -1;
+            bottom: 0.25rem;
+        }
+
+        @media (min-width: 40rem) {
+            ul {
+                grid-template-columns: 1fr var(--line-w) 1fr;
+            }
+
+            ul::before {
+                grid-column: 2;
+            }
+
+            ul li:nth-child(odd) {
+                grid-column: 1;
+            }
+
+            ul li:nth-child(even) {
+                grid-column: 3;
+            }
+
+            /* start second card */
+            ul li:nth-child(2) {
+                grid-row: 2/4;
+            }
+
+            ul li:nth-child(odd) .date::before {
+                clip-path: polygon(0 0, 100% 0, 100% 100%);
+                left: 0;
+            }
+
+            ul li:nth-child(odd) .date::after {
+                transform: translate(-50%, -50%);
+                left: calc(100% + var(--col-gap) + var(--line-w) / 2);
+            }
+
+            ul li:nth-child(odd) .date {
+                border-radius: 0 calc(var(--dateH) / 2) calc(var(--dateH) / 2) 0;
+            }
+        }
+
+        .credits {
+            margin-top: 1rem;
+            text-align: right;
+        }
+
+        .credits a {
+            color: var(--color);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        #pricing-section {
+            margin-top: 20px;
+        }
+
+        .pricing-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 40px 0;
+        }
+
+        .pricing-box {
+            position: relative;
+            width: 320px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            /* Stack content vertically */
+            justify-content: space-between;
+            /* Distribute content */
+
+            justify-content: center;
+            align-items: center;
+            margin: 40px 30px;
+            transition: 0.5s;
+        }
+
+        .pricing-box::before {
+            content: ' ';
+            position: absolute;
+            top: 0;
+            left: 50px;
+            width: 50%;
+            height: 100%;
+            text-decoration: none;
+            background: #fff;
+            border-radius: 8px;
+            transform: skewX(15deg);
+            transition: 0.5s;
+        }
+
+        .pricing-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50;
+            width: 50%;
+            height: 100%;
+            background: #fff;
+            border-radius: 8px;
+            transform: skewX(15deg);
+            transition: 0.5s;
+            filter: blur(30px);
+        }
+
+        .pricing-box:hover::before,
+        .pricing-box:hover::after {
+            transform: skewX(0deg);
+            left: 20px;
+            width: calc(100% - 90px);
+        }
+
+        #basic-plan::before,
+        #basic-plan::after {
+            background: linear-gradient(315deg, #764def, #00D0FF);
+        }
+
+        #pro-plan::before,
+        #pro-plan::after {
+            background: linear-gradient(315deg, #03A9F4, #72F2EB);
+        }
+
+        #premium-plan::before,
+        #premium-plan::after {
+            background: linear-gradient(315deg, #5F4BB6, #28C76F);
+        }
+
+        .pricing-box span {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .pricing-content {
+            position: relative;
+            left: 0;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            z-index: 1;
+            color: #fff;
+            transition: 0.5s;
+        }
+
+        .pricing-content:hover {
+            left: -25px;
+            padding: 30px 20px;
+        }
+
+        .pricing-title {
+            font-size: 2em;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+
+        .pricing-link {
+            display: inline-block;
+            font-size: 1.1em;
+            color: #111;
+            background-color: #00D0FF;
+            padding: 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+    </style>
+    <div
+        style="background: linear-gradient(67deg, rgba(154,44,227,1) 8%, rgba(81,160,224,1) 57%, rgba(25,238,203,1) 93%); border-bottom-left-radius: 40%; border-bottom-right-radius: 40%;">
+        <nav class="navbar navbar-expand-lg navbar-transparent">
+            <div class="container-fluid">
+                <a class="sidebar-brand" href="/">
+                    <span style="font-size: larger; color: white">Anton.</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        
+                    </ul>
+                    <div class="d-flex">
+                        <button class="btn btn-primary btn-glow" style="border-radius: 50px; background-color: #6382e0; border-color: #6382e0; color: white;">
+                            Register
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="center">
+            <center>
+                <div class="icon-text-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                        class="bi bi-plus top-left-icon" viewBox="0 0 16 16">
+                        <path
+                            d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                    </svg>
+                    <h1 class="ibm-plex-sans-semibold">Anton</h1>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                        class="bi bi-plus bottom-right-icon" viewBox="0 0 16 16">
+                        <path
+                            d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                    </svg>
+                </div>
+                <p style="color: white; margin-top: 15px;">kldsjfa sdkf aklsdffj asdlkjf asdlkfaks lf
+                    jaskldjaklsdjfkasdjf</p>
+
+                <div class="gallery">
+                    <div class="gallery-container">
+                        <img class="gallery-item gallery-item-1" src="{% static 'img/photos/unsplash-1.jpg' %}"
+                            data-index="1">
+                        <img class="gallery-item gallery-item-2" src="{% static 'img/photos/unsplash-2.jpg' %}"
+                            data-index="2">
+                        <img class="gallery-item gallery-item-3" src="{% static 'img/photos/unsplash-3.jpg' %}"
+                            data-index="3">
+                        <img class="gallery-item gallery-item-4" src="{% static 'img/photos/unsplash-1.jpg' %}"
+                            data-index="4">
+                        <img class="gallery-item gallery-item-5" src="{% static 'img/photos/unsplash-2.jpg' %}"
+                            data-index="5">
+                        <img class="gallery-item gallery-item-6" src="{% static 'img/photos/unsplash-2.jpg' %}"
+                            data-index="6">
+                        <img class="gallery-item gallery-item-7" src="{% static 'img/flags/ae.png' %}" data-index="7">
+                    </div>
+                </div>
+
+            </center>
+        </div>
+        <br><br><br><br><br><br><br>
+    </div>
+    <div class="container text-center">
+        <img style="width: 7%; height: auto; margin-top: 12px;" src="{% static 'img/icons/Anton Logo 1.png' %}" alt="">
+
+        <h1>UL timeline cards</h1>
+        <ul>
+            <li style="--accent-color:#41516C">
+                <div class="date">2002</div>
+                <div class="title">Title 1</div>
+                <div class="descr">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quas itaque hic quibusdam
+                    fugiat est numquam harum, accusamus suscipit consequatur laboriosam!</div>
+            </li>
+            <li style="--accent-color:#FBCA3E">
+                <div class="date">2007</div>
+                <div class="title">Title 2</div>
+                <div class="descr">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quos adipisci nobis nostrum
+                    vero nihil veniam.</div>
+            </li>
+            <li style="--accent-color:#E24A68">
+                <div class="date">2012</div>
+                <div class="title">Title 3</div>
+                <div class="descr">Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga minima consequuntur
+                    soluta placeat iure totam commodi repellendus ea delectus, libero fugit quod reprehenderit, sequi
+                    quo, et dolorum saepe.</div>
+            </li>
+            <li style="--accent-color:#1B5F8C">
+                <div class="date">2017</div>
+                <div class="title">Title 4</div>
+                <div class="descr">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Impedit, cumque.</div>
+            </li>
+            <li style="--accent-color:#4CADAD">
+                <div class="date">2022</div>
+                <div class="title">Title 5</div>
+                <div class="descr">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Odit, non.</div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Pricing Section -->
+    <div class="container" id="pricing-section">
+        <h2 class="text-center" id="pricing-header">Payment Subscriptions</h2>
+        <section class="pricing-container">
+            <div class="pricing-box" id="basic-plan">
+                <span></span>
+                <div class="pricing-content">
+                    <h3 class="pricing-title">Anton Basic</h3>
+                    <ol style="list-style: none; padding: 0; margin: 0;">
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                        </li>
+                    </ol>
+                    
+                    <h3 class="pricing-cost">$0/month</h3>
+                    <a href="#" class="pricing-link">Explore Features</a>
+                </div>
+            </div>
+
+            <div class="pricing-box" id="pro-plan">
+                <span></span>
+                <div class="pricing-content">
+                    <h3 class="pricing-title">Pro Plan</h3>
+                    <ol style="list-style: none; padding: 0; margin: 0;">
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                        </li>
+                    </ol>
+                    <h3 class="pricing-cost">$9.99/month</h3>
+                    <a href="#" class="pricing-link">Learn More</a>
+                </div>
+            </div>
+
+            <div class="pricing-box" id="premium-plan">
+                <span></span>
+                <div class="pricing-content">
+                    <h3 class="pricing-title">Premium Plan</h3>
+                    <ol style="list-style: none; padding: 0; margin: 0;">
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                        </li>
+                    </ol>
+                    <h3 class="pricing-cost">$16.99/month</h3>
+                    <a href="#" class="pricing-link">Start Now</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <section class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+            <div class="col-md-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+                    <svg class="bi" width="30" height="24">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+                <span class="text-muted">© 2024 Anton, Inc</span>
+            </div>
+
+            <div>
+                <img class="img-fluid" style="width: 25px; height: auto;"
+                    src="{% static 'img/icons/Anton Logo 1.png' %}" alt="">
+            </div>
+
+            <ol class="nav col-md-4 justify-content-end list-unstyled d-flex">
+                <li class="ms-3">
+                    <a class="text-muted" href="">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-twitter-x" viewBox="0 0 16 16">
+                            <path
+                                d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" />
+                        </svg>
+                    </a>
+                </li>
+                <li class="ms-3">
+                    <a class="text-muted" href="">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-instagram" viewBox="0 0 16 16">
+                            <path
+                                d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334" />
+                        </svg>
+                    </a>
+                </li>
+                <li class="ms-3">
+                    <a class="text-muted" href="">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-facebook" viewBox="0 0 16 16">
+                            <path
+                                d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951" />
+                        </svg>
+                    </a>
+                </li>
+            </ol>
+        </footer>
+    </section>
+
+
+    <script src="{% static 'js/app.js' %}"></script>
+    <script src="{% static 'js/sliders.js' %}?v=1"></script>
+</body>
+
+</html>

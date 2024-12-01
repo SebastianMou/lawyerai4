@@ -2981,7 +2981,6 @@
     <script src="{% static 'js/contract.js' %}?v=1"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -2990,18 +2989,25 @@
             const copyButton = document.getElementById('copy-button'); // Ensure you have a button with this ID in your HTML
 
             copyButton.addEventListener('click', function() {
-                const editorContent = tinymce.get('description').getContent({format: 'html'}); // Get HTML content from TinyMCE
+                const editorContent = tinymce.get('description').getContent({ format: 'html' }); // Get HTML content from TinyMCE
                 const data = new ClipboardItem({
-                    "text/html": new Blob([editorContent], {type: "text/html"})
+                    "text/html": new Blob([editorContent], { type: "text/html" })
                 });
 
                 navigator.clipboard.write([data]).then(function() {
                     console.log('Successfully copied to clipboard');
-                    copyButton.innerHTML = '<i class="align-middle me-2 fas fa-fw fa-check copy-icon"></i>Copiado'; // Update button text
-                    // Optionally, reset the button text after a delay
+                    
+                    // Update button text and class
+                    copyButton.innerHTML = '<i class="align-middle me-2 fas fa-fw fa-check copy-icon"></i>Copiado';
+                    copyButton.classList.remove('btn-outline-primary');
+                    copyButton.classList.add('btn-outline-success');
+
+                    // Optionally, reset the button text and class after a delay
                     setTimeout(function() {
                         copyButton.innerHTML = '<i class="align-middle me-2 far fa-fw fa-clipboard copy-icon"></i>Copiar Doc';
-                    }, 2000); // Reset text after 2 seconds
+                        copyButton.classList.remove('btn-outline-success');
+                        copyButton.classList.add('btn-outline-primary');
+                    }, 2000); // Reset text and class after 2 seconds
                 }).catch(function(error) {
                     console.error('Could not copy text: ', error);
                 });

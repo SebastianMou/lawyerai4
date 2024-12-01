@@ -12,19 +12,21 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
-from google.oauth2 import id_token
 import requests
-from django.conf import settings
 from google.auth.transport import requests
+from django.utils.html import strip_tags
 
 from io import BytesIO
 from xhtml2pdf import pisa
 
 from .tokens import account_activation_token
 from .forms import CustomLoginForm, RegisterForm  
-from api.models import ContractProject, ChatSession
+from api.models import ContractProject, ChatSession, ContractSteps
 
 # Create your views here.
+def hero(request):
+    return render(request, 'hero.html')
+
 @login_required(login_url='/login/')  
 def index(request):
     return render(request, 'index.html')
@@ -296,13 +298,40 @@ def search(request):
 def feedback(request):
     return render(request, 'search/feedback.html')
 
-@login_required(login_url='/login/')  
+@login_required(login_url='/login/')
 def contract_stepbystep(request):
     return render(request, 'documents/contract-steps.html')
 
+@login_required(login_url='/login/')
+def contract_check_basis_view(request, pk):
+    """
+    Front-end view to render the HTML page for contract checking.
+    """
+    context = {
+        "contract_id": pk  # Pass the contract ID to the template for dynamic loading
+    }
+    return render(request, 'documents/contract-check-basis.html', context)
 
+@login_required(login_url='/login/')
+def paper(request):
+    return render(request, 'documents/paper.html')
 
+def generate_contract_pdf(request, contract_id):
+    # Fetch the contract
+    contract = get_object_or_404(ContractSteps, id=contract_id)
 
+    # Render the HTML template with contract data
+    html_content = render_to_string('documents/contract_pdf.html', {'contract': contract})
 
+    # Create an HTTP response with PDF content type
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="contract_{contract_id}.pdf"'
 
+    # Convert HTML to PDF using xhtml2pdf
+    pisa_status = pisa.CreatePDF(html_content, dest=response)
 
+    # Check for errors in PDF generation
+    if pisa_status.err:
+        return HttpResponse('An error occurred while generating the PDF.', status=500)
+
+    return response

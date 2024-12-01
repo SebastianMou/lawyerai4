@@ -6,6 +6,7 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('hero/', views.hero, name='hero'),
     path('chats/', views.chats, name='chats'),
     path('contracts/', views.contracts, name='contracts'),
     path('contract/<int:pk>/', views.contract, name='contract'),
@@ -25,7 +26,11 @@ urlpatterns = [
     # activación de la cuenta de usuario por correo electrónico
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path('check-email/', views.check_email, name='check_email'),
-    
+    path('contract-check-basis/<int:pk>/', views.contract_check_basis_view, name='contract_check_basis_view'),
+    path('paper/', views.paper, name='paper'),
+
+    path('generate-contract-pdf/<int:contract_id>/', views.generate_contract_pdf, name='generate_contract_pdf'),
+
     path('factura/', views.invoice, name='invoice'),
 
     # User change password from account 

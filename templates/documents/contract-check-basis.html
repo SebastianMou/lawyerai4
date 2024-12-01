@@ -1,0 +1,542 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .containexr {
+        display: flex;
+        gap: 20px;
+        margin: 20px 40px;
+    }
+
+    .document {
+        max-width: 8.5in;
+        min-height: 11in;
+        background: white;
+        padding: 0.5in;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+    }
+
+    .table-container {
+        flex: 1;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+    }
+
+    .container-ai-checks {
+        flex: 1;
+        border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+        .containexr {
+            flex-direction: column;
+        }
+    }
+
+    h1,
+    h2 {
+        margin: 20px 0 10px;
+        color: #333;
+    }
+
+    p {
+        margin: 0 0 10px;
+        line-height: 1.5;
+        color: #555;
+        font-size: 12pt;
+    }
+
+    .section {
+        position: relative;
+        margin-bottom: 20px;
+        padding: 0px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .section-buttons {
+        display: none;
+        position: absolute;
+        bottom: 0px; 
+        left: 0px;
+        gap: 5px;
+    }
+
+    .section:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        transform: scale(1.02);
+        padding-bottom: 16px;
+    }
+
+    .section:hover .section-buttons {
+        display: flex; 
+    }
+
+    .section:not(:last-child) {
+        margin-bottom: 1px;
+    }
+
+    .btn-copy,
+    .btn-read,
+    .btn-pdf {
+        font-size: 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.3s ease-in-out, transform 0.3s ease-in-out;
+    }
+
+    .btn-copy:hover,
+    .btn-read:hover,
+    .btn-pdf:hover {
+        transform: translateY(-2px); 
+    }
+
+    @media (max-width: 1024px) {
+        .document {
+            max-width: 100%;
+            min-height: auto;
+            padding: 20px;
+        }
+
+        .section {
+            padding: 8px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 18pt;
+        }
+
+        p {
+            font-size: 10pt;
+        }
+    }
+</style>
+<div class="containexr">
+    <div class="document">
+        <div class="section card-hover" id="">
+            <h1 id="contract-title">Loading...</h1>
+            <p><strong>Effective Date:</strong> <span id="effective-date">Loading...</span></p>
+            <div class="section-buttons">
+                <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+                <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+            </div>
+        </div>
+
+        <div class="section card-hover" id="parties-section">
+            <h2>Parties</h2>
+            <p><strong>Party One:</strong> <span id="party-one-name">Loading...</span> (<span id="party-one-role">Loading...</span>)</p>
+            <p><strong>Party Two:</strong> <span id="party-two-name">Loading...</span> (<span id="party-two-role">Loading...</span>)</p>
+            <div class="section-buttons">
+                <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+                <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+            </div>
+        </div>
+
+        <div class="section card-hover" id="purpose-section">
+            <p id="contract-purpose">Loading...</p>
+            <div class="section-buttons">
+                <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+                <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+            </div>
+        </div>
+
+        <div class="section card-hover" id="obligations-section">
+            <p id="contract-obligations">Loading...</p>
+            <div class="section-buttons">
+                <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+                <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+            </div>
+        </div>
+
+        <div class="section card-hover" id="payment-terms-section">
+            <p id="contract-payment-terms">Loading...</p>
+            <div class="section-buttons">
+                <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+                <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+            </div>
+        </div>
+
+        <div class="section card-hover" id="duration-section">
+            <p id="contract-duration">Loading...</p>
+
+            <div class="section-buttons">
+                <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+                <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+            </div>
+        </div>
+
+        <div class="section card-hover" id="termination-clause-section">
+            <p id="contract-termination-clause">Loading...</p>
+            <div class="section-buttons">
+                <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+                <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+            </div>
+        </div>
+
+        <div class="section card-hover" id="confidentiality-clause-section">
+            <p id="contract-confidentiality-clause">Loading...</p>
+            <div class="section-buttons">
+                <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+                <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+            </div>
+        </div>
+
+        <div class="section card-hover" id="dispute-resolution-section">
+            <p id="contract-dispute-resolution">Loading...</p>
+            <div class="section-buttons">
+                <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+                <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-ai-checks">
+        <div style="margin-bottom: 7px;" class="table-container">
+            <button class="full-btn-copy btn btn-primary"><i class="far fa-clipboard"></i> Copiar</button>
+            <button class="full-btn-read btn btn-primary"><i class="fas fa-volume-up"></i> Leer</button>
+            <button class="full-btn-pdf btn btn-danger"  data-contract-id="{{ contract.id }}"><i class="far fa-file-pdf"></i> PDF</button>
+        </div>
+        <div class="table-container">
+            <h4>AI check list</h4>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                <li style="padding-bottom: 5px;">
+                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
+                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                    </svg> Coffee
+                </li>
+                <li style="padding-bottom: 5px;">
+                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
+                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                    </svg> Coffee
+                </li>
+                <li style="padding-bottom: 5px;">
+                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
+                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                    </svg> Coffee</li>
+                <li style="padding-bottom: 5px;">
+                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
+                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                    </svg> Coffee
+                </li>
+                <li style="padding-bottom: 5px;">
+                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
+                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                    </svg> Coffee
+                </li>
+                <li style="padding-bottom: 5px;">
+                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
+                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                    </svg> Coffee
+                </li>
+            </ul>
+        </div>
+        <div style="margin-top: 7px;" class="table-container">
+            this is go in grater detail
+        </div>
+    </div>
+        
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const contractId = 119;
+
+    fetch(`http://127.0.0.1:7000/api/contract-check-basis/${contractId}/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch contract data");
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Populate contract fields
+            document.getElementById("contract-title").innerText = data.title;
+            document.getElementById("effective-date").innerText = data.effective_date;
+            document.getElementById("party-one-name").innerText = data.party_one_name || "Party One";
+            document.getElementById("party-one-role").innerText = data.party_one_role || "Role not specified";
+            document.getElementById("party-two-name").innerText = data.party_two_name || "Party Two";
+            document.getElementById("party-two-role").innerText = data.party_two_role || "Role not specified";
+            document.getElementById("contract-purpose").innerHTML = data.purpose || "No purpose defined.";
+
+            document.getElementById("contract-obligations").innerHTML = data.obligations || "No obligations defined.";
+            document.getElementById("contract-payment-terms").innerHTML = data.payment_terms || "No payment terms defined.";
+            document.getElementById("contract-duration").innerText = data.duration || "No duration defined.";
+
+            document.getElementById("contract-termination-clause").innerHTML = data.termination_clause || "No termination clause defined.";
+            document.getElementById("contract-confidentiality-clause").innerHTML = data.confidentiality_clause || "No confidentiality clause defined.";
+            document.getElementById("contract-dispute-resolution").innerHTML = data.dispute_resolution || "No dispute resolution terms defined.";
+        })
+        .catch(error => {
+            console.error("Error loading contract data:", error);
+        });
+
+    // Add event listeners for copy buttons
+    document.querySelectorAll(".btn-copy").forEach(button => {
+        button.addEventListener("click", function () {
+            const section = this.closest(".section"); // Find the parent section
+            if (section) {
+                copyWithFormatting(section);
+
+                // Render the check icon temporarily
+                const originalIcon = this.innerHTML;
+                this.innerHTML = '<i style="color: white;" class="fas fa-check"></i>';
+                setTimeout(() => {
+                    this.innerHTML = originalIcon; // Revert to the original icon
+                }, 1000); // Show the check icon for 1 second
+            }
+        });
+    });
+
+    // Add event listener for the full copy button
+    const fullCopyButton = document.querySelector(".full-btn-copy");
+    if (fullCopyButton) {
+        fullCopyButton.addEventListener("click", function () {
+            const documentElement = document.querySelector(".document"); // Select the entire document
+            if (documentElement) {
+                copyWithFormatting(documentElement);
+
+                // Render the check icon temporarily
+                const originalIcon = this.innerHTML;
+                this.innerHTML = '<i style="color: white;" class="fas fa-check"></i>';
+                setTimeout(() => {
+                    this.innerHTML = originalIcon; // Revert to the original icon
+                }, 1000); // Show the check icon for 1 second
+            }
+        });
+    }
+
+    function copyWithFormatting(element) {
+        // Create a range and select the content
+        const range = document.createRange();
+        range.selectNodeContents(element);
+
+        const selection = window.getSelection();
+        selection.removeAllRanges(); // Clear any existing selections
+        selection.addRange(range); // Highlight the content
+
+        try {
+            const successful = document.execCommand('copy'); // Copy the highlighted content
+            if (successful) {
+                console.log("Content copied with formatting!");
+            } else {
+                console.error("Copy failed. Please try again.");
+            }
+        } catch (err) {
+            console.error("Error copying text: ", err);
+        }
+
+        selection.removeAllRanges(); // Clear selection
+    }
+
+    let isReading = false;
+    let isPaused = false;
+    let currentButton = null;
+    let utterance = null;
+
+    // Add event listener for the full read button
+    const fullReadButton = document.querySelector(".full-btn-read");
+    if (fullReadButton) {
+        fullReadButton.addEventListener("click", function () {
+            const documentElement = document.querySelector(".document"); // Select the entire document
+            if (documentElement) {
+                const textToRead = documentElement.innerText.trim(); // Get the document text
+
+                // If a different button is clicked, stop the current utterance and reset
+                if (currentButton && currentButton !== this && window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel(); // Cancel ongoing speech
+                    resetAllIcons(); // Reset all icons
+                    isReading = false;
+                    isPaused = false;
+                }
+
+                // Set the current button
+                currentButton = this;
+
+                if (!isReading) {
+                    // Start reading the document
+                    utterance = new SpeechSynthesisUtterance(textToRead);
+                    window.speechSynthesis.speak(utterance);
+                    this.innerHTML = '<i class="far fa-pause-circle"></i>';
+                    isReading = true;
+                    isPaused = false;
+
+                    // Reset the button when reading finishes
+                    utterance.onend = () => {
+                        resetAllIcons();
+                        isReading = false;
+                        isPaused = false;
+                        currentButton = null;
+                    };
+                } else if (isPaused) {
+                    // Resume reading
+                    window.speechSynthesis.resume();
+                    this.innerHTML = '<i class="far fa-pause-circle"></i>';
+                    isPaused = false;
+                } else {
+                    // Pause reading
+                    window.speechSynthesis.pause();
+                    this.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    isPaused = true;
+                }
+            }
+        });
+    }
+
+    document.querySelectorAll(".btn-read").forEach(button => {
+        button.addEventListener("click", function () {
+            const section = this.closest(".section"); // Find the parent section
+            const textToRead = section.innerText.trim(); // Get the section text
+
+            // If a different button is clicked, stop the current utterance and reset
+            if (currentButton && currentButton !== this && window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel(); // Cancel ongoing speech
+                resetAllIcons(); // Reset all icons
+                isReading = false;
+                isPaused = false;
+            }
+
+            // Set the current button
+            currentButton = this;
+
+            if (!isReading) {
+                // Start reading the new section
+                utterance = new SpeechSynthesisUtterance(textToRead);
+                window.speechSynthesis.speak(utterance);
+                this.innerHTML = '<i class="far fa-pause-circle"></i>';
+                isReading = true;
+                isPaused = false;
+
+                // Reset the button when reading finishes
+                utterance.onend = () => {
+                    resetAllIcons();
+                    isReading = false;
+                    isPaused = false;
+                    currentButton = null;
+                };
+            } else if (isPaused) {
+                // Resume reading
+                window.speechSynthesis.resume();
+                this.innerHTML = '<i class="far fa-pause-circle"></i>';
+                isPaused = false;
+            } else {
+                // Pause reading
+                window.speechSynthesis.pause();
+                this.innerHTML = '<i class="fas fa-volume-up"></i>';
+                isPaused = true;
+            }
+        });
+    });
+
+    // Function to reset all icons to default
+    function resetAllIcons() {
+        document.querySelectorAll(".btn-read, .full-btn-read").forEach(button => {
+            button.innerHTML = '<i class="fas fa-volume-up"></i>';
+        });
+    }
+
+    // PDF Button Logic
+    const pdfButtons = document.querySelectorAll(".btn-pdf");
+    console.log("PDF buttons found:", pdfButtons.length);
+
+    pdfButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            console.log("PDF button clicked!");
+            const section = this.closest(".section");
+            if (section) {
+                console.log("Section found:", section);
+                generatePDF(section);
+            } else {
+                console.error("Section not found for button:", this);
+            }
+        });
+    });
+
+    function generatePDF(section) {
+        console.log("Generating PDF for section:", section);
+
+        const { jsPDF } = window.jspdf;
+
+        // Use html2canvas to capture the section
+        html2canvas(section, {
+            scale: 1.5, // Adjust scale for less zoom
+            backgroundColor: "#ffffff", // Set a white background
+        }).then(canvas => {
+            console.log("Canvas generated:", canvas);
+            const pdf = new jsPDF("p", "mm", "a4");
+
+            // Define PDF dimensions
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+
+            // Set padding (e.g., 10mm)
+            const padding = 10;
+
+            // Calculate content size with padding
+            const contentWidth = pdfWidth - 2 * padding;
+            const contentHeight = (canvas.height * contentWidth) / canvas.width;
+
+            // Convert canvas to an image
+            const imgData = canvas.toDataURL("image/png");
+
+            // Add image to PDF with padding
+            pdf.addImage(imgData, "PNG", padding, padding, contentWidth, contentHeight);
+
+            // Save the PDF with the updated name
+            pdf.save("section-stylized.pdf");
+        }).catch(error => {
+            console.error("Error generating PDF:", error);
+        });
+    }
+
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const fullPdfButton = document.querySelector(".full-btn-pdf");
+
+    if (fullPdfButton) {
+        fullPdfButton.addEventListener("click", function () {
+            // Assuming the contract ID is dynamically set
+            const contractId = 119; // Replace this with your dynamic logic if needed
+            const pdfUrl = `/generate-contract-pdf/${contractId}/`;
+
+            // Redirect the user to the PDF generation URL
+            window.location.href = pdfUrl;
+        });
+    }
+});
+
+
+</script>
+{% endblock %}

@@ -6,12 +6,12 @@
 <script>
     tinymce.init({
         selector: 'textarea', // Targets all <textarea> elements
-        menubar: false, // Disable the menu bar (optional)
-        toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist outdent indent', // Customize toolbar (optional)
-        plugins: 'lists', // Include plugins as needed
-        branding: false, // Remove "Powered by TinyMCE" branding (optional)
-        height: 300, // Set the height of the editor
-        language: 'es' // Set the language to Spanish (optional)
+            plugins: 'advlist autolink lists link image charmap print preview anchor searchreplace visualblocks code fullscreen insertdatetime media table paste help wordcount',
+            toolbar: 'undo redo | formatselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | code fullscreen',
+            menubar: 'file edit view insert format tools table help',
+            language: 'es_MX',
+            language_url: '/static/tinymce/langs/es_MX.js',
+            language_load: true,
     });
 </script>
 <style>
@@ -43,8 +43,7 @@
         max-width: 250px;
         box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.633);
     }
-</style>
-<style>
+
     /* Step indicator container */
     #stepIndicators {
         margin: 20px 0;
@@ -236,7 +235,8 @@
                             </div>
                             <div class="mb-3">
                                 <label for="purpose" class="form-label">Propósito o Descripción:</label>
-                                <textarea id="purpose" name="purpose" class="form-control"></textarea>
+                                <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Ingrese una descripción clara y concisa del propósito de este contrato o documento. Puede incluir los objetivos principales o razones para su creación."></i>
+                                <textarea id="purpose" name="purpose" class="form-control" placeholder="Ejemplo: Este contrato formaliza la relación laboral entre el empleador y el empleado, estableciendo los términos, condiciones y obligaciones de ambas partes, incluyendo las responsabilidades laborales, los beneficios, y el cumplimiento de las leyes aplicables."></textarea>
                             
                                 <button class="btn btn-primary form-control" type="button" style="margin-top: 12px; border-radius: 50px;" onclick="generateAIText('purpose', event)">
                                     Reescribir Párrafo
@@ -245,7 +245,9 @@
                                       </svg>
                                 </button>
                             
-                                <div id="purpose-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+                                <div id="purpose-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
+                                    El texto generado por IA aparecerá aquí.
+                                </div>
 
                             </div>
 
@@ -269,7 +271,8 @@
                             </div>
                             <div class="mb-3">
                                 <label for="obligations" class="form-label">Obligaciones y Responsabilidades:</label>
-                                <textarea id="obligations" name="obligations" class="form-control"></textarea>
+                                <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Describa las obligaciones y responsabilidades de las partes involucradas en este contrato. Esto puede incluir acciones, deberes o compromisos específicos que cada parte debe cumplir."></i>
+                                <textarea id="obligations" name="obligations" class="form-control" placeholder="Ejemplo: El empleador deberá proporcionar las herramientas necesarias para el desempeño del trabajo, mientras que el empleado deberá cumplir con sus responsabilidades laborales según lo indicado en este contrato."></textarea>
                             
                                 <button class="btn btn-primary form-control" type="button" style="margin-top: 12px; border-radius: 50px;" onclick="generateAIText('obligations', event)">
                                     Reescribir Párrafo
@@ -278,7 +281,9 @@
                                       </svg>
                                 </button>
                             
-                                <div id="obligations-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+                                <div id="obligations-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
+                                    El texto generado por IA aparecerá aquí.
+                                </div>
                             </div>
                             
                         </div>
@@ -313,7 +318,9 @@
                                     </svg>
                                 </button>
                                 
-                                <div id="payment_terms-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+                                <div id="payment_terms-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
+                                    El texto generado por IA aparecerá aquí.
+                                </div>
                             </div>
                             
                         </div>
@@ -370,7 +377,9 @@
                                       </svg>
                                 </button>
 
-                                <div id="termination_clause-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+                                <div id="termination_clause-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
+                                    El texto generado por IA aparecerá aquí.
+                                </div>
                             </div>
                             
                         </div>
@@ -405,7 +414,9 @@
                                       </svg>
                                 </button>
 
-                                <div id="confidentiality_clause-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+                                <div id="confidentiality_clause-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
+                                    El texto generado por IA aparecerá aquí.
+                                </div>
     
                             </div>
                         </div>
@@ -440,7 +451,9 @@
                                     </svg>
                                 </button>
 
-                                <div id="dispute_resolution-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+                                <div id="dispute_resolution-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
+                                    El texto generado por IA aparecerá aquí.
+                                </div>
 
                             </div>
                             
@@ -457,9 +470,10 @@
                                     </button>
                                 </div>
                                 <div class="col text-end">
-                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
-                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
-                                    </button>    
+                                    <!-- Existing form content remains unchanged -->
+                                    <button type="submit" id="submitButton" class="btn btn-success mt-2" style="border-radius: 50px;">
+                                        Finalizar <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -476,36 +490,15 @@
                                       </svg>
                                 </button>
 
-                                <div id="penalties_for_breach-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);"></div>
+                                <div id="penalties_for_breach-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
+                                    El texto generado por IA aparecerá aquí.
+                                </div>
 
                             </div>
                            
                         </div>
                     </div>
 
-                    <!-- Step 15 -->
-                    <div class="carousel-item">
-                        <div class="form-check mb-3">
-                            <div style="margin-bottom: 10px;" class="row">
-                                <div class="col">
-                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
-                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
-                                    </button>
-                                </div>
-                                <div class="col text-end">
-                                    <!-- Existing form content remains unchanged -->
-                                    <button type="submit" id="submitButton" class="btn btn-success mt-2" style="border-radius: 50px;">
-                                        Finalizar <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <input type="checkbox" id="notary_required" name="notary_required" class="form-check-input">
-                            <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Indique si se requiere la presencia de un notario para este contrato."></i>
-
-                            <label for="notary_required" class="form-check-label">¿Requiere Notario?</label> 
-                            
-                        </div>
-                    </div>
                 </form>
                 
             </div>
@@ -642,15 +635,39 @@
                     "Content-Type": "application/json",
                     "X-CSRFToken": getCSRFToken(),
                 },
-                body: JSON.stringify({ field: fieldId, input: userInput }),
+                body: JSON.stringify({ 
+                    field: fieldId, 
+                    input: userInput, 
+                    title: document.getElementById("title").value.trim()
+                }),
             });
 
             if (response.ok) {
                 const data = await response.json();
 
                 // Use Marked.js to format the generated Markdown content
-                const formattedText = marked.parse(data.generated_text); // `marked.parse` is the correct method in Marked.js v4+
+                const formattedText = marked.parse(data.generated_text); // Render Markdown
                 outputDiv.innerHTML = formattedText; // Render HTML into the output div
+
+                // Add "Copy" button
+                const copyButton = document.createElement("button");
+                copyButton.innerHTML = '<i class="align-middle me-2 far fa-fw fa-clipboard"></i> Copiar';
+                copyButton.className = "btn btn-primary mt-2 me-2";
+                copyButton.style.borderRadius = "50px";
+                copyButton.onclick = (e) => copyToClipboard(fieldId, e, copyButton); // Use the copy function
+
+                // Add "Transfer" button
+                const transferButton = document.createElement("button");
+                transferButton.innerHTML = '<i class="align-middle me-2 fas fa-fw fa-arrow-right"></i> Transferir';
+                transferButton.className = "btn btn-success mt-2";
+                transferButton.style.borderRadius = "50px";
+                transferButton.onclick = (e) => transferToTinyMCE(fieldId, e); // Pass the event object
+
+
+                // Clear existing buttons and append new ones
+                outputDiv.innerHTML = formattedText;
+                outputDiv.appendChild(copyButton);
+                outputDiv.appendChild(transferButton);
             } else {
                 const errorData = await response.json();
                 console.error("Error:", errorData);
@@ -662,6 +679,82 @@
         }
     }
 
+    // Transfer AI-generated text to TinyMCE
+    function transferToTinyMCE(fieldId, event) {
+        if (event) {
+            event.preventDefault(); // Prevent form submission or page reload
+        }
+
+        const outputDiv = document.getElementById(`${fieldId}-ai-output`);
+
+        if (!outputDiv) {
+            console.error("Output div not found!");
+            return;
+        }
+
+        // Extract only the AI-generated text, ignoring buttons
+        const generatedContent = Array.from(outputDiv.childNodes)
+            .filter(node => node.nodeType === Node.TEXT_NODE || node.nodeType === Node.ELEMENT_NODE && node.tagName !== "BUTTON")
+            .map(node => node.outerHTML || node.textContent)
+            .join("");
+
+        // Set the content in TinyMCE editor
+        const editor = tinymce.get(fieldId);
+        if (editor) {
+            editor.setContent(generatedContent); // Set the filtered generated content
+            console.log("Content transferred to TinyMCE editor.");
+        } else {
+            console.error("TinyMCE editor not found for the given field.");
+        }
+    }
+
+
+
+    // Copy text to clipboard
+    function copyToClipboard(fieldId, event, button) {
+        if (event) {
+            event.preventDefault(); // Prevent form submission or page reload
+        }
+
+        const outputDiv = document.getElementById(`${fieldId}-ai-output`);
+
+        if (!outputDiv) {
+            console.error("Output div not found!");
+            return;
+        }
+
+        // Highlight and copy the content
+        const range = document.createRange();
+        range.selectNodeContents(outputDiv); // Highlight all content inside the output div
+        const selection = window.getSelection();
+        selection.removeAllRanges(); // Clear existing selections
+        selection.addRange(range); // Highlight the range
+
+        try {
+            // Execute the copy command
+            document.execCommand("copy");
+
+            // Update the button to show success
+            button.innerHTML = '<i class="align-middle me-2 fas fa-fw fa-check"></i> Copiado';
+            button.classList.remove("btn-primary");
+            button.classList.add("btn-success");
+        } catch (err) {
+            console.error("Error copying to clipboard:", err);
+            alert("Error al copiar el texto. Intente de nuevo.");
+        }
+
+        // Aesthetic: Automatically unhighlight the text after a short delay
+        setTimeout(() => {
+            selection.removeAllRanges(); // Clear the highlight
+        }, 300); // Adjust the delay as needed (300ms works well)
+
+        // Reset the button after 2 seconds
+        setTimeout(() => {
+            button.innerHTML = '<i class="align-middle me-2 far fa-fw fa-clipboard"></i> Copiar';
+            button.classList.remove("btn-success");
+            button.classList.add("btn-primary");
+        }, 2000);
+    }
 
     // Function to retrieve CSRF token
     function getCSRFToken() {
@@ -677,7 +770,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        const totalSteps = 13; // Total number of steps
+        const totalSteps = 12; // Total number of steps
         const stepIndicatorsContainer = document.getElementById('stepIndicators');
         const carousel = document.getElementById('contractCarousel');
 
@@ -702,9 +795,6 @@
         });
     });
 </script>
-
-
-
 
 {% endblock %}
 

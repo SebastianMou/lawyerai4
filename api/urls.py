@@ -20,6 +20,7 @@ urlpatterns = [
     path('contract-steps/', views.contract_steps, name='contract-steps'),
     path('generate-suggestions/', views.generate_suggestions, name='generate-suggestions'),
     path('generate-ai-text/', views.generate_ai_text, name='generate-ai-text'),
+    path('contract-check-basis/<int:pk>/', views.contract_check_basis, name='contract-check-basis'),
 
     # Chat Session Lawyer URLs
     path('chatsessions/', views.list_chat_sessions, name='list_chat_sessions'),

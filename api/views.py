@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -612,8 +612,6 @@ def generate_suggestions(request):
 
         print(f"Received input: {user_input}")
 
-        openai.api_key = settings.OPENAI_API_KEY
-
         # Create a prompt to generate three suggestions
         prompt = (
             f"You are an AI assistant that generates professional contract names based on user input. "
@@ -628,7 +626,7 @@ def generate_suggestions(request):
                 {"role": "system", "content": "You suggest three professional or legal contract names."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=100,
+            max_tokens=4096,
             temperature=0.7,
             n=1
         )
@@ -649,30 +647,36 @@ def generate_suggestions(request):
 @permission_classes([IsAuthenticated])
 def generate_ai_text(request):
     try:
+        # Retrieve the user input and title
         user_input = request.data.get("input", "").strip()
+        title = request.data.get("title", "").strip()  # Get the title from the request
         field = request.data.get("field", "unknown")
 
-        if not user_input:
-            return Response({"error": "Input text is required."}, status=400)
+        if not user_input or not title:
+            return Response({"error": "Both input text and title are required."}, status=400)
 
         print(f"Received input for field '{field}': {user_input}")
+        print(f"Received title: {title}")
 
-        openai.api_key = settings.OPENAI_API_KEY
-
-        # Create a prompt to reorganize the input text
+        # Updated Prompt with Title and Field Context
         prompt = (
-            f"You are a legal assistant AI. Reorganize the following text into a professional, legal-sounding format, using Markdown for headers, bullet points, and other formatting where appropriate:\n\n"
-            f"{user_input}"
+            f"You are a legal assistant specializing in Mexican law. Your task is to help structure and refine sections of legal contracts. "
+            f"The contract is titled '{title}', which indicates that this is a '{field}' section within a '{title}'. "
+            f"Reorganize the user's input into a professional and legally compliant format that aligns with the norms and practices in Mexico. "
+            f"Ensure the content is clear, precise, and appropriate for the specified type of contract. "
+            f"Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+            f"Do not include unrelated elements, such as signatures, dates, or global contract content, unless they are directly relevant to this section.\n\n"
+            f"User Input:\n{user_input}"
         )
 
         # Call OpenAI API
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You assist in generating professional and legal-sounding text."},
+                {"role": "system", "content": "You assist in drafting structured legal documents following Mexican law."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=150,
+            max_tokens=500,
             temperature=0.7,
             n=1
         )
@@ -684,6 +688,21 @@ def generate_ai_text(request):
     except Exception as e:
         print(f"Error generating AI text: {e}")
         return Response({"error": "Failed to generate AI text."}, status=500)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def contract_check_basis(request, pk):
+    """
+    API endpoint to fetch contract details directly using the serializer.
+    """
+    # Fetch the contract object or return a 404
+    contract = get_object_or_404(ContractSteps, id=pk, user=request.user)
+    
+    # Serialize the contract
+    serializer = ContractStepsSerializer(contract)
+    
+    # Return the serialized data
+    return Response(serializer.data, status=200)
 
 @api_view(['POST'])
 def feed_back(request):
