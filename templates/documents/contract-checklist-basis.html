@@ -1,0 +1,148 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    #hoverButton {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .custom-circle-button {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%; /* Makes the button circular */
+        padding: 0; /* Remove padding to maintain the circular shape */
+        text-align: center; /* Center the icon inside the button */
+        border: none; /* Remove default border */
+        background-color: #6c757d; /* Same background color as .btn-secondary */
+        color: white; 
+        cursor: pointer; 
+        display: flex; /* Use flexbox to center the icon */
+        align-items: center; /* Vertically center */
+        justify-content: center; /* Horizontally center */
+    }
+</style>
+<div class="container-fluid p-2">
+    <h3><strong>Contratos</strong></h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col" style="text-align: right;"></th>
+            </tr>
+        </thead>
+        <tbody id="list-wrapper-contracts-bysteps">
+            <!-- Contract data will be populated here -->
+        </tbody>
+    </table>
+
+    <a href="{% url 'contract_stepbystep' %}" id="hoverButton" class="btn btn-primary custom-circle-button">
+        <i class="fas fa-fw fa-plus"></i>
+   </a>
+</div>
+<script>
+    // Function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    const csrftoken = getCookie('csrftoken');
+    
+    function buildListContracts() {
+        var wrapper = document.getElementById('list-wrapper-contracts-bysteps');
+        var url = 'http://127.0.0.1:7000/api/contract-steps-project/';
+
+        fetch(url)
+            .then((resp) => resp.json())
+            .then(function(data) {
+                console.log('Data:', data); // Log data to the console
+
+                var list = data;
+            
+                // Clear the existing content
+                wrapper.innerHTML = '';
+        
+                for (var i in list) {
+                    // Format the created_at date as DD/MM/YYYY
+                    var createdDate = new Date(list[i].created_at).toLocaleDateString('es-MX', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                    var item = `
+                        <tr>
+                            <td>
+                                <i class="fas fa-fw fa-angle-double-right"></i>
+                                <a href="/contract-check-basis/${list[i].id}/">${list[i].title ? list[i].title : 'Unnamed Contract Project'}</a>
+                                <button class="btn btn-sm btn-outline-danger delete"><i style="color: gray;" class="align-middle me-2 far fa-fw fa-trash-alt"></i></button>
+                            </td>
+                            <td style="text-align: right;">${createdDate}</td>
+                        </tr>
+                    `;
+                    wrapper.innerHTML += item;
+                }
+                for (var i in list) {
+                    var deleteBtn = document.getElementsByClassName('delete')[i];
+        
+                    // Add click event for delete button (use deleteItem function)
+                    deleteBtn.addEventListener('click', (function(item) {
+                        return function() {
+                            deleteItem(item);
+                        };
+                    })(list[i]));
+    
+                }
+            })
+            .catch(function(error) {
+                console.error('Error fetching data:', error); // Log errors to the console
+            });
+    }
+
+    buildListContracts();
+
+    function deleteItem(item) {
+        if (!confirm('¿Está seguro de que desea eliminar este documento?')) {
+            return; 
+        }
+
+        console.log('Delete clicked:', item);
+        var url = `http://127.0.0.1:7000/api/contract-steps-project-delete/${item.id}/`;
+
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            }
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            console.log('Deleted successfully, refreshing list.');
+            // Rebuild the contract list to reflect the changes
+            buildListContracts(); 
+        })
+        .catch(function(error) {
+            console.error('Error deleting item:', error);
+            alert('No se pudo eliminar el documento. Inténtalo nuevamente.');
+        });
+    }
+
+
+</script>
+
+{% endblock %}

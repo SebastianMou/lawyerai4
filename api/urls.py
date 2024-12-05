@@ -17,10 +17,16 @@ urlpatterns = [
 
     path('search/', views.search_api, name='api_search'),
     path('feed-back/', views.feed_back, name='feed-back'),
+    
+    # Steps for contract creation
     path('contract-steps/', views.contract_steps, name='contract-steps'),
     path('generate-suggestions/', views.generate_suggestions, name='generate-suggestions'),
     path('generate-ai-text/', views.generate_ai_text, name='generate-ai-text'),
     path('contract-check-basis/<int:pk>/', views.contract_check_basis, name='contract-check-basis'),
+    path('contract-steps-project/', views.contract_steps_project, name='contract-steps-project'),
+    path('contract-steps-project-detail/<int:pk>/', views.contract_steps_project_detail, name='contract-steps-project-detail'),
+    path('contract-steps-project-update/<int:pk>/', views.contract_steps_project_update, name='contract-steps-project-update'),
+    path('contract-steps-project-delete/<int:pk>/', views.contract_steps_project_delete, name='contract-steps-project-delete'),
 
     # Chat Session Lawyer URLs
     path('chatsessions/', views.list_chat_sessions, name='list_chat_sessions'),

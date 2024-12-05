@@ -17,6 +17,23 @@
         border: 1px solid #ddd;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         border-radius: 4px;
+        position: relative; /* Ensure positioning context for absolute elements */
+
+    }
+
+    .full-buttons {
+        position: absolute; /* Place buttons relative to the .document div */
+        top: 0; /* Align to the top of the .document */
+        left: 0; /* Align to the left of the .document */
+        display: flex; /* Align buttons in a row */
+        gap: 5px; /* Optional: space between buttons */
+        padding: 0px; /* Add some padding for the buttons themselves */
+        background-color: white; /* Ensure buttons stand out */
+        z-index: 10; /* Ensure buttons are on top */
+    }
+
+    .full-btn-copy, .full-btn-read, .full-btn-pdf {
+        margin: 0; /* Remove any default margin */
     }
 
     .table-container {
@@ -119,8 +136,17 @@
         }
     }
 </style>
-<div class="containexr">
+<div class="containexr" data-contract-id="{{ contract.id }}">
     <div class="document">
+        <div class="full-buttons">
+            <button class="full-btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+            <button class="full-btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+            <button class="full-btn-pdf btn btn-danger btn-sm" data-contract-id="{{ contract.id }}"><i class="far fa-file-pdf"></i></button>
+            <a href="{% url 'contract-step' contract.pk %}">
+                <button class="btn btn-success btn-sm">edit page</button>
+            </a>
+        </div>
+
         <div class="section card-hover" id="">
             <h1 id="contract-title">Loading...</h1>
             <p><strong>Effective Date:</strong> <span id="effective-date">Loading...</span></p>
@@ -128,6 +154,9 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+                <a class="btn-pdf btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=1">
+                    Edit Parties Section
+                 </a>
             </div>
         </div>
 
@@ -139,6 +168,10 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+                <a class="btn-pdf btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=2">
+                   Edit Parties Section
+                </a>
+                
             </div>
         </div>
 
@@ -148,6 +181,9 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=5">
+                    Edit Parties Section
+                 </a>
             </div>
         </div>
 
@@ -157,6 +193,9 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=6">
+                    Edit Parties Section
+                 </a>
             </div>
         </div>
 
@@ -166,6 +205,9 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=7">
+                    Edit Parties Section
+                 </a>
             </div>
         </div>
 
@@ -176,6 +218,9 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=8">
+                    Edit Parties Section
+                </a>
             </div>
         </div>
 
@@ -185,6 +230,9 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=9">
+                    Edit Parties Section
+                </a>
             </div>
         </div>
 
@@ -194,6 +242,9 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=10">
+                    Edit Parties Section
+                </a>
             </div>
         </div>
 
@@ -203,16 +254,28 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=11">
+                    Edit Parties Section
+                </a>
             </div>
         </div>
+
+        <div class="section card-hover" id="contract-penalties-for-breach">
+            <p id="contract-penalties-for-breach">Loading...</p>
+            <div class="section-buttons">
+                <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+                <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=12">
+                    Edit Parties Section
+                </a>
+            </div>
+        </div>
+
     </div>
 
     <div class="container-ai-checks">
-        <div style="margin-bottom: 7px;" class="table-container">
-            <button class="full-btn-copy btn btn-primary"><i class="far fa-clipboard"></i> Copiar</button>
-            <button class="full-btn-read btn btn-primary"><i class="fas fa-volume-up"></i> Leer</button>
-            <button class="full-btn-pdf btn btn-danger"  data-contract-id="{{ contract.id }}"><i class="far fa-file-pdf"></i> PDF</button>
-        </div>
+        
         <div class="table-container">
             <h4>AI check list</h4>
             <ul style="list-style: none; padding: 0; margin: 0;">
@@ -267,11 +330,15 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const contractId = 119;
+    const contractContainer = document.querySelector(".containexr");
+    const contractId = contractContainer.getAttribute("data-contract-id");
+
+    if (!contractId) {
+        console.error("Contract ID not found.");
+        return;
+    }
 
     fetch(`http://127.0.0.1:7000/api/contract-check-basis/${contractId}/`)
         .then(response => {
@@ -293,10 +360,12 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("contract-obligations").innerHTML = data.obligations || "No obligations defined.";
             document.getElementById("contract-payment-terms").innerHTML = data.payment_terms || "No payment terms defined.";
             document.getElementById("contract-duration").innerText = data.duration || "No duration defined.";
+            document.getElementById("contract-termination-clause").innerText = data.termination_clause || "No termination clause defined.";
 
             document.getElementById("contract-termination-clause").innerHTML = data.termination_clause || "No termination clause defined.";
             document.getElementById("contract-confidentiality-clause").innerHTML = data.confidentiality_clause || "No confidentiality clause defined.";
             document.getElementById("contract-dispute-resolution").innerHTML = data.dispute_resolution || "No dispute resolution terms defined.";
+            document.getElementById("contract-penalties-for-breach").innerHTML = data.penalties_for_breach || "No penalties for breach terms defined.";
         })
         .catch(error => {
             console.error("Error loading contract data:", error);
@@ -520,22 +589,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-});
-
-document.addEventListener("DOMContentLoaded", function () {
+    // Handle full document PDF generation dynamically 
     const fullPdfButton = document.querySelector(".full-btn-pdf");
 
     if (fullPdfButton) {
         fullPdfButton.addEventListener("click", function () {
-            // Assuming the contract ID is dynamically set
-            const contractId = 119; // Replace this with your dynamic logic if needed
             const pdfUrl = `/generate-contract-pdf/${contractId}/`;
 
             // Redirect the user to the PDF generation URL
             window.location.href = pdfUrl;
         });
     }
+
 });
+
 
 
 </script>

@@ -187,6 +187,15 @@ def invoice(request):
     return render(request, 'invoice.html')
 
 @login_required(login_url='/login/')  
+def contract_checklist_basis(request):
+    return render(request, 'documents/contract-checklist-basis.html')
+
+@login_required(login_url='/login/')  
+def contract_step(request, pk):
+    contract = get_object_or_404(ContractSteps, pk=pk)
+    return render(request, 'documents/contract-step.html', {'contract': contract})
+
+@login_required(login_url='/login/')  
 def pages(request):
     if request.method == 'POST':
         user = request.user
@@ -304,13 +313,8 @@ def contract_stepbystep(request):
 
 @login_required(login_url='/login/')
 def contract_check_basis_view(request, pk):
-    """
-    Front-end view to render the HTML page for contract checking.
-    """
-    context = {
-        "contract_id": pk  # Pass the contract ID to the template for dynamic loading
-    }
-    return render(request, 'documents/contract-check-basis.html', context)
+    contract = get_object_or_404(ContractSteps, id=pk, user=request.user)
+    return render(request, 'documents/contract-check-basis.html', {'contract': contract})
 
 @login_required(login_url='/login/')
 def paper(request):

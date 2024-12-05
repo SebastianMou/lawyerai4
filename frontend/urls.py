@@ -20,15 +20,17 @@ urlpatterns = [
     path('contract_project/<int:pk>/download_pdf/', views.download_contract_pdf, name='download_contract_pdf'),
     path('search/', views.search, name='search'),
     path('feedback/', views.feedback, name='feedback'),
-    path('contract-stepbystep/', views.contract_stepbystep, name='contract_stepbystep'),
 
     path('signup/', views.signup, name='signup'),
     # activación de la cuenta de usuario por correo electrónico
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path('check-email/', views.check_email, name='check_email'),
-    path('contract-check-basis/<int:pk>/', views.contract_check_basis_view, name='contract_check_basis_view'),
     path('paper/', views.paper, name='paper'),
 
+    path('contract-stepbystep/', views.contract_stepbystep, name='contract_stepbystep'),
+    path('contract-checklist-basis/', views.contract_checklist_basis, name='contract_checklist_basis'),
+    path('contract-check-basis/<int:pk>/', views.contract_check_basis_view, name='contract_check_basis_view'),
+    path('contract-step/<int:pk>/', views.contract_step, name='contract-step'),
     path('generate-contract-pdf/<int:contract_id>/', views.generate_contract_pdf, name='generate_contract_pdf'),
 
     path('factura/', views.invoice, name='invoice'),

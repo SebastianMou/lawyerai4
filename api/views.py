@@ -601,6 +601,61 @@ def contract_steps(request):
         print(f"Unexpected error: {e}")  # Debugging
         return Response({"error": "An unexpected error occurred."}, status=500)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def contract_steps_project(request):
+    contracts = ContractSteps.objects.filter(user=request.user).order_by('-created_at')
+    serializer = ContractStepsSerializer(contracts, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def contract_steps_project_detail(request, pk):
+    contracts = ContractSteps.objects.get(id=pk)
+    serializer = ContractStepsSerializer(contracts, many=False)
+    return Response(serializer.data)
+
+@api_view(['PUT'])
+def contract_steps_project_update(request, pk):
+    try:
+        contract = ContractSteps.objects.get(id=pk)
+    except ContractSteps.DoesNotExist:
+        return JsonResponse({'error': 'Contract not found'}, status=404)
+
+    # Make a copy of the request data
+    data = request.data.copy()
+
+    # Fields that should not be overwritten if not explicitly updated
+    non_nullable_fields = [
+        'purpose',
+        'obligations',
+        'payment_terms',
+        'termination_clause',
+        'confidentiality_clause',
+        'dispute_resolution',
+        'penalties_for_breach',
+        'duration',
+    ]
+
+    # Avoid overwriting fields with empty or null values
+    for field in non_nullable_fields:
+        if field in data and not data[field].strip():
+            data.pop(field)
+
+    serializer = ContractStepsSerializer(instance=contract, data=data, partial=True)
+
+    if serializer.is_valid():
+        serializer.save()
+        return JsonResponse(serializer.data, status=200)
+    else:
+        return JsonResponse(serializer.errors, status=400)
+
+
+
+@api_view(['DELETE'])
+def contract_steps_project_delete(request, pk):
+    contract = ContractSteps.objects.get(id=pk)
+    contract.delete()
+    return Response('Contract project deleted successfully :)')
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -643,6 +698,73 @@ def generate_suggestions(request):
         print(f"Error: {e}")
         return Response({"error": "Failed to generate suggestions."}, status=500)
 
+
+FIELD_PROMPTS = {
+    "purpose": (
+        "You are refining the 'Purpose' section of a contract. "
+        "The user's input is:\n\n'{user_input}'\n\n"
+        "Rewrite this section to make it clearer, more professional, and legally compliant. "
+        "Focus only on the 'Purpose' section. Do not add information about other contract sections."
+        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+    ),
+    "obligations": (
+        "You are refining the 'Obligations and Responsibilities' section of a contract. "
+        "The user's input is:\n\n'{user_input}'\n\n"
+        "Rewrite this section to clearly define the responsibilities and obligations of the parties. "
+        "Do not include unrelated sections such as payment terms or confidentiality clauses."
+        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+    ),
+    "payment_terms": (
+        "You are refining the 'Payment Terms' section of a contract. "
+        "The user's input is:\n\n'{user_input}'\n\n"
+        "Rewrite this section to clarify the payment terms, ensuring they are legally sound and easy to understand. "
+        "Do not reference other sections such as obligations or penalties."
+        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+    ),
+    "duration": (
+        "You are refining the 'Duration' section of a contract. "
+        "The user's input is:\n\n'{user_input}'\n\n"
+        "Rewrite this section to clearly specify the duration of the contract, ensuring the timeframe is unambiguous. "
+        "Avoid referencing unrelated sections like termination clauses."
+        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+    ),
+    "termination_clause": (
+        "You are refining the 'Termination Clause' of a contract. "
+        "The user's input is:\n\n'{user_input}'\n\n"
+        "Rewrite this section to clearly define the conditions under which the contract can be terminated. "
+        "Ensure the language is professional and legally compliant. Do not reference other sections."
+        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+    ),
+    "confidentiality_clause": (
+        "You are refining the 'Confidentiality Clause' of a contract. "
+        "The user's input is:\n\n'{user_input}'\n\n"
+        "Rewrite this section to clearly define the confidentiality obligations of the parties. "
+        "Ensure the clause is legally sound and avoids referencing unrelated sections."
+        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+    ),
+    "dispute_resolution": (
+        "You are refining the 'Dispute Resolution' section of a contract. "
+        "The user's input is:\n\n'{user_input}'\n\n"
+        "Rewrite this section to clarify how disputes will be resolved, ensuring the methods are fair and legally compliant. "
+        "Avoid referencing unrelated sections such as penalties or obligations."
+        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+    ),
+    "penalties_for_breach": (
+        "You are refining the 'Penalties for Breach' section of a contract. "
+        "The user's input is:\n\n'{user_input}'\n\n"
+        "Rewrite this section to clearly define the penalties for breaching the agreement. "
+        "Ensure the penalties are enforceable and do not include details about other contract sections."
+        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+    ),
+    "notary_required": (
+        "You are refining the 'Notary Required' section of a contract. "
+        "The user's input is:\n\n'{user_input}'\n\n"
+        "Rewrite this section to specify if a notary is required and under what conditions. "
+        "Avoid referencing other sections or adding unrelated details."
+        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+    ),
+}
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def generate_ai_text(request):
@@ -650,31 +772,28 @@ def generate_ai_text(request):
         # Retrieve the user input and title
         user_input = request.data.get("input", "").strip()
         title = request.data.get("title", "").strip()  # Get the title from the request
-        field = request.data.get("field", "unknown")
+        field = request.data.get("field", "").strip()
 
-        if not user_input or not title:
-            return Response({"error": "Both input text and title are required."}, status=400)
+        if not user_input or not title or not field:
+            return Response({"error": "Input text, title, and field are required."}, status=400)
 
         print(f"Received input for field '{field}': {user_input}")
         print(f"Received title: {title}")
 
-        # Updated Prompt with Title and Field Context
-        prompt = (
-            f"You are a legal assistant specializing in Mexican law. Your task is to help structure and refine sections of legal contracts. "
-            f"The contract is titled '{title}', which indicates that this is a '{field}' section within a '{title}'. "
-            f"Reorganize the user's input into a professional and legally compliant format that aligns with the norms and practices in Mexico. "
-            f"Ensure the content is clear, precise, and appropriate for the specified type of contract. "
-            f"Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
-            f"Do not include unrelated elements, such as signatures, dates, or global contract content, unless they are directly relevant to this section.\n\n"
-            f"User Input:\n{user_input}"
-        )
+        # Fetch the field-specific prompt
+        field_prompt_template = FIELD_PROMPTS.get(field)
+        if not field_prompt_template:
+            return Response({"error": f"Field '{field}' is not supported."}, status=400)
+
+        # Create the prompt by formatting the field-specific template
+        prompt = field_prompt_template.format(user_input=user_input)
 
         # Call OpenAI API
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You assist in drafting structured legal documents following Mexican law."},
-                {"role": "user", "content": prompt}
+                {"role": "user", "content": f"Contract Title: {title}\n\n{prompt}"}
             ],
             max_tokens=500,
             temperature=0.7,
@@ -688,6 +807,7 @@ def generate_ai_text(request):
     except Exception as e:
         print(f"Error generating AI text: {e}")
         return Response({"error": "Failed to generate AI text."}, status=500)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

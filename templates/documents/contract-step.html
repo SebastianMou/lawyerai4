@@ -3,17 +3,7 @@
 
 {% block content %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.1.2/tinymce.min.js" referrerpolicy="origin"></script>
-<script>
-    tinymce.init({
-        selector: 'textarea', // Targets all <textarea> elements
-            plugins: 'advlist autolink lists link image charmap print preview anchor searchreplace visualblocks code fullscreen insertdatetime media table paste help wordcount',
-            toolbar: 'undo redo | formatselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | code fullscreen',
-            menubar: 'file edit view insert format tools table help',
-            language: 'es_MX',
-            language_url: '/static/tinymce/langs/es_MX.js',
-            language_load: true,
-    });
-</script>
+
 <style>
     .fa-question-circle {
         color: gray;
@@ -123,12 +113,12 @@
                                 Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
                             </button>
                         </div>
-                
+                        
                         <div class="mb-3">
                             <label for="title" class="form-label">Título del Contrato:</label>
-                            <input type="text" id="title" name="title" class="form-control" maxlength="255" required placeholder="Ejemplo: Contrato de Arrendamiento de Vivienda" style="border: none; border-bottom: 1px solid gray;">
+                            <input type="text" id="title" name="title" class="form-control" maxlength="255" required placeholder="Ejemplo: Contrato de Arrendamiento de Vivienda">
                         </div>
-                
+                        
                         <!-- Suggestion box -->
                         <div id="suggestionBox" style="display: none; font-style: italic; color: gray;">
                             <!-- Suggestions will be dynamically added here -->
@@ -453,7 +443,6 @@
                                 <div id="dispute_resolution-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
                                     El texto generado por IA aparecerá aquí.
                                 </div>
-
                             </div>
                             
                         </div>
@@ -470,9 +459,9 @@
                                 </div>
                                 <div class="col text-end">
                                     <!-- Finalizar Button -->
-                                    <button type="button" id="finalizeButton" class="btn btn-success mt-2" style="border-radius: 50px;">
+                                    <a href="{% url 'contract_check_basis_view' contract.pk %}" type="button" id="finalizeButton" class="btn btn-success mt-2" style="border-radius: 50px;">
                                         Finalizar <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
 
@@ -496,7 +485,6 @@
                         </div>
                     </div>
                 </form>
-                
             </div>
         </div>
     </div>
@@ -506,41 +494,63 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
 
 <script>
-    
-    let contractId = null; // Store the contract ID after the first save
+    document.addEventListener("DOMContentLoaded", async function () {
+        // Extract the contract ID from the URL
+        const contractId = window.location.pathname.split("/")[2];
+        console.log("Contract ID:", contractId);
 
-    // Listen for input in the title field
-    document.getElementById("title").addEventListener("input", async function (event) {
-        const userInput = event.target.value;
+        let contractData = {}; // Object to store contract data
 
-        if (userInput.length > 2) { // Trigger the API call only for meaningful input
-            try {
-                const response = await fetch("http://127.0.0.1:7000/api/generate-suggestions/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": getCSRFToken(),
-                    },
-                    body: JSON.stringify({ input: userInput }),
-                });
+        try {
+            // Fetch contract details using the dynamic endpoint
+            const response = await fetch(`http://127.0.0.1:7000/api/contract-steps-project-detail/${contractId}/`);
+            if (response.ok) {
+                contractData = await response.json();
 
-                const data = await response.json();
+                // Populate non-TinyMCE fields
+                document.getElementById("title").value = contractData.title || "";
+                document.getElementById("party_one_name").value = contractData.party_one_name || "";
+                document.getElementById("party_one_role").value = contractData.party_one_role || "";
+                document.getElementById("party_two_name").value = contractData.party_two_name || "";
+                document.getElementById("party_two_role").value = contractData.party_two_role || "";
+                document.getElementById("effective_date").value = contractData.effective_date || "";
+                document.getElementById("effective_date").value = contractData.effective_date || "";
+                document.getElementById("duration").value = contractData.duration || "";
 
-                if (response.ok) {
-                    populateSuggestions(data.suggestions);
-
-                    // Show the suggestion box if there are any suggestions
-                    const suggestionBox = document.getElementById("suggestionBox");
-                    suggestionBox.style.display =
-                        data.suggestions.some((s) => s) ? "block" : "none";
-                } else {
-                    console.error("Error:", data);
-                }
-            } catch (error) {
-                console.error("Unexpected error:", error);
+                console.log("Contract data loaded:", contractData); // Debugging to confirm data loading
+            } else {
+                console.error("Failed to fetch contract data. Status:", response.status);
             }
+        } catch (error) {
+            console.error("Error fetching contract data:", error);
         }
+
+        // Initialize TinyMCE and populate fields when ready
+        tinymce.init({
+            selector: 'textarea', // Targets all <textarea> elements
+            plugins: 'advlist autolink lists link image charmap print preview anchor searchreplace visualblocks code fullscreen insertdatetime media table paste help wordcount',
+            toolbar: 'undo redo | formatselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | code fullscreen',
+            menubar: 'file edit view insert format tools table help',
+            language: 'es_MX',
+            language_url: '/static/tinymce/langs/es_MX.js',
+            language_load: true,
+            setup: function (editor) {
+                editor.on('init', function () {
+                    console.log(`Editor ${editor.id} initialized.`);
+
+                    // Populate TinyMCE fields once all editors are ready
+                    if (editor.id === "purpose") editor.setContent(contractData.purpose || "");
+                    if (editor.id === "obligations") editor.setContent(contractData.obligations || "");
+                    if (editor.id === "payment_terms") editor.setContent(contractData.payment_terms || "");
+                    if (editor.id === "termination_clause") editor.setContent(contractData.termination_clause || "");
+                    if (editor.id === "confidentiality_clause") editor.setContent(contractData.confidentiality_clause || "");
+                    if (editor.id === "dispute_resolution") editor.setContent(contractData.dispute_resolution || "");
+                    if (editor.id === "penalties_for_breach") editor.setContent(contractData.penalties_for_breach || "");
+                });
+            }
+        });
     });
+
 
     // Function to populate suggestions dynamically
     function populateSuggestions(suggestions) {
@@ -572,43 +582,77 @@
         });
     }
 
+    document.getElementById("title").addEventListener("input", async function (event) {
+        const userInput = event.target.value;
+
+        // Trigger the API call only for meaningful input
+        if (userInput.length > 2) {
+            try {
+                const response = await fetch("http://127.0.0.1:7000/api/generate-suggestions/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken(), // Ensure CSRF token is included
+                    },
+                    body: JSON.stringify({ input: userInput }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    populateSuggestions(data.suggestions);
+
+                    // Show the suggestion box if there are any suggestions
+                    const suggestionBox = document.getElementById("suggestionBox");
+                    suggestionBox.style.display = data.suggestions.length > 0 ? "block" : "none";
+                } else {
+                    console.error("Error generating suggestions:", data);
+                }
+            } catch (error) {
+                console.error("Unexpected error generating suggestions:", error);
+            }
+        }
+    });
+
     document.querySelectorAll(".btn[data-bs-slide='next']").forEach((button) => {
         button.addEventListener("click", async function (event) {
             tinymce.triggerSave(); // Save TinyMCE content to its underlying <textarea>
 
+            const contractId = window.location.pathname.split("/")[2]; // Correct index
+            console.log("Extracted Contract ID for Next Button:", contractId);
+
+            if (!contractId) {
+                alert("Contract ID not found in URL.");
+                return;
+            }
+
             const form = document.getElementById("contractForm");
             const formData = new FormData(form); // Gather all form data, including TinyMCE content
 
-            if (contractId) {
-                formData.append("id", contractId); // Include the contract ID for updates
-            }
-
             try {
-                const response = await fetch("http://127.0.0.1:7000/api/contract-steps/", {
-                    method: contractId ? "PUT" : "POST", // Determine method dynamically
+                const response = await fetch(`http://127.0.0.1:7000/api/contract-steps-project-update/${contractId}/`, {
+                    method: "PUT",
                     headers: {
-                        "X-CSRFToken": getCSRFToken(), // Include CSRF token
+                        "X-CSRFToken": getCSRFToken(),
                     },
-                    body: formData, // Send FormData directly
+                    body: formData,
                 });
 
                 if (response.ok) {
                     const data = await response.json();
-                    if (!contractId) {
-                        contractId = data.id; // Store the contract ID for subsequent updates
-                    }
-                    console.log("Response:", data); // Debug response
+                    
                 } else {
-                    const errorData = await response.json();
-                    alert("Failed to save contract steps. Check console for details.");
-                    console.error("Error:", errorData); // Debug error response
+                    const errorText = await response.text();
+                    console.error("Error updating contract via Next Button:", errorText);
+                    alert("Failed to update contract. Check console for details.");
                 }
             } catch (error) {
-                console.error("Unexpected error:", error);
+                console.error("Unexpected error via Next Button:", error);
                 alert("An unexpected error occurred. Check console for details.");
             }
         });
     });
+
 
     async function generateAIText(fieldId, event) {
         if (event) {
@@ -705,8 +749,6 @@
         }
     }
 
-
-
     // Copy text to clipboard
     function copyToClipboard(fieldId, event, button) {
         if (event) {
@@ -797,74 +839,118 @@
             tinymce.triggerSave(); // Save TinyMCE content to its underlying <textarea>
 
             const form = document.getElementById("contractForm");
-            const formData = new FormData(form); // Gather all form data, including TinyMCE content
+            const formData = new FormData(form);
+
+            // Debug log for form data
+            console.log("Form Data:");
+            formData.forEach((value, key) => {
+                console.log(`${key}: ${value}`);
+            });
 
             if (contractId) {
-                formData.append("id", contractId); // Include the contract ID for updates
+                formData.append("id", contractId);
             }
 
             try {
                 const response = await fetch("http://127.0.0.1:7000/api/contract-steps/", {
-                    method: contractId ? "PUT" : "POST", // Determine method dynamically
+                    method: contractId ? "PUT" : "POST",
                     headers: {
-                        "X-CSRFToken": getCSRFToken(), // Include CSRF token
+                        "X-CSRFToken": getCSRFToken(),
                     },
-                    body: formData, // Send FormData directly
+                    body: formData,
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
-                    if (!contractId) {
-                        contractId = data.id; // Store the contract ID for subsequent updates
-                        console.log("Updated Contract ID:", contractId);
-                    }
+                    console.log("Update successful");
                 } else {
-                    const errorData = await response.json();
-                    console.error("Error:", errorData);
+                    console.error("Update failed");
                 }
             } catch (error) {
                 console.error("Unexpected error:", error);
             }
         });
-});
+    });
 
-document.getElementById("finalizeButton").addEventListener("click", async function (event) {
-    event.preventDefault(); // Prevent default link behavior
-    tinymce.triggerSave(); // Save TinyMCE content to its underlying <textarea>
+    document.getElementById("finalizeButton").addEventListener("click", async function (event) {
+        event.preventDefault(); // Prevent immediate navigation
+        tinymce.triggerSave(); // Save TinyMCE content to its underlying <textarea>
 
+        const contractId = window.location.pathname.split("/")[2];
+        const form = document.getElementById("contractForm");
+        const formData = new FormData(form);
+
+        try {
+            // Send update request
+            const response = await fetch(`http://127.0.0.1:7000/api/contract-steps-project-update/${contractId}/`, {
+                method: "PUT",
+                headers: {
+                    "X-CSRFToken": getCSRFToken(),
+                },
+                body: formData,
+            });
+
+            if (response.ok) {
+                console.log("Contract updated successfully");
+
+                // Redirect after successful update
+                window.location.href = `/contract-check-basis/${contractId}/`;
+            } else {
+                console.error("Failed to update contract");
+                alert("Failed to update contract. Check console for details.");
+            }
+        } catch (error) {
+            console.error("Unexpected error:", error);
+            alert("An unexpected error occurred. Check console for details.");
+        }
+    });
+
+    
+// Update contract logic
+document.getElementById("contractForm").addEventListener("submit", async function (event) {
+    event.preventDefault(); // Prevent default form submission
+    tinymce.triggerSave(); // Save all TinyMCE content to their underlying <textarea>
+
+    const contractId = window.location.pathname.split("/")[2]; // Extract contract ID
     const form = document.getElementById("contractForm");
-    const formData = new FormData(form); // Gather all form data, including TinyMCE content
-
-    if (contractId) {
-        formData.append("id", contractId); // Include the contract ID for updates
-    }
+    const formData = new FormData(form); // Collect all form data, including TinyMCE content
 
     try {
-        const response = await fetch("http://127.0.0.1:7000/api/contract-steps/", {
-            method: contractId ? "PUT" : "POST", // Determine method dynamically
+        const response = await fetch(`http://127.0.0.1:7000/api/contract-steps-project-update/${contractId}/`, {
+            method: "PUT", // Use PUT for updates
             headers: {
-                "X-CSRFToken": getCSRFToken(), // Include CSRF token
+                "X-CSRFToken": getCSRFToken(), // Include CSRF token for Django
             },
-            body: formData, // Send FormData directly
+            body: formData, // Send all form data
         });
 
         if (response.ok) {
             const data = await response.json();
-            if (!contractId) {
-                contractId = data.id; // Ensure contractId is updated
-                console.log("Finalizing with Contract ID:", contractId);
-            }
+            console.log("Contract updated successfully:", data);
+            alert("Contract updated successfully!");
 
-            // Redirect to the 'contract-check-basis' page dynamically
-            window.location.href = `/contract-check-basis/${contractId}/`;
+            // Redirect to the contract details page
+            window.location.href = `http://127.0.0.1:7000/contract-check-basis/${contractId}/`;
         } else {
             const errorData = await response.json();
-            alert("Failed to finalize contract. Check console for details.");
-            console.error("Error:", errorData);
+            console.error("Error updating contract:", errorData);
+            alert("Failed to update contract. Check console for details.");
         }
     } catch (error) {
-        console.error("Unexpected error:", error);
+        console.error("Unexpected error updating contract:", error);
         alert("An unexpected error occurred. Check console for details.");
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search); // Parse query params
+    const step = urlParams.get("step"); // Get the step parameter
+
+    if (step) {
+        const carousel = document.getElementById("contractCarousel");
+        const carouselInstance = bootstrap.Carousel.getInstance(carousel) || new bootstrap.Carousel(carousel);
+
+        // Navigate to the target step (zero-based index)
+        carouselInstance.to(Number(step) - 1);
     }
 });
 

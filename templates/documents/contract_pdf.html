@@ -7,27 +7,52 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            font-size: 11pt;
             margin: 20px;
-            line-height: 1.6;
         }
+    
         h1, h2 {
             color: #333;
         }
-        .content {
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 5px;
-        }
+    
         ul, ol {
             margin-left: 20px;
+            padding-left: 20px;
+            list-style-position: inside;
         }
+    
+        ul li, ol li {
+            margin: 0; /* Remove default margin */
+            padding: 2px 0; /* Add minimal padding for separation */
+            line-height: 1.2; /* Slightly tighter line height */
+        }
+    
+        ul ul, ol ol, ul ol, ol ul {
+            margin-left: 15px; /* Proper indentation for nested lists */
+        }
+    
+        ul ul li, ol ol li, ul ol li, ol ul li {
+            list-style-type: circle; /* Use circles for nested bullet lists */
+        }
+    
+        ol {
+            list-style-type: decimal; /* Default numbered style */
+        }
+    
+        ol ol {
+            list-style-type: lower-alpha; /* Use letters for nested ordered lists */
+        }
+    
         strong {
             font-weight: bold;
         }
+    
         p {
             margin-bottom: 10px;
         }
     </style>
+    
+    
 </head>
 <body>
     <h1>Contract Title: {{ contract.title }}</h1>
@@ -36,32 +61,37 @@
     <p><strong>Party Two:</strong> {{ contract.party_two_name }} ({{ contract.party_two_role }})</p>
 
     <div class="content">
-        <h2>Purpose</h2>
+        <!-- <h2>Purpose</h2> -->
         {{ contract.purpose|safe }}
     </div>
 
     <div class="content">
-        <h2>Obligations</h2>
+        <!-- <h2>Obligations</h2> -->
         {{ contract.obligations|safe }}
     </div>
 
     <div class="content">
-        <h2>Payment Terms</h2>
+        <!-- <h2>Payment Terms</h2> -->
         {{ contract.payment_terms|safe }}
     </div>
 
     <div class="content">
-        <h2>Termination Clause</h2>
+        <!-- <h2>duration Clause</h2> -->
+        {{ contract.duration|safe }}
+    </div>
+
+    <div class="content">
+        <!-- <h2>Termination Clause</h2> -->
         {{ contract.termination_clause|safe }}
     </div>
 
     <div class="content">
-        <h2>Confidentiality Clause</h2>
+        <!-- <h2>Confidentiality Clause</h2> -->
         {{ contract.confidentiality_clause|safe }}
     </div>
 
     <div class="content">
-        <h2>Dispute Resolution</h2>
+        <!-- <h2>Dispute Resolution</h2> -->
         {{ contract.dispute_resolution|safe }}
     </div>
 </body>
