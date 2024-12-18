@@ -7,11 +7,20 @@ from django.dispatch import receiver
 
 # Create your models here.
 class ContractProject(models.Model):
+    check_completed = models.BooleanField(default=False)  
     name = models.CharField(max_length=100, null=True)
     description = HTMLField(blank=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contract_project', null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
+    contract_steps = models.OneToOneField(
+        'ContractSteps',  # Reference to the ContractSteps model
+        on_delete=models.SET_NULL,  # If the ContractSteps is deleted, set this field to null
+        null=True,
+        blank=True,
+        related_name='contract_project'  # Allows reverse lookup: contract_steps.contract_project
+    )
+    has_changes = models.BooleanField(default=False)
 
     def __str__(self):
         # Return a default string if name is None
@@ -54,23 +63,26 @@ class Message(models.Model):
 class ContractSteps(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contracts")  # Related to User model
     # Core Elements
+    check_completed = models.BooleanField(default=False)
     title = models.CharField(max_length=255)  # Contract Title (Required)
-    party_one_name = models.CharField(max_length=255, blank=True, null=True)  # First party's name (Optional)
-    party_one_role = models.CharField(max_length=255, blank=True, null=True)  # First party's role (Optional)
-    party_two_name = models.CharField(max_length=255, blank=True, null=True)  # Second party's name (Optional)
-    party_two_role = models.CharField(max_length=255, blank=True, null=True)  # Second party's role (Optional)
-    effective_date = models.DateField(blank=True, null=True)  # Start date of the contract (Optional)
-    purpose = HTMLField(blank=True, null=True)  # Brief description of the contract (Optional)
-    obligations = HTMLField(blank=True, null=True)  # Responsibilities/Obligations (Optional)
-    payment_terms = HTMLField(blank=True, null=True)  # Payment terms (Optional)
-    duration = models.CharField(max_length=255, blank=True, null=True)  # Contract duration (Optional)
-    termination_clause = HTMLField(blank=True, null=True)  # Conditions for termination (Optional)
+    party_one_name = models.CharField(max_length=255, blank=True, null=True)  # First party's name 
+    party_one_role = models.CharField(max_length=255, blank=True, null=True)  # First party's role 
+    party_two_name = models.CharField(max_length=255, blank=True, null=True)  # Second party's name 
+    party_two_role = models.CharField(max_length=255, blank=True, null=True)  # Second party's role
+    effective_date = models.DateField(blank=True, null=True)  # Start date of the contract
+    purpose = HTMLField(blank=True, null=True)  # Brief description of the contract 
+    obligations = HTMLField(blank=True, null=True)  # Responsibilities/Obligations 
+    payment_terms = HTMLField(blank=True, null=True)  # Payment terms 
+    duration = models.CharField(max_length=255, blank=True, null=True)  # Contract duration 
+    termination_clause = HTMLField(blank=True, null=True)  # Conditions for termination 
 
     # Optional Fields
     confidentiality_clause = HTMLField(blank=True, null=True)  # Confidentiality clause (Optional)
     dispute_resolution = HTMLField(blank=True, null=True)  # Dispute resolution terms (Optional)
     penalties_for_breach = HTMLField(blank=True, null=True)  # Penalty clause (Optional)
+    
     notary_required = models.BooleanField(default=False)  # Whether a notary is required (Optional)
+    notarization = HTMLField(blank=True, null=True)
     # attachments = models.FileField(upload_to="contract_attachments/", blank=True, null=True)  # Additional documents (Optional)
 
     # Metadata
@@ -79,7 +91,27 @@ class ContractSteps(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def save(self, *args, **kwargs):
+        text_fields = ['purpose', 'obligations', 'payment_terms', 'termination_clause', 
+                       'confidentiality_clause', 'dispute_resolution', 'penalties_for_breach', 'notarization']
+        
+        for field in text_fields:
+            if getattr(self, field) is None:
+                setattr(self, field, '')  # Set empty fields to ''
 
+        super().save(*args, **kwargs)
+
+
+class ValidationResult(models.Model):
+    contract = models.ForeignKey('ContractSteps', on_delete=models.CASCADE, related_name='validation_results')
+    check_type = models.CharField(max_length=255)  # Type of check (e.g., "Legal Check", "Spelling Check")
+    passed = models.BooleanField()  # Whether the check passed or failed
+    issues = models.TextField(blank=True, null=True)  # Details of the issues if the check failed
+    created_at = models.DateTimeField(auto_now_add=True)  # Timestamp of the result
+
+    def __str__(self):
+        return f"{self.check_type} - {'Passed' if self.passed else 'Failed'}"
 
 class Feedback(models.Model):
     FEEDBACK_TYPE_CHOICES = [

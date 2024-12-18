@@ -1,0 +1,385 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .containexr {
+        display: flex;
+        gap: 20px;
+        margin: 20px 40px;
+    }
+
+    .document {
+        max-width: 8.5in;
+        min-height: 11in;
+        background: white;
+        padding: 0.5in;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        position: relative; /* Ensure positioning context for absolute elements */
+
+    }
+
+    .full-buttons {
+        position: absolute; /* Place buttons relative to the .document div */
+        top: 0; /* Align to the top of the .document */
+        left: 0; /* Align to the left of the .document */
+        display: flex; /* Align buttons in a row */
+        gap: 5px; /* Optional: space between buttons */
+        padding: 0px; /* Add some padding for the buttons themselves */
+        background-color: white; /* Ensure buttons stand out */
+        z-index: 10; /* Ensure buttons are on top */
+    }
+
+    .full-btn-copy, .full-btn-read, .full-btn-pdf, .btn-edit {
+        margin: 0; /* Remove any default margin */
+    }
+
+    .table-container {
+        flex: 1;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+    }
+
+    .container-ai-checks {
+        flex: 1;
+        border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+        .containexr {
+            flex-direction: column;
+        }
+    }
+
+    h1,
+    h2 {
+        margin: 20px 0 10px;
+        color: #333;
+    }
+
+    p {
+        margin: 0 0 10px;
+        line-height: 1.5;
+        color: #555;
+        font-size: 12pt;
+    }
+
+    .section {
+        position: relative;
+        margin-bottom: 20px;
+        padding: 0px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .section-buttons {
+        display: none;
+        position: absolute;
+        bottom: 0px; 
+        left: 0px;
+        gap: 5px;
+    }
+
+    .section:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        transform: scale(1.02);
+        padding-bottom: 16px;
+    }
+
+    .section:hover .section-buttons {
+        display: flex; 
+    }
+
+    .section:not(:last-child) {
+        margin-bottom: 1px;
+    }
+
+    .btn-copy,
+    .btn-read,
+    .btn-pdf {
+        font-size: 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.3s ease-in-out, transform 0.3s ease-in-out;
+    }
+
+    .btn-copy:hover,
+    .btn-read:hover,
+    .btn-pdf:hover {
+        transform: translateY(-2px); 
+    }
+
+    @media (max-width: 1024px) {
+        .document {
+            max-width: 100%;
+            min-height: auto;
+            padding: 20px;
+        }
+
+        .section {
+            padding: 8px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 18pt;
+        }
+
+        p {
+            font-size: 10pt;
+        }
+    }
+</style>
+<div class="containexr" data-contract-id="{{ contract.id }}">
+    <div class="document">
+        <div class="full-buttons">
+            <button class="full-btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+            <button class="full-btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+            <button class="full-btn-pdf btn btn-danger btn-sm" data-contract-id="{{ contract.id }}"><i class="far fa-file-pdf"></i></button>
+            <button class="btn-edit btn btn-success btn-sm" onclick="transferToProject({{ contract.id }})">edit document</button>
+        </div>
+        <div class="document-data">
+
+        </div>
+
+    </div>
+
+    <div class="container-ai-checks">
+        <div class="table-container" style="margin-bottom: 5px;">
+            <h4>AI Check List</h4>
+            <ul id="list-wrapper-ai" style="list-style: none; padding: 0; margin: 0;">
+                {% if latest_validation_result %}
+                    <li style="padding-bottom: 5px; cursor: pointer;" id="view-issues">
+                        {% if latest_validation_result.passed %}
+                            <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
+                                class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                            </svg> 
+                            <strong>Legal Check - Passed</strong>
+                        {% else %}
+                            <i class="align-middle me-2 far fa-fw fa-times-circle" style="color: red;"></i> 
+                            <strong>Legal Check - Failed</strong>
+                        {% endif %}
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    
+        {% if ai_check_completed %}
+            <button id="ai-check-btn" class="btn btn-outline-primary form-control" style="border-radius: 50px;">Run AI Check Again &rarr;</button>
+        {% endif %}
+    
+        <div class="table-container" id="issues-container" style="margin-top: 5px; display: none;">
+            <h4>Issues</h4>
+            <div id="issues-content"></div> 
+            <small id="issue-timestamp"></small> 
+        </div>
+        
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    const baseUrl = "http://127.0.0.1:7000";
+
+    function getPKFromURL() {
+        // Extract the pk from the URL path
+        const urlParts = window.location.pathname.split('/');
+        return urlParts[urlParts.length - 2]; // Assuming the URL ends with /29/
+    }
+
+    function BuildDocLayout() {
+        var wrapper = document.getElementById('list-wrapper-chat');
+        var pk = getPKFromURL(); // Get the dynamic pk
+
+        var url = `${baseUrl}/api/contract-detail/${pk}/`;
+
+        fetch(url)
+        .then((resp) => resp.json())
+        .then(function(data) {
+            console.log('Data Contract Project: ', data);
+
+            // Select the container where you want to render the data
+            var documentData = document.querySelector('.document-data');
+            
+            // Create the HTML content to be inserted
+            documentData.innerHTML = `
+                ${data.description}
+            `;
+        })
+        .catch(function(error) {
+            console.error('Error fetching contract data:', error);
+        });
+    }
+
+    document.querySelector('.full-btn-copy').addEventListener('click', function() {
+        // Select the content inside .document-data
+        var documentData = document.querySelector('.document-data');
+        var copyButton = document.querySelector('.full-btn-copy i'); // Select the icon inside the button
+        
+        if (documentData) {
+            // Create a range object and select the content
+            var range = document.createRange();
+            range.selectNodeContents(documentData);
+            
+            // Remove any existing selections and add the new one
+            var selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            // Copy the selected text to the clipboard
+            try {
+                document.execCommand('copy');
+                
+                // Change the icon to a checkmark
+                copyButton.classList.remove('far', 'fa-clipboard');
+                copyButton.classList.add('fas', 'fa-check');
+
+                // Change it back to the clipboard icon after 2 seconds
+                setTimeout(() => {
+                    copyButton.classList.remove('fas', 'fa-check');
+                    copyButton.classList.add('far', 'fa-clipboard');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy content: ', err);
+            }
+
+            // Clear the selection
+            selection.removeAllRanges();
+        } else {
+            console.error('No content found to copy.');
+        }
+    });
+
+    let isReading = false; // Tracks if the text is currently being read
+    let utterance; // Stores the current speech synthesis utterance
+
+    document.querySelector('.full-btn-read').addEventListener('click', function() {
+        var documentData = document.querySelector('.document-data');
+        var readButtonIcon = document.querySelector('.full-btn-read i'); // Select the icon inside the button
+
+        if (!documentData) {
+            console.error('No content found to read.');
+            return;
+        }
+
+        var textToRead = documentData.textContent || documentData.innerText;
+        
+        // Check if the browser supports SpeechSynthesis
+        if ('speechSynthesis' in window) {
+            if (!isReading) {
+                // If not reading, start a new speech
+                utterance = new SpeechSynthesisUtterance(textToRead);
+
+                // Set speech parameters
+                utterance.lang = 'es-ES'; // Set the language to Spanish
+                utterance.rate = 1; // Speed of the speech
+                utterance.pitch = 1; // Pitch of the voice
+                utterance.volume = 1; // Volume level (0 to 1)
+
+                // Set the Spanish voice if available
+                const voices = window.speechSynthesis.getVoices();
+                const spanishVoice = voices.find(voice => voice.lang === 'es-ES');
+                if (spanishVoice) {
+                    utterance.voice = spanishVoice;
+                }
+
+                // Change the icon to a pause icon
+                readButtonIcon.classList.remove('fas', 'fa-volume-up');
+                readButtonIcon.classList.add('far', 'fa-pause-circle');
+
+                // Handle speech end event
+                utterance.onend = function() {
+                    isReading = false;
+                    readButtonIcon.classList.remove('far', 'fa-pause-circle');
+                    readButtonIcon.classList.add('fas', 'fa-volume-up');
+                };
+
+                // Cancel any ongoing speech before starting a new one
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+                isReading = true;
+            } else {
+                // If reading, pause it
+                if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                    window.speechSynthesis.pause();
+                    readButtonIcon.classList.remove('far', 'fa-pause-circle');
+                    readButtonIcon.classList.add('fas', 'fa-volume-up');
+                } 
+                // If paused, resume the speech
+                else if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                    readButtonIcon.classList.remove('fas', 'fa-volume-up');
+                    readButtonIcon.classList.add('far', 'fa-pause-circle');
+                }
+            }
+        } else {
+            console.error('Text-to-speech is not supported in this browser.');
+        }
+    });
+
+    document.querySelector('.full-btn-pdf').addEventListener('click', function() {
+        var documentData = document.querySelector('.document-data');
+
+        if (!documentData) {
+            console.error('No content found to generate a PDF.');
+            return;
+        }
+
+        var textToPDF = documentData.textContent || documentData.innerText;
+
+        // Load jsPDF module
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        // Set margin and font settings
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const margin = 10; // Margin on both sides
+        const maxWidth = pageWidth - margin * 2;
+
+        // Split text into pages to fit in the document
+        const textLines = pdf.splitTextToSize(textToPDF, maxWidth);
+        
+        // Add the text to the PDF
+        let y = 10; // Start at 10mm from the top of the page
+        textLines.forEach(line => {
+            if (y + 10 > pdf.internal.pageSize.getHeight()) {
+                pdf.addPage(); // Add new page if text overflows
+                y = 10; // Reset Y position for new page
+            }
+            pdf.text(line, margin, y);
+            y += 10; // Line height
+        });
+
+        // Generate and download the PDF
+        const contractId = this.getAttribute('data-contract-id') || 'contract';
+        pdf.save(`contract_${contractId}.pdf`);
+    });
+
+    // Handle full document PDF generation dynamically 
+    const fullPdfButton = document.querySelector(".full-btn-pdf");
+
+    if (fullPdfButton) {
+        fullPdfButton.addEventListener("click", function () {
+            const contractId = this.getAttribute('data-contract-id');
+            const pdfUrl = `/generate-contract-pdf-full-doc/${contractId}/`;
+
+            // Redirect the user to the PDF generation URL
+            window.location.href = pdfUrl;
+        });
+    }
+
+
+
+
+    BuildDocLayout()
+</script>
+{% endblock %}

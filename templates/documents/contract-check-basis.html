@@ -32,7 +32,7 @@
         z-index: 10; /* Ensure buttons are on top */
     }
 
-    .full-btn-copy, .full-btn-read, .full-btn-pdf {
+    .full-btn-copy, .full-btn-read, .full-btn-pdf, .btn-edit {
         margin: 0; /* Remove any default margin */
     }
 
@@ -143,8 +143,9 @@
             <button class="full-btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
             <button class="full-btn-pdf btn btn-danger btn-sm" data-contract-id="{{ contract.id }}"><i class="far fa-file-pdf"></i></button>
             <a href="{% url 'contract-step' contract.pk %}">
-                <button class="btn btn-success btn-sm">edit page</button>
+                <button class="btn-edit btn btn-success btn-sm">edit page</button>
             </a>
+            <button class="btn-edit btn btn-success btn-sm" onclick="transferToProject({{ contract.id }})">edit full document</button>
         </div>
 
         <div class="section card-hover" id="">
@@ -154,7 +155,7 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
-                <a class="btn-pdf btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=1">
+                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=1">
                     Edit Parties Section
                  </a>
             </div>
@@ -168,7 +169,7 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
-                <a class="btn-pdf btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=2">
+                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=2">
                    Edit Parties Section
                 </a>
                 
@@ -181,7 +182,7 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
-                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=5">
+                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=5">
                     Edit Parties Section
                  </a>
             </div>
@@ -193,7 +194,7 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
-                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=6">
+                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=6">
                     Edit Parties Section
                  </a>
             </div>
@@ -205,7 +206,7 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
-                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=7">
+                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=7">
                     Edit Parties Section
                  </a>
             </div>
@@ -218,7 +219,7 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
-                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=8">
+                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=8">
                     Edit Parties Section
                 </a>
             </div>
@@ -230,7 +231,7 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
-                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=9">
+                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=9">
                     Edit Parties Section
                 </a>
             </div>
@@ -242,7 +243,7 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
-                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=10">
+                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=10">
                     Edit Parties Section
                 </a>
             </div>
@@ -254,19 +255,31 @@
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
-                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=11">
+                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=11">
                     Edit Parties Section
                 </a>
             </div>
         </div>
 
-        <div class="section card-hover" id="contract-penalties-for-breach">
+        <div class="section card-hover" id="penalties-for-breach">
             <p id="contract-penalties-for-breach">Loading...</p>
             <div class="section-buttons">
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
-                <a class="btn-pdf btn btn-danger btn-sm" href="{% url 'contract-step' contract.pk %}?step=12">
+                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=12">
+                    Edit Parties Section
+                </a>
+            </div>
+        </div>
+
+        <div class="section card-hover" id="notarization">
+            <p id="contract-notarization">Loading...</p>
+            <div class="section-buttons">
+                <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
+                <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
+                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=12">
                     Edit Parties Section
                 </a>
             </div>
@@ -275,62 +288,111 @@
     </div>
 
     <div class="container-ai-checks">
-        
-        <div class="table-container">
-            <h4>AI check list</h4>
-            <ul style="list-style: none; padding: 0; margin: 0;">
-                <li style="padding-bottom: 5px;">
-                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
-                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                    </svg> Coffee
-                </li>
-                <li style="padding-bottom: 5px;">
-                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
-                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                    </svg> Coffee
-                </li>
-                <li style="padding-bottom: 5px;">
-                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
-                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                    </svg> Coffee</li>
-                <li style="padding-bottom: 5px;">
-                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
-                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                    </svg> Coffee
-                </li>
-                <li style="padding-bottom: 5px;">
-                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
-                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                    </svg> Coffee
-                </li>
-                <li style="padding-bottom: 5px;">
-                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
-                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                    </svg> Coffee
-                </li>
+        <div class="table-container" style="margin-bottom: 5px;">
+            <h4>AI Check List</h4>
+            <ul id="list-wrapper-ai" style="list-style: none; padding: 0; margin: 0;">
+                {% if latest_validation_result %}
+                    <li style="padding-bottom: 5px; cursor: pointer;" id="view-issues">
+                        {% if latest_validation_result.passed %}
+                            <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
+                                class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                            </svg> 
+                            <strong>Legal Check - Passed</strong>
+                        {% else %}
+                            <i class="align-middle me-2 far fa-fw fa-times-circle" style="color: red;"></i> 
+                            <strong>Legal Check - Failed</strong>
+                        {% endif %}
+                    </li>
+                {% endif %}
             </ul>
         </div>
-        <div style="margin-top: 7px;" class="table-container">
-            this is go in grater detail
+    
+        {% if ai_check_completed %}
+            <button id="ai-check-btn" class="btn btn-outline-primary form-control" style="border-radius: 50px;">Run AI Check Again &rarr;</button>
+        {% endif %}
+    
+        <div class="table-container" id="issues-container" style="margin-top: 5px; display: none;">
+            <h4>Issues</h4>
+            <div id="issues-content"></div> 
+            <small id="issue-timestamp"></small> 
         </div>
-    </div>
         
+    </div>
+
+
 </div>
+
+<style>
+    #change-warning {
+        display: none; /* 🔥 Hide the pop-up initially */
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        background-color: yellow; 
+        color: black; 
+        padding: 20px; 
+        z-index: 9999; 
+        text-align: center; 
+        box-shadow: 0px 4px 6px rgba(0,0,0,0.1); 
+    }
+
+    .alert-warning button {
+        background-color: red; 
+        color: white; 
+        border: none; 
+        padding: 10px 20px; 
+        cursor: pointer; 
+        border-radius: 4px; 
+    }
+
+    .alert-warning button:hover {
+        background-color: darkred; 
+    }
+</style>
+
+<div id="change-warning" class="alert-warning">
+    <strong>Warning:</strong> Changes made in the "Full Document" will not be reflected here. 
+    <button onclick="dismissWarning()">Dismiss</button>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.3/marked.min.js" integrity="sha512-kZ9BCD8vqCw2vJ1XG3EVZN5M5aRNxxMK3+uYuZPWc+TtW2Z1zSgmFlTIVHYHaWH0bH2lp2dUlB/1+M1h+lvfeg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script>
+    // Check if there are changes and show the alert
+    const hasChanges = {{ has_changes|yesno:"true,false" }} === 'true'; // Pass True or False from context
+    if (hasChanges) {
+        const warningElement = document.getElementById('change-warning');
+        warningElement.style.display = 'block';  // Show the warning
+    }
+
+    function dismissWarning() {
+        const warningElement = document.getElementById('change-warning');
+        warningElement.style.display = 'none';  // Hide the warning
+    }
+</script>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
 document.addEventListener("DOMContentLoaded", function () {
     const contractContainer = document.querySelector(".containexr");
     const contractId = contractContainer.getAttribute("data-contract-id");
@@ -351,25 +413,51 @@ document.addEventListener("DOMContentLoaded", function () {
             // Populate contract fields
             document.getElementById("contract-title").innerText = data.title;
             document.getElementById("effective-date").innerText = data.effective_date;
-            document.getElementById("party-one-name").innerText = data.party_one_name || "Party One";
-            document.getElementById("party-one-role").innerText = data.party_one_role || "Role not specified";
-            document.getElementById("party-two-name").innerText = data.party_two_name || "Party Two";
-            document.getElementById("party-two-role").innerText = data.party_two_role || "Role not specified";
-            document.getElementById("contract-purpose").innerHTML = data.purpose || "No purpose defined.";
+            document.getElementById("party-one-name").innerText = data.party_one_name || "";
+            document.getElementById("party-one-role").innerText = data.party_one_role || "";
+            document.getElementById("party-two-name").innerText = data.party_two_name || "";
+            document.getElementById("party-two-role").innerText = data.party_two_role || "";
+            document.getElementById("contract-purpose").innerHTML = data.purpose || "";
 
-            document.getElementById("contract-obligations").innerHTML = data.obligations || "No obligations defined.";
-            document.getElementById("contract-payment-terms").innerHTML = data.payment_terms || "No payment terms defined.";
-            document.getElementById("contract-duration").innerText = data.duration || "No duration defined.";
-            document.getElementById("contract-termination-clause").innerText = data.termination_clause || "No termination clause defined.";
+            document.getElementById("contract-obligations").innerHTML = data.obligations || "";
+            document.getElementById("contract-payment-terms").innerHTML = data.payment_terms || "";
+            document.getElementById("contract-duration").innerText = data.duration || "";
+            document.getElementById("contract-termination-clause").innerText = data.termination_clause || "";
 
-            document.getElementById("contract-termination-clause").innerHTML = data.termination_clause || "No termination clause defined.";
-            document.getElementById("contract-confidentiality-clause").innerHTML = data.confidentiality_clause || "No confidentiality clause defined.";
-            document.getElementById("contract-dispute-resolution").innerHTML = data.dispute_resolution || "No dispute resolution terms defined.";
-            document.getElementById("contract-penalties-for-breach").innerHTML = data.penalties_for_breach || "No penalties for breach terms defined.";
+            document.getElementById("contract-termination-clause").innerHTML = data.termination_clause || "";
+            document.getElementById("contract-confidentiality-clause").innerHTML = data.confidentiality_clause || "";
+            document.getElementById("contract-dispute-resolution").innerHTML = data.dispute_resolution || "";
+            document.getElementById("contract-penalties-for-breach").innerHTML = data.penalties_for_breach || "";
+            document.getElementById("contract-notarization").innerHTML = data.notarization || "";
+            
+            // 🔥 Add this line to remove empty sections after data is loaded
+            removeEmptySections();
         })
         .catch(error => {
             console.error("Error loading contract data:", error);
         });
+    
+        function removeEmptySections() {
+            const sections = document.querySelectorAll(".section.card-hover");
+
+            sections.forEach(section => {
+                // Get all text content within the section and trim whitespace
+                const content = section.textContent.trim();
+
+                // Check if the section only has non-visible content or placeholders like "Loading..."
+                const hasNoMeaningfulContent = !content || content === 'Loading...';
+
+                // Check if all child elements (like <p>, <span>, etc.) are empty
+                const childElements = section.querySelectorAll('p, span, div');
+                const allChildrenAreEmpty = Array.from(childElements).every(child => child.textContent.trim() === '');
+
+                if (hasNoMeaningfulContent || allChildrenAreEmpty) {
+                    section.remove(); // Remove the section from the page
+                    console.log(`✅ Removed empty section with ID: ${section.id || 'No ID'}`);
+                }
+            });
+        }
+
 
     // Add event listeners for copy buttons
     document.querySelectorAll(".btn-copy").forEach(button => {
@@ -429,6 +517,7 @@ document.addEventListener("DOMContentLoaded", function () {
         selection.removeAllRanges(); // Clear selection
     }
 
+    // Global variables
     let isReading = false;
     let isPaused = false;
     let currentButton = null;
@@ -440,7 +529,20 @@ document.addEventListener("DOMContentLoaded", function () {
         fullReadButton.addEventListener("click", function () {
             const documentElement = document.querySelector(".document"); // Select the entire document
             if (documentElement) {
-                const textToRead = documentElement.innerText.trim(); // Get the document text
+                // Get all elements inside the document excluding .full-buttons
+                const excludedElements = documentElement.querySelectorAll(".full-buttons, .full-buttons *");
+                
+                // Collect only the text nodes of the document excluding the elements in excludedElements
+                let textToRead = '';
+                documentElement.childNodes.forEach(node => {
+                    if (!Array.from(excludedElements).includes(node)) {
+                        if (node.nodeType === Node.TEXT_NODE || node.nodeType === Node.ELEMENT_NODE) {
+                            textToRead += node.textContent.trim() + ' ';
+                        }
+                    }
+                });
+
+                textToRead = textToRead.trim(); // Clean up extra whitespace
 
                 // If a different button is clicked, stop the current utterance and reset
                 if (currentButton && currentButton !== this && window.speechSynthesis.speaking) {
@@ -454,8 +556,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 currentButton = this;
 
                 if (!isReading) {
-                    // Start reading the document
+                    // Start reading the document in Spanish (es-ES)
                     utterance = new SpeechSynthesisUtterance(textToRead);
+                    utterance.lang = 'es-ES'; // Set the language to Spanish (Spain)
                     window.speechSynthesis.speak(utterance);
                     this.innerHTML = '<i class="far fa-pause-circle"></i>';
                     isReading = true;
@@ -485,29 +588,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.querySelectorAll(".btn-read").forEach(button => {
         button.addEventListener("click", function () {
-            const section = this.closest(".section"); // Find the parent section
-            const textToRead = section.innerText.trim(); // Get the section text
+            const section = this.closest(".section"); // Encuentra la sección principal
+            const textToRead = section.innerText.trim(); // Obtiene el texto de la sección
 
-            // If a different button is clicked, stop the current utterance and reset
+            // Si se hace clic en un botón diferente, detiene la lectura actual y reinicia todo
             if (currentButton && currentButton !== this && window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel(); // Cancel ongoing speech
-                resetAllIcons(); // Reset all icons
+                window.speechSynthesis.cancel(); // Cancela la lectura en curso
+                resetAllIcons(); // Reinicia todos los íconos
                 isReading = false;
                 isPaused = false;
             }
 
-            // Set the current button
+            // Establece el botón actual
             currentButton = this;
 
             if (!isReading) {
-                // Start reading the new section
+                // Inicia la lectura de la nueva sección en español
                 utterance = new SpeechSynthesisUtterance(textToRead);
+                utterance.lang = 'es-ES'; // Define el idioma a español (España)
                 window.speechSynthesis.speak(utterance);
                 this.innerHTML = '<i class="far fa-pause-circle"></i>';
                 isReading = true;
                 isPaused = false;
 
-                // Reset the button when reading finishes
+                // Restablece el botón cuando la lectura termine
                 utterance.onend = () => {
                     resetAllIcons();
                     isReading = false;
@@ -515,18 +619,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     currentButton = null;
                 };
             } else if (isPaused) {
-                // Resume reading
+                // Reanuda la lectura
                 window.speechSynthesis.resume();
                 this.innerHTML = '<i class="far fa-pause-circle"></i>';
                 isPaused = false;
             } else {
-                // Pause reading
+                // Pausa la lectura
                 window.speechSynthesis.pause();
                 this.innerHTML = '<i class="fas fa-volume-up"></i>';
                 isPaused = true;
             }
         });
     });
+
 
     // Function to reset all icons to default
     function resetAllIcons() {
@@ -602,6 +707,174 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
+
+// AI Check List
+window.addEventListener('DOMContentLoaded', function() {
+    const issuesContainer = document.getElementById('issues-container');
+    const issuesContent = document.getElementById('issues-content');
+    const issueTimestamp = document.getElementById('issue-timestamp');
+    const csrftoken = getCookie('csrftoken');
+    const contractId = Number("{{ pk }}");
+
+    attachViewIssuesClickListener();
+
+    if (!document.getElementById('view-issues')) {
+        console.log('🚀 First-time entry — Running AI Check automatically');
+        AI_check_list(contractId);
+    }
+
+    document.getElementById('ai-check-btn')?.addEventListener('click', function() {
+        AI_check_list(contractId);
+    });
+
+    function AI_check_list(contractId) {
+        const wrapper = document.getElementById('list-wrapper-ai');
+        wrapper.innerHTML = ''; // Clear previous results
+
+        const loadingItem = document.createElement('li');
+        loadingItem.innerHTML = `
+            <div style="width: 19px; height: 19px;" class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div> Checking legality...
+        `;
+        wrapper.appendChild(loadingItem);
+
+        const url = `http://127.0.0.1:7000/api/contract/${contractId}/test-legality-check/`; 
+
+        fetch(url, {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken 
+            },
+            body: JSON.stringify({}) 
+        })
+        .then((resp) => resp.json())
+        .then(function(data) {
+            wrapper.innerHTML = ''; 
+            if (data.passed) {
+                renderListItem(wrapper, 'Legal Check - Passed', true);
+            } else {
+                renderListItem(wrapper, 'Legal Check - Failed', false, data.issues, data.created_at);
+            }
+        })
+        .catch(function(error) {
+            wrapper.innerHTML = ''; 
+            renderListItem(wrapper, 'Error occurred ❗', false);
+        });
+    }
+
+    function renderListItem(wrapper, message, isSuccess, issues = null, timestamp = null) {
+        const listItem = document.createElement('li');
+        listItem.style.paddingBottom = '5px';
+        listItem.style.cursor = 'pointer';
+        listItem.id = 'view-issues';
+
+        if (isSuccess) {
+            listItem.innerHTML = `
+                <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
+                    class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                </svg> 
+                <strong>Legal Check - Passed</strong>
+            `;
+        } else {
+            listItem.innerHTML = `
+                <i class="align-middle me-2 far fa-fw fa-times-circle" style="color: red;"></i> 
+                <strong>Legal Check - Failed</strong>
+            `;
+        }
+
+        // Attach event listener for this dynamically created list item
+        listItem.addEventListener('click', function() {
+            console.log('🔍 Viewing issues...');
+
+            if (issues) {
+                const parsedMarkdown = marked.parse(issues); // Parse Markdown to HTML
+                issuesContent.innerHTML = parsedMarkdown; // Use innerHTML to render HTML content
+                issueTimestamp.textContent = `Checked on: ${new Date(timestamp).toLocaleString()}`;
+                issuesContainer.style.display = 'block'; 
+            } else {
+                console.log('⚠️ No issues found for this check.');
+            }
+        });
+
+        wrapper.appendChild(listItem);
+    }
+
+    function attachViewIssuesClickListener() {
+        const viewIssuesElement = document.getElementById('view-issues');
+        if (viewIssuesElement) {
+            viewIssuesElement.addEventListener('click', function() {
+                const issues = `{{ latest_validation_result.issues|escapejs }}`;
+                const timestamp = `{{ latest_validation_result.created_at }}`;
+                const parsedMarkdown = marked.parse(issues); // Parse markdown to HTML
+                issuesContent.innerHTML = parsedMarkdown; // Render parsed content as HTML
+                issueTimestamp.textContent = `Checked on: ${new Date(timestamp).toLocaleString()}`;
+                issuesContainer.style.display = 'block';
+            });
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        const cookies = document.cookie.split(';');
+        cookies.forEach(cookie => {
+            if (cookie.trim().startsWith(`${name}=`)) {
+                cookieValue = decodeURIComponent(cookie.trim().substring(name.length + 1));
+            }
+        });
+        return cookieValue;
+    }
+});
+
+
+function transferToProject(contractId) {
+    console.log("Contract ID:", contractId);
+
+    // Define the API URL
+    const url = `http://127.0.0.1:7000/api/contract/transfer/${contractId}/`;
+
+    // Make the API request
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,  // Add CSRF token header
+        },
+    })
+    .then(response => {
+        console.log("Response status:", response.status);  // Debugging
+        if (!response.ok) {
+            if (response.status === 403) {
+                alert('You do not have permission to perform this action. Please check your login status.');
+                console.error('403 Forbidden: Authentication or permissions issue.');
+            } else if (response.status === 404) {
+                alert('The requested contract was not found. Please check the contract ID.');
+                console.error('404 Not Found: Contract ID may be invalid.');
+            } else {
+                alert(`An unexpected error occurred. Status code: ${response.status}`);
+                console.error(`Unexpected error. HTTP status: ${response.status}`);
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Response data:", data);  // Debugging
+        if (data.contract_project_id) {
+            // Redirect to the contract project editing page
+            window.location.href = `/contract/${data.contract_project_id}/`;
+        } else {
+            alert('Error transferring contract. Please try again.');
+            console.error('Response did not include contract_project_id:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Error during fetch request:', error);
+        alert('An error occurred while transferring the contract. Please try again.');
+    });
+}
 
 
 

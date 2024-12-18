@@ -92,6 +92,35 @@
     .step-indicator:first-child.active::before {
         content: none; /* No line before the first circle */
     }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .glass-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.7); /* White background with transparency */
+        backdrop-filter: blur(5px); /* Frosted glass effect */
+        z-index: 9999; /* Position it above the TinyMCE editor and toolbar */
+        border-radius: 5px; /* Smooth corners */
+        pointer-events: none; /* Allow clicks to pass through this overlay */
+    }
+
+    .glass-overlay.active {
+        pointer-events: all; /* Prevent clicks on the editor */
+    }
+
+    .glass-overlay.hidden {
+        display: none; /* Completely hide the overlay */
+    }
+
+    .editor-container {
+        position: relative; /* So the overlay can be positioned relative to it */
+    }
 </style>
 
 <div class="container">
@@ -105,8 +134,10 @@
         <!-- Carousel -->
         <div id="contractCarousel" class="carousel slide" data-bs-ride="false" data-bs-interval="false">
             <div class="carousel-inner">
+                
                 <form id="contractForm" novalidate>
-                    <!-- Step 1 -->
+
+                    <!-- Step 1 (title) -->
                     <div class="carousel-item active">
                         <div class="text-end">
                             <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
@@ -126,7 +157,7 @@
 
                     </div>
 
-                    <!-- Step 2 -->
+                    <!-- Step 2 (party_one_name, party_one_role) -->
                     <div class="carousel-item">
                         <div class="mb-3">
                             <div style="margin-bottom: 10px;" class="row">
@@ -155,7 +186,7 @@
                         </div>
                     </div>
 
-                    <!-- Step 4 -->
+                    <!-- Step 3 (party_two_name, party_two_role) -->
                     <div class="carousel-item">
                         <div class="mb-3">
                             <div style="margin-bottom: 10px;" class="row">
@@ -184,7 +215,7 @@
                         </div>
                     </div>
 
-                    <!-- Step 6 -->
+                    <!-- Step 4 (effective_date) -->
                     <div class="carousel-item">
                         <div class="mb-3">
                             <div style="margin-bottom: 10px;" class="row">
@@ -207,7 +238,7 @@
                         </div>
                     </div>
 
-                    <!-- Step 7 -->
+                    <!-- Step 5 (purpose) -->
                     <div class="carousel-item">
                         <div class="mb-3">
                             <div style="margin-bottom: 10px;" class="row">
@@ -243,7 +274,7 @@
                         </div>
                     </div>
 
-                    <!-- Step 8 -->
+                    <!-- Step 6 (obligations) -->
                     <div class="carousel-item">
                         <div class="mb-3">
                             <div style="margin-bottom: 10px;" class="row">
@@ -278,7 +309,7 @@
                         </div>
                     </div>
 
-                    <!-- Step 9 -->
+                    <!-- Step 7 (payment_terms) -->
                     <div class="carousel-item">
                         <div class="mb-3">
                             <div style="margin-bottom: 10px;" class="row">
@@ -315,7 +346,7 @@
                         </div>
                     </div>
 
-                    <!-- Step 10 -->
+                    <!-- Step 8 (duration) -->
                     <div class="carousel-item">
                         <div class="mb-3">
                             <div style="margin-bottom: 10px;" class="row">
@@ -337,7 +368,7 @@
                         </div>
                     </div>
 
-                    <!-- Step 11 -->
+                    <!-- Step 9 (termination_clause) -->
                     <div class="carousel-item">
                         <div class="mb-3">
                             <div style="margin-bottom: 10px;" class="row">
@@ -374,7 +405,7 @@
                         </div>
                     </div>
 
-                    <!-- Step 12 -->
+                    <!-- Step 10 (confidentiality_clause) -->
                     <div class="carousel-item">
                         <div class="mb-3">
                             <div style="margin-bottom: 10px;" class="row">
@@ -389,29 +420,41 @@
                                     </button>    
                                 </div>
                             </div>
-
+                    
                             <div class="mb-3">
                                 <label for="confidentiality_clause" class="form-label">Cláusula de Confidencialidad:</label>
                                 <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Describa cualquier requisito de confidencialidad que aplique a este contrato (opcional)."></i>
-    
-                                <textarea id="confidentiality_clause" name="confidentiality_clause" class="form-control" rows="4" placeholder="Ejemplo: Ambas partes acuerdan mantener la información confidencial."></textarea>
-    
-                                <button class="btn btn-primary form-control" style="border-radius: 50px; margin-top: 12px;" onclick="generateAIText('confidentiality_clause', event)">
+                    
+                                <!-- Toggle Switch -->
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="confidentiality_toggle">
+                                    <label class="form-check-label" for="confidentiality_toggle">Sí, incluir la cláusula de confidencialidad</label>
+                                </div>
+                    
+                                <!-- TinyMCE Editor Container -->
+                                <div class="editor-container">
+                                    <!-- Frosted Glass Overlay -->
+                                    <div id="glass_overlay" class="glass-overlay active"></div> <!-- This overlay is active by default -->
+                                    
+                                    <!-- TinyMCE Textarea -->
+                                    <textarea id="confidentiality_clause" name="confidentiality_clause" class="form-control" rows="4" placeholder="Ejemplo: Ambas partes acuerdan mantener la información confidencial."></textarea>
+                                </div>
+                    
+                                <button id="confidentiality_ai_button" class="btn btn-primary form-control hidden" style="border-radius: 50px; margin-top: 12px;" onclick="generateAIText('confidentiality_clause', event)">
                                     Reescribir Párrafo 
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
-                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
-                                      </svg>
+                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828z"/>
+                                    </svg>
                                 </button>
-
-                                <div id="confidentiality_clause-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
+                    
+                                <div id="confidentiality_clause-ai-output" class="mt-2 hidden" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
                                     El texto generado por IA aparecerá aquí.
                                 </div>
-    
                             </div>
                         </div>
                     </div>
-
-                    <!-- Step 13 -->
+                    
+                    <!-- Step 11 (dispute_resolution) -->
                     <div class="carousel-item">
                         <div class="mb-3">
                             <div style="margin-bottom: 10px;" class="row">
@@ -430,25 +473,88 @@
                             <div class="mb-3">
                                 <label for="dispute_resolution" class="form-label">Resolución de Disputas:</label>
                                 <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Especifique cómo se resolverán las disputas relacionadas con este contrato (por ejemplo, arbitraje)."></i>
-    
-                                <textarea id="dispute_resolution" name="dispute_resolution" class="form-control" rows="4" placeholder="Ejemplo: Las disputas se resolverán mediante arbitraje."></textarea>
 
-                                <button class="btn btn-primary form-control" style="border-radius: 50px; margin-top: 12px;" onclick="generateAIText('dispute_resolution', event)">
-                                    Reescribir Párrafo 
+                                <!-- Toggle Switch -->
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="dispute_resolution_toggle">
+                                    <label class="form-check-label" for="dispute_resolution_toggle">Sí, incluir la cláusula de resolución de disputas</label>
+                                </div>
+
+                                <!-- TinyMCE Editor Container -->
+                                <div class="editor-container">
+                                    <!-- Frosted Glass Overlay -->
+                                    <div id="glass_overlay_dispute_resolution" class="glass-overlay active"></div> <!-- This overlay is active by default -->
+                                    
+                                    <!-- TinyMCE Textarea -->
+                                    <textarea id="dispute_resolution" name="dispute_resolution" class="form-control" rows="4" placeholder="Ejemplo: Las disputas se resolverán mediante arbitraje."></textarea>
+                                </div>
+
+                                <button id="dispute_resolution_ai_button" class="btn btn-primary form-control hidden" style="border-radius: 50px; margin-top: 12px;" onclick="generateAIText('dispute_resolution', event)">
+                                    Reescribir Párrafo
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
-                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828z"/>
                                     </svg>
                                 </button>
 
-                                <div id="dispute_resolution-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
+                                <div id="dispute_resolution-ai-output" class="mt-2 hidden" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
                                     El texto generado por IA aparecerá aquí.
                                 </div>
                             </div>
-                            
                         </div>
                     </div>
 
-                    <!-- Step 14 -->
+
+                    <!-- Step 12 (penalties_for_breach) -->
+                    <div class="carousel-item">
+                        <div class="mb-3">
+                            <!-- Navigation Buttons -->
+                            <div style="margin-bottom: 10px;" class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-secondary" style="margin-right: 5px; border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="prev">
+                                        <i class="align-middle me-2 fas fa-fw fa-arrow-left"></i> Anterior
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 50px;" data-bs-target="#contractCarousel" data-bs-slide="next">
+                                        Siguiente <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
+                                    </button>    
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="penalties_for_breach" class="form-label">Penalizaciones por Incumplimiento:</label>
+                                <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Defina las penalizaciones aplicables en caso de incumplimiento del contrato."></i>
+
+                                <!-- Toggle Switch -->
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="penalties_for_breach_toggle">
+                                    <label class="form-check-label" for="penalties_for_breach_toggle">Sí, incluir la cláusula de penalización por incumplimiento</label>
+                                </div>
+
+                                <!-- TinyMCE Editor Container -->
+                                <div class="editor-container">
+                                    <!-- Frosted Glass Overlay -->
+                                    <div id="glass_overlay_penalties_for_breach" class="glass-overlay active"></div> <!-- This overlay is active by default -->
+                                    
+                                    <!-- TinyMCE Textarea -->
+                                    <textarea id="penalties_for_breach" name="penalties_for_breach" class="form-control" rows="4" placeholder="Ejemplo: El incumplimiento resultará en una multa del 10%."></textarea>
+                                </div>
+
+                                <button id="penalties_for_breach_ai_button" class="btn btn-primary form-control hidden" style="border-radius: 50px; margin-top: 12px;" onclick="generateAIText('penalties_for_breach', event)">
+                                    Reescribir Párrafo 
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828z"/>
+                                    </svg>
+                                </button>
+
+                                <div id="penalties_for_breach-ai-output" class="mt-2 hidden" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
+                                    El texto generado por IA aparecerá aquí.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 13 (notary_required, notarization) -->
                     <div class="carousel-item">
                         <div class="mb-3">
                             <div style="margin-bottom: 10px;" class="row">
@@ -458,7 +564,6 @@
                                     </button>
                                 </div>
                                 <div class="col text-end">
-                                    <!-- Finalizar Button -->
                                     <a href="{% url 'contract_check_basis_view' contract.pk %}" type="button" id="finalizeButton" class="btn btn-success mt-2" style="border-radius: 50px;">
                                         Finalizar <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i>
                                     </a>
@@ -466,24 +571,21 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="penalties_for_breach" class="form-label">Penalizaciones por Incumplimiento:</label>
-                                <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Defina las penalizaciones aplicables en caso de incumplimiento del contrato."></i>
-    
-                                <textarea id="penalties_for_breach" name="penalties_for_breach" class="form-control" rows="4" placeholder="Ejemplo: El incumplimiento resultará en una multa del 10%."></textarea>
-    
-                                <button class="btn btn-primary form-control" style="border-radius: 50px; margin-top: 12px;" onclick="generateAIText('penalties_for_breach', event)">
-                                    Reescribir Párrafo 
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
-                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
-                                      </svg>
-                                </button>
-
-                                <div id="penalties_for_breach-ai-output" class="mt-2" style="font-style: italic; color: rgb(59, 59, 59); background-color: white; border-radius: 15px; padding: 10px; border: 2px solid rgba(128, 128, 128, 0.45);">
-                                    El texto generado por IA aparecerá aquí.
+                                <label for="notarization_toggle" class="form-label">¿Penalidades por incumplimiento?</label>
+                                <i class="align-middle me-2 fas fa-fw fa-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Marque esta opción si este contrato requiere la presencia de un notario."></i>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notarization_toggle" name="notarization_required">
+                                    <label class="form-check-label" for="notarization_toggle">Sí, se requiere notaría</label>
                                 </div>
+
+                                <!-- Textarea for Notarization Template -->
+                                <textarea id="notarization" name="notarization" class="form-control hidden" rows="4" placeholder="Ejemplo: notarization."></textarea>
+                            
                             </div>
+
                         </div>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -517,6 +619,10 @@
                 document.getElementById("effective_date").value = contractData.effective_date || "";
                 document.getElementById("duration").value = contractData.duration || "";
 
+                
+                document.getElementById("notarization_toggle").checked = contractData.notary_required || false;
+                document.getElementById("notarization").value = contractData.notarization_details || ""; // Update for notarization field
+
                 console.log("Contract data loaded:", contractData); // Debugging to confirm data loading
             } else {
                 console.error("Failed to fetch contract data. Status:", response.status);
@@ -546,11 +652,12 @@
                     if (editor.id === "confidentiality_clause") editor.setContent(contractData.confidentiality_clause || "");
                     if (editor.id === "dispute_resolution") editor.setContent(contractData.dispute_resolution || "");
                     if (editor.id === "penalties_for_breach") editor.setContent(contractData.penalties_for_breach || "");
+                    if (editor.id === "notarization") editor.setContent(contractData.notarization || "");
                 });
             }
         });
-    });
 
+    });
 
     // Function to populate suggestions dynamically
     function populateSuggestions(suggestions) {
@@ -618,7 +725,7 @@
         button.addEventListener("click", async function (event) {
             tinymce.triggerSave(); // Save TinyMCE content to its underlying <textarea>
 
-            const contractId = window.location.pathname.split("/")[2]; // Correct index
+            const contractId = window.location.pathname.split("/")[2]; // Extract Contract ID
             console.log("Extracted Contract ID for Next Button:", contractId);
 
             if (!contractId) {
@@ -639,8 +746,7 @@
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
-                    
+                    console.log("Update successful");
                 } else {
                     const errorText = await response.text();
                     console.error("Error updating contract via Next Button:", errorText);
@@ -809,7 +915,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        const totalSteps = 12; // Total number of steps
+        const totalSteps = 13; // Total number of steps
         const stepIndicatorsContainer = document.getElementById('stepIndicators');
         const carousel = document.getElementById('contractCarousel');
 
@@ -914,6 +1020,16 @@ document.getElementById("contractForm").addEventListener("submit", async functio
     const form = document.getElementById("contractForm");
     const formData = new FormData(form); // Collect all form data, including TinyMCE content
 
+    // List of text fields that need to be saved as empty if no content is present
+    const textFields = ['purpose', 'obligations', 'payment_terms', 'termination_clause', 'confidentiality_clause', 'dispute_resolution', 'penalties_for_breach', 'notarization'];
+
+    textFields.forEach(field => {
+        const textArea = document.getElementById(field);
+        if (textArea && textArea.value.trim() === '') {
+            formData.set(field, ''); // Set the value to an empty string
+        }
+    });
+
     try {
         const response = await fetch(`http://127.0.0.1:7000/api/contract-steps-project-update/${contractId}/`, {
             method: "PUT", // Use PUT for updates
@@ -927,9 +1043,7 @@ document.getElementById("contractForm").addEventListener("submit", async functio
             const data = await response.json();
             console.log("Contract updated successfully:", data);
             alert("Contract updated successfully!");
-
-            // Redirect to the contract details page
-            window.location.href = `http://127.0.0.1:7000/contract-check-basis/${contractId}/`;
+            window.location.href = `/contract-check-basis/${contractId}/`; // Redirect to the contract details page
         } else {
             const errorData = await response.json();
             console.error("Error updating contract:", errorData);
@@ -940,6 +1054,7 @@ document.getElementById("contractForm").addEventListener("submit", async functio
         alert("An unexpected error occurred. Check console for details.");
     }
 });
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search); // Parse query params
@@ -954,6 +1069,182 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    const notarizationToggle = document.getElementById('notarization_toggle'); // The toggle switch
+
+    // The template for the notarization letter
+    const notarizationTemplate = `
+        <h1>Carta de Notarización</h1>
+
+        <p><span class="section-title">Fecha:</span> [Insertar Fecha]</p>
+        <p><span class="section-title">Lugar de Notarización:</span> [Insertar Ciudad, Estado, País]</p>
+
+        <p>A quien corresponda,</p>
+
+        <p>Yo, <strong>[Nombre del Notario Público]</strong>, Notario Público debidamente autorizado en la jurisdicción de <strong>[Ciudad, Estado, País]</strong>, certifico que el día <strong>[Insertar Día]</strong> de <strong>[Insertar Mes, Año]</strong>, compareció ante mí la(s) siguiente(s) persona(s):</p>
+
+        <div class="id-block">
+            <p><span class="id-label">Nombre Completo del Firmante 1:</span> [Insertar Nombre]</p>
+            <p><span class="id-label">Tipo de Identificación/Número:</span> [Tipo de ID, ej. Pasaporte, Licencia de Conducir, etc.]</p>
+            <p><span class="id-label">Número de ID:</span> [Insertar Número]</p>
+            <p><span class="id-label">Firma:</span> _________________________</p>
+        </div>
+
+        <p>La(s) persona(s) mencionada(s) ha(n) demostrado su identidad de forma satisfactoria y ha(n) firmado voluntariamente el siguiente documento en mi presencia:</p>
+
+        <p><span class="section-title">Título del Documento:</span> [Insertar Título del Documento, ej. Contrato de Servicios, Acuerdo de Bienes Raíces, Poder Notarial, etc.]</p>
+
+        <p>El/los firmante(s) declaró/aron que ha(n) leído, comprendido y aceptado los términos y condiciones del documento antes mencionado. Con su firma, expresan su consentimiento libre y voluntario.</p>
+
+        <p>Como Notario Público, certifico que he verificado la identidad de la(s) persona(s) y he presenciado su firma en el documento. Esta notarización se realiza conforme a las leyes y regulaciones aplicables de <strong>[Insertar País/Estado, ej. México]</strong> sobre la autenticación de documentos legales.</p>
+
+        <p>Esta carta de notarización no certifica la legalidad, validez o contenido del documento, sino solo la identificación y la firma voluntaria de la(s) persona(s) comparecientes.</p>
+    `;
+
+    notarizationToggle.addEventListener('change', function() {
+        controlVisibility();
+    });
+
+    function controlVisibility() {
+        const editor = tinymce.get('notarization');
+        if (editor) {
+            const tinymceContainer = editor.getContainer();
+            if (notarizationToggle.checked) {
+                tinymceContainer.classList.remove('hidden');
+                editor.setContent(notarizationTemplate); // Set the template in the TinyMCE editor
+            } else {
+                tinymceContainer.classList.add('hidden');
+                editor.setContent(''); // Clear the content
+            }
+        } else {
+            console.error('TinyMCE editor for #notarization not found.');
+        }
+    }
+
+    tinymce.init({
+        selector: '#notarization',
+        plugins: 'advlist autolink lists link image charmap print preview anchor searchreplace visualblocks code fullscreen',
+        toolbar: 'undo redo | formatselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent',
+        menubar: 'file edit view insert format tools table help',
+        setup: function (editor) {
+            editor.on('init', function () {
+                console.log('TinyMCE for notarization is ready');
+                controlVisibility(); // Run visibility control once the editor is ready
+            });
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const toggle = document.getElementById('confidentiality_toggle'); 
+    const aiButton = document.getElementById('confidentiality_ai_button');
+    const aiOutput = document.getElementById('confidentiality_clause-ai-output');
+    const glassOverlay = document.getElementById('glass_overlay'); // The frosted glass overlay
+
+    // Initial State: If toggle is unchecked, keep overlay and hide AI button & output
+    if (!toggle.checked) {
+        aiButton.classList.add('hidden');
+        aiOutput.classList.add('hidden');
+        glassOverlay.classList.remove('hidden'); // Show the glass overlay
+        glassOverlay.classList.add('active'); // Activate click blocking
+    }
+
+    toggle.addEventListener('change', function () {
+        const tinyMCEEditor = tinymce.get('confidentiality_clause'); // Get the TinyMCE editor instance
+        if (toggle.checked) {
+            aiButton.classList.remove('hidden');
+            aiOutput.classList.remove('hidden');
+            glassOverlay.classList.add('hidden'); // Hide the overlay, user can interact with TinyMCE
+            glassOverlay.classList.remove('active'); // Remove the blocking state
+        } else {
+            aiButton.classList.add('hidden');
+            aiOutput.classList.add('hidden');
+            glassOverlay.classList.remove('hidden'); // Show the overlay
+            glassOverlay.classList.add('active'); // Prevent user interaction
+            
+            // Clear the content of the TinyMCE editor
+            if (tinyMCEEditor) {
+                tinyMCEEditor.setContent(''); // Clear the editor content
+            } else {
+                console.warn('TinyMCE editor not found for #confidentiality_clause');
+            }
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const toggle = document.getElementById('dispute_resolution_toggle'); 
+    const aiButton = document.getElementById('dispute_resolution_ai_button');
+    const aiOutput = document.getElementById('dispute_resolution-ai-output');
+    const glassOverlay = document.getElementById('glass_overlay_dispute_resolution'); // The frosted glass overlay
+
+    // Initial State: If toggle is unchecked, keep overlay and hide AI button & output
+    if (!toggle.checked) {
+        aiButton.classList.add('hidden');
+        aiOutput.classList.add('hidden');
+        glassOverlay.classList.remove('hidden'); // Show the glass overlay
+        glassOverlay.classList.add('active'); // Activate click blocking
+    }
+
+    toggle.addEventListener('change', function () {
+        const tinyMCEEditor = tinymce.get('dispute_resolution'); // Get the TinyMCE editor instance
+        if (toggle.checked) {
+            aiButton.classList.remove('hidden');
+            aiOutput.classList.remove('hidden');
+            glassOverlay.classList.add('hidden'); // Hide the overlay, user can interact with TinyMCE
+            glassOverlay.classList.remove('active'); // Remove the blocking state
+        } else {
+            aiButton.classList.add('hidden');
+            aiOutput.classList.add('hidden');
+            glassOverlay.classList.remove('hidden'); // Show the overlay
+            glassOverlay.classList.add('active'); // Prevent user interaction
+            
+            // Clear the content of the TinyMCE editor
+            if (tinyMCEEditor) {
+                tinyMCEEditor.setContent(''); // Clear the editor content
+            } else {
+                console.warn('TinyMCE editor not found for #dispute_resolution');
+            }
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const toggle = document.getElementById('penalties_for_breach_toggle'); 
+    const aiButton = document.getElementById('penalties_for_breach_ai_button');
+    const aiOutput = document.getElementById('penalties_for_breach-ai-output');
+    const glassOverlay = document.getElementById('glass_overlay_penalties_for_breach'); // The frosted glass overlay
+
+    // Initial State: If toggle is unchecked, keep overlay and hide AI button & output
+    if (!toggle.checked) {
+        aiButton.classList.add('hidden');
+        aiOutput.classList.add('hidden');
+        glassOverlay.classList.remove('hidden'); // Show the glass overlay
+        glassOverlay.classList.add('active'); // Activate click blocking
+    }
+
+    toggle.addEventListener('change', function () {
+        const tinyMCEEditor = tinymce.get('penalties_for_breach'); // Get the TinyMCE editor instance
+        if (toggle.checked) {
+            aiButton.classList.remove('hidden');
+            aiOutput.classList.remove('hidden');
+            glassOverlay.classList.add('hidden'); // Hide the overlay, user can interact with TinyMCE
+            glassOverlay.classList.remove('active'); // Remove the blocking state
+        } else {
+            aiButton.classList.add('hidden');
+            aiOutput.classList.add('hidden');
+            glassOverlay.classList.remove('hidden'); // Show the overlay
+            glassOverlay.classList.add('active'); // Prevent user interaction
+            
+            // Clear the content of the TinyMCE editor
+            if (tinyMCEEditor) {
+                tinyMCEEditor.setContent(''); // Clear the editor content
+            } else {
+                console.warn('TinyMCE editor not found for #penalties_for_breach');
+            }
+        }
+    });
+});
 
 </script>
 

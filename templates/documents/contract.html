@@ -207,6 +207,12 @@
 						</a>
 					</li>
 
+                    <li class="sidebar-item {% if request.resolver_match.url_name == 'contract_checklist_basis' %}active{% endif %}"">
+						<a class="sidebar-link " href="{% url 'contract_checklist_basis' %}">
+							<i class="align-middle me-2 fas fa-fw fa-file-contract"></i> <span class="align-middle">Contract steps</span>
+						</a>
+					</li>
+
 					<li class="sidebar-item {% if request.resolver_match.url_name == 'invoice' %}active{% endif %}"">
 						<a class="sidebar-link" href="{% url 'invoice' %}">
 							<i class="align-middle" data-feather="credit-card" style="color: #5784db;"></i> <span class="align-middle">Factura</span>
@@ -658,13 +664,11 @@
                                 <button class="btn btn-outline-primary copy-icon-btn" style="margin-top: 4px; margin-bottom: 4px; border-radius: 28px;" id="copy-button">
                                     <i class="align-middle me-2 far fa-fw fa-clipboard copy-icon"></i>Copiar Doc
                                 </button>
-                                <button class="btn btn-outline-danger pdf-icon-btn" style="margin-top: 4px; margin-bottom: 4px; border-radius: 28px;">
-                                    <a class="dropdown-item" href="{% url 'download_contract_pdf' pk=contract.id %}">
-                                        <i class="align-middle me-2 far fa-fw fa-file-pdf pdf-icon"></i>PDF
-                                    </a>
+
+                                <button class="full-btn-pdf btn btn-outline-danger" style="margin-top: 4px; margin-bottom: 4px; border-radius: 28px;" data-contract-id="{{ contract.id }}">
+                                    <i class="far fa-file-pdf"></i> Generate PDF
                                 </button>
                                 
-                                <!-- Description Field -->
                                 <div class="form-group">
                                     <textarea id="description" name="description" class="form-control" placeholder="Introduzca la descripción del proyecto" rows="10" data-contract-id="{{ contract.id }}">
                                         {{ contract.description|default_if_none:'' }}
@@ -3013,6 +3017,17 @@
                 });
             });
         });
+
+        const fullPdfButton = document.querySelectorAll(".full-btn-pdf");
+    
+        fullPdfButton.forEach(button => {
+            button.addEventListener("click", function () {
+                const contractId = button.getAttribute('data-contract-id');
+                const pdfUrl = `/contract_project/${contractId}/download_pdf/`;
+                window.location.href = pdfUrl;
+            });
+        });
+
 
         // ################################################################################################################################################################################
 		// Main Search on base html file

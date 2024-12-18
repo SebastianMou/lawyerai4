@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ contract.title }}</title>
+    <title>{{ contract.name }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,55 +52,11 @@
         }
     </style>
     
-    
 </head>
 <body>
-    <h1>Contract Title: {{ contract.title }}</h1>
-    <p><strong>Effective Date:</strong> {{ contract.effective_date }}</p>
-    <p><strong>Party One:</strong> {{ contract.party_one_name }} ({{ contract.party_one_role }})</p>
-    <p><strong>Party Two:</strong> {{ contract.party_two_name }} ({{ contract.party_two_role }})</p>
-
     <div class="content">
         <!-- <h2>Purpose</h2> -->
-        {{ contract.purpose|safe }}
-    </div>
-
-    <div class="content">
-        <!-- <h2>Obligations</h2> -->
-        {{ contract.obligations|safe }}
-    </div>
-
-    <div class="content">
-        <!-- <h2>Payment Terms</h2> -->
-        {{ contract.payment_terms|safe }}
-    </div>
-
-    <div class="content">
-        <!-- <h2>duration Clause</h2> -->
-        {{ contract.duration|safe }}
-    </div>
-
-    <div class="content">
-        <!-- <h2>Termination Clause</h2> -->
-        {{ contract.termination_clause|safe }}
-    </div>
-
-    <div class="content">
-        <!-- <h2>Confidentiality Clause</h2> -->
-        {{ contract.confidentiality_clause|safe }}
-    </div>
-
-    <div class="content">
-        <!-- <h2>Dispute Resolution</h2> -->
-        {{ contract.dispute_resolution|safe }}
-    </div>
-
-    <div class="content">
-        {{ contract.penalties_for_breach|safe }}
-    </div>
-
-    <div class="content">
-        {{ contract.notarization|safe }}
+        {{ contract.description|safe }}
     </div>
 </body>
 </html>

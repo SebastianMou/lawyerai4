@@ -17,11 +17,12 @@ from google.auth.transport import requests
 from django.utils.html import strip_tags
 
 from io import BytesIO
+import re
 from xhtml2pdf import pisa
 
 from .tokens import account_activation_token
 from .forms import CustomLoginForm, RegisterForm  
-from api.models import ContractProject, ChatSession, ContractSteps
+from api.models import ContractProject, ChatSession, ContractSteps, ValidationResult
 
 # Create your views here.
 def hero(request):
@@ -48,14 +49,17 @@ def view_chat_session(request, session_id):
     except ChatSession.DoesNotExist:
         return HttpResponse("Sesión de chat no encontrada.", status=404)
 
-@login_required(login_url='/login/')  
+@login_required(login_url='/login/')
 def contract(request, pk):
-    # Retrieve the ContractProject object based on its primary key (pk)
+    # Retrieve the ContractProject object
     contract = get_object_or_404(ContractProject, pk=pk)
-    contract = {
-        'contract': contract,
-    }
-    return render(request, 'documents/contract.html', contract)
+
+    contract.has_changes = True 
+    contract.save()
+
+    context = {'contract': contract}
+    return render(request, 'documents/contract.html', context)
+
 
 User = get_user_model()
 
@@ -242,25 +246,23 @@ def delete_account(request):
         return redirect('login')
 
 def download_contract_pdf(request, pk):
+    # Fetch the ContractProject along with its related ContractSteps
     contract_project = get_object_or_404(ContractProject, pk=pk)
+    
+    # Render the HTML template with contract data
+    html_content = render_to_string('documents/contract_project_pdf.html', {'contract': contract_project})
+    
+    # Create an HTTP response with PDF content type
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{contract_project.name}.pdf"'
-
-    html_content = contract_project.description
-    source_html = f"<html><body>{html_content}</body></html>"
-    result_file = BytesIO()
     
-    # Convert HTML to PDF
-    pisa_status = pisa.CreatePDF(
-        source_html,
-        dest=result_file)
-
-    # Return PDF response
+    # Convert HTML to PDF using xhtml2pdf
+    pisa_status = pisa.CreatePDF(html_content, dest=response)
+    
+    # Check for errors in PDF generation
     if pisa_status.err:
-        return HttpResponse('We had some errors <pre>' + html_content + '</pre>')
-    result_file.seek(0)
-    response.write(result_file.read())
-    result_file.close()
+        return HttpResponse('An error occurred while generating the PDF.', status=500)
+    
     return response
 
 @login_required(login_url='/login/')  
@@ -314,22 +316,43 @@ def contract_stepbystep(request):
 @login_required(login_url='/login/')
 def contract_check_basis_view(request, pk):
     contract = get_object_or_404(ContractSteps, id=pk, user=request.user)
-    return render(request, 'documents/contract-check-basis.html', {'contract': contract})
+    contract_project = getattr(contract, 'contract_project', None)  # Get the related ContractProject if it exists
+
+    latest_validation_result = ValidationResult.objects.filter(contract=contract).order_by('-created_at').first()
+
+    # Check if changes have been made to the ContractProject
+    has_changes = False  # Default to False
+    if contract_project and contract_project.has_changes:
+        has_changes = True  # Set to True if the project has changes
+        contract_project.has_changes = False  # Reset it to False after displaying the warning
+        contract_project.save()
+
+    return render(request, 'documents/contract-check-basis.html', {
+        'contract': contract, 
+        'pk': pk, 
+        'ai_check_completed': contract.check_completed,  
+        'latest_validation_result': latest_validation_result, 
+        'has_changes': has_changes,  # Pass this to the template so it can display the pop-up
+    })
 
 @login_required(login_url='/login/')
 def paper(request):
     return render(request, 'documents/paper.html')
 
+@login_required(login_url='/login/')
 def generate_contract_pdf(request, contract_id):
-    # Fetch the contract
+    # Fetch the ContractSteps instance
     contract = get_object_or_404(ContractSteps, id=contract_id)
+
+    # Sanitize the contract title to avoid invalid characters in the filename
+    sanitized_title = re.sub(r'[^a-zA-Z0-9_-]', '_', contract.title) if contract.title else f'contract_{contract_id}'
 
     # Render the HTML template with contract data
     html_content = render_to_string('documents/contract_pdf.html', {'contract': contract})
 
     # Create an HTTP response with PDF content type
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="contract_{contract_id}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="{sanitized_title}.pdf"'
 
     # Convert HTML to PDF using xhtml2pdf
     pisa_status = pisa.CreatePDF(html_content, dest=response)
@@ -339,3 +362,35 @@ def generate_contract_pdf(request, contract_id):
         return HttpResponse('An error occurred while generating the PDF.', status=500)
 
     return response
+
+@login_required(login_url='/login/')
+def generate_contract_pdf_full_doc(request, contract_id):
+    # Fetch the ContractProject instance
+    contract = get_object_or_404(ContractProject, id=contract_id)
+
+    # Sanitize the contract name to avoid invalid characters in the filename
+    sanitized_name = re.sub(r'[^a-zA-Z0-9_-]', '_', contract.name) if contract.name else f'contract_{contract_id}'
+
+    # Render the HTML template with contract project data
+    html_content = render_to_string('documents/generate_contract_pdf_full_doc.html', {'contract': contract})
+
+    # Create an HTTP response with PDF content type
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{sanitized_name}.pdf"'
+
+    # Convert HTML to PDF using xhtml2pdf
+    pisa_status = pisa.CreatePDF(html_content, dest=response)
+
+    # Check for errors in PDF generation
+    if pisa_status.err:
+        return HttpResponse('An error occurred while generating the PDF.', status=500)
+
+    return response
+
+@login_required(login_url='/login/')
+def full_doc_ai_check(request, pk):
+    contract = get_object_or_404(ContractProject, pk=pk)
+    context = {
+        'contract': contract,
+    }
+    return render(request, 'documents/full-doc-ai-check.html', context)

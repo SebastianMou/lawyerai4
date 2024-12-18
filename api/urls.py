@@ -9,7 +9,8 @@ urlpatterns = [
     path('contract-create/', views.contract_project_create, name='contract-create'),
     path('contract-update/<int:pk>/', views.contract_project_update, name='contract-update'),
     path('contract-delete/<int:pk>/', views.contract_project_delete, name='contract-delete'),
-    
+    path('contract/transfer/<int:pk>/', views.transfer_contract_to_project, name='transfer-contract-to-project'),
+
     # AI Chat for Contract
     path('create-ai-chat-contract/<int:contract_project_id>/', views.create_ai_chat_contract, name='create-ai-chat-contract'),
     path('get-chat-history-contract/<int:contract_project_id>/', views.get_chat_history_contract, name='get-chat-history-contract'),
@@ -23,6 +24,8 @@ urlpatterns = [
     path('generate-suggestions/', views.generate_suggestions, name='generate-suggestions'),
     path('generate-ai-text/', views.generate_ai_text, name='generate-ai-text'),
     path('contract-check-basis/<int:pk>/', views.contract_check_basis, name='contract-check-basis'),
+    path('contract/<int:pk>/test-legality-check/', views.legality_check_view, name='legality-check-view'),
+
     path('contract-steps-project/', views.contract_steps_project, name='contract-steps-project'),
     path('contract-steps-project-detail/<int:pk>/', views.contract_steps_project_detail, name='contract-steps-project-detail'),
     path('contract-steps-project-update/<int:pk>/', views.contract_steps_project_update, name='contract-steps-project-update'),

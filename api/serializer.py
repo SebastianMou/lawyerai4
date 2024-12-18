@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import ContractProject, AIHighlightChat, ChatSession, Message, Feedback, ContractSteps
+from .models import ContractProject, AIHighlightChat, ChatSession, Message, Feedback, ContractSteps, ValidationResult
 
 class AIHighlightChatSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,13 +26,28 @@ class ChatSessionSerializer(serializers.ModelSerializer):
         model = ChatSession
         fields = ['id', 'name', 'created_at', 'updated_at', 'owner', 'messages']
 
+class ValidationResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ValidationResult
+        fields = '__all__'
+
 class ContractStepsSerializer(serializers.ModelSerializer):
+    validation_results = ValidationResultSerializer(many=True, read_only=True)  # Add nested serializer
+
     class Meta:
         model = ContractSteps
         fields = '__all__'
         extra_kwargs = {
             'user': {'required': False}  # Make `user` optional during validation
         }
+    def validate(self, data):
+        text_fields = ['purpose', 'obligations', 'payment_terms', 'termination_clause', 
+                       'confidentiality_clause', 'dispute_resolution', 'penalties_for_breach', 'notarization']
+        for field in text_fields:
+            if field in data and data[field] == '':
+                data[field] = ''  # Ensure blank fields are explicitly empty
+        return data
+
 
 class FeedbackSerializer(serializers.ModelSerializer):
     class Meta:

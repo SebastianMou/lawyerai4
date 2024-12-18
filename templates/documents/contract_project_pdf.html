@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ contract.name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            margin: 20px;
+        }
+    
+        h1, h2 {
+            color: #333;
+        }
+    
+        ul, ol {
+            margin-left: 20px;
+            padding-left: 20px;
+            list-style-position: inside;
+        }
+    
+        ul li, ol li {
+            margin: 0;
+            padding: 2px 0;
+            line-height: 1.2;
+        }
+    
+        ul ul, ol ol, ul ol, ol ul {
+            margin-left: 15px;
+        }
+    
+        ul ul li, ol ol li, ul ol li, ol ul li {
+            list-style-type: circle;
+        }
+    
+        ol {
+            list-style-type: decimal;
+        }
+    
+        ol ol {
+            list-style-type: lower-alpha;
+        }
+    
+        strong {
+            font-weight: bold;
+        }
+    
+        p {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        {{ contract.description|safe }}
+    </div>
+</body>
+</html>

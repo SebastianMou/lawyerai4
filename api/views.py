@@ -14,8 +14,8 @@ import random
 from rest_framework.views import APIView
 from rest_framework import status, pagination
 
-from .models import ContractProject, AIHighlightChat, ChatSession, Message, ContractSteps
-from .serializer import ContractProjectSerializer, AIHighlightChatSerializer, MessageSerializer, ChatSessionSerializer, FeedbackSerializer, ContractStepsSerializer
+from .models import ContractProject, AIHighlightChat, ChatSession, Message, ContractSteps, ValidationResult
+from .serializer import ContractProjectSerializer, AIHighlightChatSerializer, MessageSerializer, ChatSessionSerializer, FeedbackSerializer, ContractStepsSerializer, ValidationResultSerializer
 
 openai.api_key = settings.OPENAI_API_KEY
 
@@ -23,21 +23,43 @@ openai.api_key = settings.OPENAI_API_KEY
 @api_view(['GET'])
 def apiOverview(request):
     api_urls = {
-        ## Contract projects
+        # Contract Project URLs
         'Contract Projects': '/contract-project/',
-        'Contract Project Detail View': '/contract-detail/<int:pk>/',
+        'Contract Project Detail': '/contract-detail/<int:pk>/',
         'Contract Project Create': '/contract-create/',
         'Contract Project Update': '/contract-update/<int:pk>/',
         'Contract Project Delete': '/contract-delete/<int:pk>/',
 
-        ## AI Chat for Contracts
+        # AI Chat for Contracts
         'Create AI Chat for Contract': '/create-ai-chat-contract/<int:contract_project_id>/',
-        'Chat history for Contract': '/get-chat-history-contract/<int:contract_project_id>/',
+        'Get Chat History for Contract': '/get-chat-history-contract/<int:contract_project_id>/',
+        'Delete Chat History for Contract': '/delete-chat-history-contract/<int:contract_project_id>/',
 
-        ## Chat with AI (ChatSessionLawyer)
-        'Start Chat Session': '/start-chat-session/',
-        'Send Message to AI': '/send-message/<int:session_id>/',
-        'Get Chat History': '/chat-history/<int:session_id>/',
+        # Search and Feedback
+        'Search API': '/search/',
+        'Submit Feedback': '/feed-back/',
+
+        # Steps for Contract Creation
+        'Contract Steps': '/contract-steps/',
+        'Generate Suggestions': '/generate-suggestions/',
+        'Generate AI Text': '/generate-ai-text/',
+        'Contract Check Basis': '/contract-check-basis/<int:pk>/',
+        'Legality Check View': '/contract/<int:pk>/test-legality-check/',
+
+        # Contract Steps Projects
+        'Contract Steps Project': '/contract-steps-project/',
+        'Contract Steps Project Detail': '/contract-steps-project-detail/<int:pk>/',
+        'Contract Steps Project Update': '/contract-steps-project-update/<int:pk>/',
+        'Contract Steps Project Delete': '/contract-steps-project-delete/<int:pk>/',
+
+        # Chat Sessions Lawyer URLs
+        'List Chat Sessions': '/chatsessions/',
+        'Create Chat Session': '/chatsessions/create/',
+        'Retrieve Chat Session': '/chatsessions/<int:session_id>/',
+        'Send Message to Chat Session': '/chatsessions/<int:session_id>/send_message/',
+        'List User Chat Sessions': '/chatsessions/user/',
+        'Update Chat Session': '/chatsessions/<int:session_id>/update/',
+        'Delete Chat Session': '/chatsessions/<int:session_id>/delete/',
     }
     return Response(api_urls)
 
@@ -79,7 +101,9 @@ def contract_project_update(request, pk):
     
     if serializer.is_valid():
         serializer.save()
-        print('Data saved successfully')  # Add this log to confirm successful save
+        contract.has_changes = True 
+        contract.save()
+        print('Data saved successfully, changes were marked as True')  # Add this log to confirm successful save
         return JsonResponse(serializer.data, status=200)
     else:
         print('Serializer errors:', serializer.errors)  # Log errors to help debug
@@ -90,7 +114,6 @@ def contract_project_update(request, pk):
 def contract_project_delete(request, pk):
     contract = ContractProject.objects.get(id=pk)
     contract.delete()
-
     return Response('Contract project deleted successfully :)')
 
 @api_view(['POST']) 
@@ -479,6 +502,58 @@ def list_user_chat_sessions(request):
     
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def transfer_contract_to_project(request, pk):
+    try:
+        # Fetch the ContractSteps object
+        contract_steps = get_object_or_404(ContractSteps, id=pk, user=request.user)
+
+        # Check if a ContractProject already exists for this ContractSteps
+        if hasattr(contract_steps, 'contract_project'):  # Check if the related project exists
+            return Response(
+                {
+                    "message": "ContractProject already exists.",
+                    "contract_project_id": contract_steps.contract_project.id,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        # Create a new ContractProject from ContractSteps
+        contract_project = ContractProject.objects.create(
+            name=contract_steps.title,  # Use the title as the name
+            description=(
+                f"<h1>{contract_steps.title}</h1>"
+                f"<p><strong>Effective Date:</strong> {contract_steps.effective_date or ''}</p>"
+                f"<p><strong>Party One:</strong> {contract_steps.party_one_name or ''} "
+                f"({contract_steps.party_one_role or ''})</p>"
+                f"<p><strong>Party Two:</strong> {contract_steps.party_two_name or ''} "
+                f"<p>({contract_steps.party_two_role or ''})</p>"
+                f"<p>{contract_steps.purpose or ''}</p>"
+                f"<p>{contract_steps.obligations or ''}</p>"
+                f"<p>{contract_steps.payment_terms or ''}</p>"
+                f"<p>{contract_steps.duration or ''}</p>"
+                f"<p>{contract_steps.termination_clause or ''}</p>"
+                f"<p>{contract_steps.confidentiality_clause or ''}</p>"
+                f"<p>{contract_steps.dispute_resolution or ''}</p>"
+                f"<p>{contract_steps.penalties_for_breach or ''}</p>"
+                f"<p>{contract_steps.notarization or ''}</p>"
+            ),
+            owner=request.user,  # Associate with the current user
+            contract_steps=contract_steps  # Link to the ContractSteps
+        )
+
+        return Response(
+            {
+                "message": "Contract successfully transferred to a project.",
+                "contract_project_id": contract_project.id,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 #########################################################################################################################
 
 @api_view(['PUT'])
@@ -574,6 +649,9 @@ def search_api(request):
 def contract_steps(request):
     try:
         if request.method == 'POST':
+            data = request.data.copy()  # Make a copy of the request data
+            if 'notary_required' not in data:
+                data['notary_required'] = 'false'  
             serializer = ContractStepsSerializer(data=request.data)
             if serializer.is_valid():
                 # Automatically assign the user
@@ -590,6 +668,10 @@ def contract_steps(request):
                 contract = ContractSteps.objects.get(id=contract_id, user=request.user)
             except ContractSteps.DoesNotExist:
                 return Response({"error": "Contract not found"}, status=404)
+            
+            data = request.data.copy()
+            if 'notary_required' not in data:
+                data['notary_required'] = 'false'  
             
             serializer = ContractStepsSerializer(contract, data=request.data, partial=True)
             if serializer.is_valid():
@@ -624,8 +706,8 @@ def contract_steps_project_update(request, pk):
     # Make a copy of the request data
     data = request.data.copy()
 
-    # Fields that should not be overwritten if not explicitly updated
-    non_nullable_fields = [
+    # Fields that should be allowed to be saved as empty
+    text_fields = [
         'purpose',
         'obligations',
         'payment_terms',
@@ -633,13 +715,13 @@ def contract_steps_project_update(request, pk):
         'confidentiality_clause',
         'dispute_resolution',
         'penalties_for_breach',
-        'duration',
+        'notarization'
     ]
 
-    # Avoid overwriting fields with empty or null values
-    for field in non_nullable_fields:
-        if field in data and not data[field].strip():
-            data.pop(field)
+    # Set empty strings for empty fields instead of ignoring them
+    for field in text_fields:
+        if field in data and data[field] == '':
+            data[field] = ''  # Explicitly set the field to an empty string
 
     serializer = ContractStepsSerializer(instance=contract, data=data, partial=True)
 
@@ -648,7 +730,6 @@ def contract_steps_project_update(request, pk):
         return JsonResponse(serializer.data, status=200)
     else:
         return JsonResponse(serializer.errors, status=400)
-
 
 
 @api_view(['DELETE'])
@@ -823,6 +904,97 @@ def contract_check_basis(request, pk):
     
     # Return the serialized data
     return Response(serializer.data, status=200)
+
+def legality_check_ai(contract_id):
+    """
+    Perform AI legality check on the specified contract and save the results.
+    """
+    # Fetch the contract
+    contract = get_object_or_404(ContractSteps, id=contract_id)
+
+    # Prepare contract text for AI
+    contract_text = f"""
+        Title: {contract.title}
+        Party One: {contract.party_one_name} ({contract.party_one_role})
+        Party Two: {contract.party_two_name} ({contract.party_two_role})
+        Effective Date: {contract.effective_date}
+        Purpose: {contract.purpose}
+        Obligations: {contract.obligations}
+        Payment Terms: {contract.payment_terms}
+        Duration: {contract.duration}
+        Termination Clause: {contract.termination_clause}
+        Confidentiality Clause: {contract.confidentiality_clause}
+        Dispute Resolution: {contract.dispute_resolution}
+        Penalties for Breach: {contract.penalties_for_breach}
+        Notary Required: {contract.notary_required}
+    """
+
+    # AI prompt
+    prompt = f"""
+        Analyze the following contract for legality according to Mexican law.
+        Identify any inconsistencies, missing elements, and suggest improvements.
+        Make your Responds short, concise & clear.
+
+        Contract:
+        {contract_text}
+    """
+
+    try:
+        # Call OpenAI API
+        response = openai.chat.completions.create(
+            model="gpt-4o",  # Use the appropriate model
+            messages=[
+                {"role": "system", "content": "You are a legal expert specializing in Mexican law."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=1000,
+            temperature=0.2,
+        )
+
+        # Extract AI response
+        ai_response = response.choices[0].message.content.strip()
+
+        # Determine if issues are present
+        passed = "no issues" in ai_response.lower()
+
+        # Save result to ValidationResult model
+        validation_result = ValidationResult.objects.create(
+            contract=contract,
+            check_type="Legal Check",
+            passed=passed,
+            issues=ai_response if not passed else None  # Store issues if validation fails
+        )
+
+        contract.check_completed = True
+        contract.save()
+
+        return validation_result
+
+    except Exception as e:
+        # Handle errors and save as a failed validation result
+        validation_result = ValidationResult.objects.create(
+            contract=contract,
+            check_type="Legal Check",
+            passed=False,
+            issues=f"Error during legality check: {str(e)}"
+        )
+        return validation_result
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def legality_check_view(request, pk):
+    """
+    API endpoint to perform a legality check on a contract.
+    """
+    if request.method == 'GET':
+        return Response({"message": "Use POST to perform the legality check."}, status=400)
+
+    try:
+        validation_result = legality_check_ai(pk)
+        serializer = ValidationResultSerializer(validation_result)
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
 
 @api_view(['POST'])
 def feed_back(request):

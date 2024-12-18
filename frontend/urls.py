@@ -16,8 +16,8 @@ urlpatterns = [
     path('chat/<int:session_id>/', views.view_chat_session, name='chat'),
     path('pages/', views.pages, name='pages'),
     path('delete_account/', views.delete_account, name='delete_account'),
-
     path('contract_project/<int:pk>/download_pdf/', views.download_contract_pdf, name='download_contract_pdf'),
+
     path('search/', views.search, name='search'),
     path('feedback/', views.feedback, name='feedback'),
 
@@ -32,7 +32,8 @@ urlpatterns = [
     path('contract-check-basis/<int:pk>/', views.contract_check_basis_view, name='contract_check_basis_view'),
     path('contract-step/<int:pk>/', views.contract_step, name='contract-step'),
     path('generate-contract-pdf/<int:contract_id>/', views.generate_contract_pdf, name='generate_contract_pdf'),
-
+    path('generate-contract-pdf-full-doc/<int:contract_id>/', views.generate_contract_pdf_full_doc, name='generate_contract_pdf_full_doc'),
+    path('full-doc-ai-check/<int:pk>/', views.full_doc_ai_check, name='full_doc_ai_check'),
     path('factura/', views.invoice, name='invoice'),
 
     # User change password from account 

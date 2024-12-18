@@ -290,7 +290,8 @@
             margin-inline: calc(var(--inlineP) * -1);
 
             text-align: center;
-            background-color: var(--accent-color);
+            background: rgb(25,238,203);
+            background: linear-gradient(67deg, rgba(25,238,203,1) 29%, rgba(154,44,227,1) 73%);
 
             color: white;
             font-size: 1.25rem;
@@ -327,7 +328,6 @@
             border: 0.3rem solid var(--accent-color);
             border-radius: 50%;
             top: 50%;
-
             transform: translate(50%, -50%);
             right: calc(100% + var(--col-gap) + var(--line-w) / 2);
         }
@@ -420,19 +420,6 @@
         .credits a {
             color: var(--color);
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -636,33 +623,26 @@
         <h1>UL timeline cards</h1>
         <ul>
             <li style="--accent-color:#41516C">
-                <div class="date">2002</div>
-                <div class="title">Title 1</div>
-                <div class="descr">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quas itaque hic quibusdam
-                    fugiat est numquam harum, accusamus suscipit consequatur laboriosam!</div>
+                <div class="date">Legal Advice</div>
+                <!-- <div class="title">Title 1</div> -->
+                <!-- <div class="descr">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quas itaque hic quibusdam fugiat est numquam harum, accusamus suscipit consequatur laboriosam!</div> -->
+                <img class="img-fluid" style="border-radius: 10px; border: 2px solid #19eecb;" src="{% static 'img/photos/Screenshot 2024-12-05 112611.png' %}" alt="" srcset="">
             </li>
             <li style="--accent-color:#FBCA3E">
-                <div class="date">2007</div>
-                <div class="title">Title 2</div>
-                <div class="descr">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quos adipisci nobis nostrum
-                    vero nihil veniam.</div>
+                <div class="date">Legal Document Creation</div>
+                <img class="img-fluid" style="border-radius: 10px; border: 2px solid #19eecb;" src="{% static 'img/photos/Screenshot 2024-12-05 112611.png' %}" alt="" srcset="">
             </li>
             <li style="--accent-color:#E24A68">
-                <div class="date">2012</div>
-                <div class="title">Title 3</div>
-                <div class="descr">Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga minima consequuntur
-                    soluta placeat iure totam commodi repellendus ea delectus, libero fugit quod reprehenderit, sequi
-                    quo, et dolorum saepe.</div>
+                <div class="date">Legal Document by steps</div>
+                <img class="img-fluid" style="border-radius: 10px; border: 2px solid #19eecb;" src="{% static 'img/photos/Screenshot 2024-12-05 112611.png' %}" alt="" srcset="">
             </li>
             <li style="--accent-color:#1B5F8C">
                 <div class="date">2017</div>
-                <div class="title">Title 4</div>
-                <div class="descr">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Impedit, cumque.</div>
+                <img class="img-fluid" style="border-radius: 10px; border: 2px solid #19eecb;" src="{% static 'img/photos/Screenshot 2024-12-05 112611.png' %}" alt="" srcset="">
             </li>
             <li style="--accent-color:#4CADAD">
                 <div class="date">2022</div>
-                <div class="title">Title 5</div>
-                <div class="descr">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Odit, non.</div>
+                <img class="img-fluid" style="border-radius: 10px; border: 2px solid #19eecb;" src="{% static 'img/photos/Screenshot 2024-12-05 112611.png' %}" alt="" srcset="">
             </li>
         </ul>
     </div>
