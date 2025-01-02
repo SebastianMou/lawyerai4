@@ -16,7 +16,7 @@
 
     <link rel="canonical" href="https://demo.adminkit.io/" />
 
-    <title>{% block title %}Anton.{% endblock %}</title>
+    <title>{% block title %}Justimex.{% endblock %}</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
@@ -198,9 +198,18 @@
         .ibm-plex-sans-semibold {
             font-family: "IBM Plex Sans", sans-serif;
             font-weight: 800;
-            font-size: 2.9em;
-
+            color: white;
             font-style: normal;
+        }
+
+        .Subheadline {
+            width: 50%;
+        }
+
+        @media (min-width: 770px) {
+            .Subheadline {
+                width: 100%;
+            }
         }
 
         .icon-text-container {
@@ -422,11 +431,6 @@
         }
 
 
-
-
-
-
-
         #pricing-section {
             margin-top: 20px;
         }
@@ -436,7 +440,7 @@
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
-            padding: 40px 0;
+            padding: 10px 0;
         }
 
         .pricing-box {
@@ -536,32 +540,96 @@
 
         .pricing-title {
             font-size: 2em;
+            font-weight: bolder;
             color: #fff;
             margin-bottom: 10px;
         }
 
-
         .pricing-link {
             display: inline-block;
             font-size: 1.1em;
-            color: #111;
-            background-color: #00D0FF;
+            color: white;
+            background-color: #6e85da;
             padding: 10px;
             border-radius: 4px;
             text-decoration: none;
             font-weight: 700;
             margin-top: 5px;
+            border: 2px solid #6460f1;
+            border-radius: 50px;
         }
+
+        .pricing-cost {
+            color: white;
+            font-weight: bolder;
+            margin-top: 10px;
+            font-size: 1.5rem;
+        }
+
+        .old-price {
+            color: red;
+            font-size: small;
+        }
+
+        .fade-up {
+            opacity: 0; /* Start invisible */
+            transform: translateY(30px); /* Start below the original position */
+            animation: fadeUp 1.5s ease-in-out forwards; /* Trigger animation */
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px); /* Starting point */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0); /* End at the original position */
+            }
+        }
+
+        .fade-left {
+            opacity: 0; /* Start invisible */
+            transform: translateX(160px); /* Start off-screen to the left */
+            animation: fadeInLeft 1.5s ease-in-out forwards; /* Animation on page load */
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(160px); /* Off-screen to the left */
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0); /* End at the original position */
+            }
+        }
+
+        .fade-right {
+            opacity: 0; /* Start invisible */
+            transform: translateX(-160px); /* Start off-screen to the right */
+            animation: fadeInRight 1.5s ease-in-out forwards; /* Animation on page load */
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(-160px); /* Off-screen to the right */
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0); /* End at the original position */
+            }
+        }
+
     </style>
     <div style="background: linear-gradient(67deg, rgba(154,44,227,1) 8%, rgba(81,160,224,1) 57%, rgba(25,238,203,1) 93%); border-bottom-left-radius: 40%; border-bottom-right-radius: 40%;">
         <nav class="navbar navbar-expand-lg navbar-transparent">
             <div class="container-fluid">
                 <a class="sidebar-brand" href="/">
-                    <span style="font-size: larger; color: white">Anton.</span>
+                    <span style="font-size: larger; color: white">Justimex.</span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -580,36 +648,26 @@
         <div class="center">
             <center>
                 <div class="icon-text-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                        class="bi bi-plus top-left-icon" viewBox="0 0 16 16">
-                        <path
-                            d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-plus top-left-icon fade-left" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
                     </svg>
-                    <h1 class="ibm-plex-sans-semibold">Anton</h1>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                        class="bi bi-plus bottom-right-icon" viewBox="0 0 16 16">
-                        <path
-                            d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                    <h3 class="ibm-plex-sans-semibold fade-up">Simplifica lo legal con la potencia de la IA</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-plus bottom-right-icon fade-right" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
                     </svg>
                 </div>
-                <p style="color: white; margin-top: 15px;">kldsjfa sdkf aklsdffj asdlkjf asdlkfaks lf
-                    jaskldjaklsdjfkasdjf</p>
-
+                <h3 style="color: white; margin-top: 15px;" class="Subheadline fade-up" id="typing-effect">
+                    <!-- Selling description -->
+                </h3>
                 <div class="gallery">
                     <div class="gallery-container">
-                        <img class="gallery-item gallery-item-1" src="{% static 'img/photos/unsplash-1.jpg' %}"
-                            data-index="1">
-                        <img class="gallery-item gallery-item-2" src="{% static 'img/photos/unsplash-2.jpg' %}"
-                            data-index="2">
-                        <img class="gallery-item gallery-item-3" src="{% static 'img/photos/unsplash-3.jpg' %}"
-                            data-index="3">
-                        <img class="gallery-item gallery-item-4" src="{% static 'img/photos/unsplash-1.jpg' %}"
-                            data-index="4">
-                        <img class="gallery-item gallery-item-5" src="{% static 'img/photos/unsplash-2.jpg' %}"
-                            data-index="5">
-                        <img class="gallery-item gallery-item-6" src="{% static 'img/photos/unsplash-2.jpg' %}"
-                            data-index="6">
-                        <img class="gallery-item gallery-item-7" src="{% static 'img/flags/ae.png' %}" data-index="7">
+                        <img class="gallery-item gallery-item-1 img-fluid" src="{% static 'img/photos/unsplash-1.jpg' %}" data-index="1">
+                        <img class="gallery-item gallery-item-2 img-fluid" src="{% static 'img/photos/unsplash-2.jpg' %}" data-index="2">
+                        <img class="gallery-item gallery-item-3 img-fluid" src="{% static 'img/photos/unsplash-3.jpg' %}" data-index="3">
+                        <img class="gallery-item gallery-item-4 img-fluid" src="{% static 'img/photos/unsplash-1.jpg' %}" data-index="4">
+                        <img class="gallery-item gallery-item-5 img-fluid" src="{% static 'img/photos/unsplash-2.jpg' %}" data-index="5">
+                        <img class="gallery-item gallery-item-6 img-fluid" src="{% static 'img/photos/unsplash-2.jpg' %}" data-index="6">
+                        <img class="gallery-item gallery-item-7 img-fluid" src="{% static 'img/flags/ae.png' %}" data-index="7">
                     </div>
                 </div>
 
@@ -648,64 +706,126 @@
     </div>
 
     <!-- Pricing Section -->
-    <div class="container" id="pricing-section">
-        <h2 class="text-center" id="pricing-header">Payment Subscriptions</h2>
+    <div class="container-fluid" id="pricing-section" style="background-color: rgba(95, 95, 95, 0.094);">
+        <h1 class="text-center" style="padding-top: 12px; color: rgb(88, 88, 88); font-weight: bold;" id="pricing-header">Suscripciones</h1>
         <section class="pricing-container">
+
+            <!-- Basic Plan -->
             <div class="pricing-box" id="basic-plan">
                 <span></span>
                 <div class="pricing-content">
-                    <h3 class="pricing-title">Anton Basic</h3>
+                    <h3 class="pricing-title">Acceso por Una Semana</h3>
                     <ol style="list-style: none; padding: 0; margin: 0;">
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times"></i> Coffee
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
                         </li>
                     </ol>
-                    
-                    <h3 class="pricing-cost">$0/month</h3>
-                    <a href="#" class="pricing-link">Explore Features</a>
+                    <h3 class="pricing-cost"><s class="old-price">$350</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                      </svg> $299 MXN</h3>
+                    <form action="{% url 'create_checkout_session' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="subscription_type" value="weekly_access">
+                        <button type="submit" class="pricing-link">Comprar Pase Semanal</button>
+                    </form>
                 </div>
             </div>
 
+            <!-- Pro Plan -->
             <div class="pricing-box" id="pro-plan">
                 <span></span>
                 <div class="pricing-content">
-                    <h3 class="pricing-title">Pro Plan</h3>
+                    <h3 class="pricing-title">Justimex Básica</h3>
                     <ol style="list-style: none; padding: 0; margin: 0;">
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times"></i> Coffee
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
                         </li>
                     </ol>
-                    <h3 class="pricing-cost">$9.99/month</h3>
-                    <a href="#" class="pricing-link">Learn More</a>
+                    <h3 class="pricing-cost"><s class="old-price">$350</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                      </svg> $250 MXN / mes</h3>
+                    <form action="{% url 'create_checkout_session' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="subscription_type" value="basic_plan">
+                        <button type="submit" class="pricing-link" style="text-decoration: none;">Suscribirse</button>
+                    </form>
+                    
                 </div>
             </div>
 
             <div class="pricing-box" id="premium-plan">
                 <span></span>
                 <div class="pricing-content">
-                    <h3 class="pricing-title">Premium Plan</h3>
+
+                    <h3 class="pricing-title">Justimex Estándar</h3>
                     <ol style="list-style: none; padding: 0; margin: 0;">
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times"></i> Coffee
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
                         </li>
                     </ol>
-                    <h3 class="pricing-cost">$16.99/month</h3>
-                    <a href="#" class="pricing-link">Start Now</a>
+                    <h3 class="pricing-cost"><s class="old-price">$350</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                      </svg> $350 MXN / mes</h3>
+                    <form action="{% url 'create_checkout_session' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="subscription_type" value="pro_plan">
+                        <button type="submit" class="pricing-link" style="text-decoration: none;">Suscribirse</button>
+                    </form>
+                   
                 </div>
             </div>
         </section>
@@ -720,7 +840,7 @@
                         <use xlink:href="#bootstrap"></use>
                     </svg>
                 </a>
-                <span class="text-muted">© 2024 Anton, Inc</span>
+                <span class="text-muted">© 2024 Justimex, Inc</span>
             </div>
 
             <div>
@@ -762,7 +882,25 @@
 
 
     <script src="{% static 'js/app.js' %}"></script>
-    <script src="{% static 'js/sliders.js' %}?v=1"></script>
+    <script src="{% static 'js/sliders.js' %}?v=1"></script>    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const text = "Crea contratos, verifica su validez y cumple con las leyes de México, todo en minutos.";
+            const typingContainer = document.getElementById("typing-effect");
+            let index = 0;
+
+            function typeEffect() {
+                if (index < text.length) {
+                    typingContainer.textContent += text[index];
+                    index++;
+                    setTimeout(typeEffect, 20); // Adjust the speed (50ms per character)
+                }
+            }
+
+            typeEffect();
+        });
+
+    </script>
 </body>
 
 </html>

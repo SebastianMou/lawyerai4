@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import ContractProject, AIHighlightChat, ChatSession, Message, Feedback, ContractSteps, ValidationResult
+from .models import ContractProject, AIHighlightChat, ChatSession, Message, Feedback, ContractSteps, ValidationResult, Subscription
 
 class AIHighlightChatSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,8 +48,13 @@ class ContractStepsSerializer(serializers.ModelSerializer):
                 data[field] = ''  # Ensure blank fields are explicitly empty
         return data
 
-
 class FeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
         fields = ['id', 'user', 'feedback_type', 'message', 'email', 'phone_number', 'created_at']
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = '__all__'

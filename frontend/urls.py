@@ -21,6 +21,12 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     path('feedback/', views.feedback, name='feedback'),
 
+    path('create-checkout-session/', views.create_checkout_session, name='create_checkout_session'),
+    path('success/', views.success_view, name='success'),
+    path('cancel/', views.cancel_view, name='cancel'),
+    path('cancel-subscription/', views.cancel_subscription, name='cancel_subscription'),
+    path('stripe-webhook/', views.stripe_webhook, name='stripe_webhook'),
+
     path('signup/', views.signup, name='signup'),
     # activación de la cuenta de usuario por correo electrónico
     path('activate/<uidb64>/<token>', views.activate, name='activate'),

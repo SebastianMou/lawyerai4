@@ -1,0 +1,9 @@
+{% extends './base.html' %}
+{% loads static %}
+
+{% block content %}
+<form action="{% url 'cancel_subscription' %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Cancel Subscription</button>
+</form>
+{% endblock %}

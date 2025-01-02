@@ -250,27 +250,24 @@
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Confirmar eliminación de cuenta</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <form method="post" action="{% url 'delete_account' %}">
-                {% csrf_token %}
-                <div class="alert alert-danger" role="alert" style="padding: 12px;">
-                    <b><span style="color: red;">Advertencia:</span> Al hacer clic en el botón de confirmación, la cuenta será <u style="color: red;">ELIMINADA</u> permanentemente. Los esfuerzos por recuperar la cuenta serán en vano.</b>
-                </div>
-                <hr>
-                <div class="form-group mb-2">
-                    <label for="confirmationInput">Escribe "ELIMINAR" para confirmar:</label>
-                    <input type="text" id="confirmationInput" class="form-control" onkeyup="checkInput()" placeholder="Escribe ELIMINAR aquí">
-                </div>
-                <button type="submit" class="btn btn-outline-danger" id="deleteButton" style="display: none;">Confirmar Eliminación de Cuenta</button>                
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Confirmar eliminación de cuenta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'delete_account' %}">
+                    {% csrf_token %}
+                    <div class="alert alert-danger" role="alert" style="padding: 12px;">
+                        <b><span style="color: red;">Advertencia:</span> Al hacer clic en el botón de confirmación, la cuenta será <u style="color: red;">ELIMINADA</u> permanentemente. Los esfuerzos por recuperar la cuenta serán en vano.</b>
+                    </div>
+                    <hr>
+                    <div class="form-group mb-2">
+                        <label for="confirmationInput">Escribe "ELIMINAR" para confirmar:</label>
+                        <input type="text" id="confirmationInput" class="form-control" onkeyup="checkInput()" placeholder="Escribe ELIMINAR aquí">
+                    </div>
+                    <button type="submit" class="btn btn-outline-danger" id="deleteButton" style="display: none;">Confirmar Eliminación de Cuenta</button>                
+                </form>
+            </div>
         </div>
     </div>
 </div>

@@ -11,10 +11,12 @@ from django.http import HttpResponse
 import json
 import openai
 import random
+import stripe
+from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework import status, pagination
 
-from .models import ContractProject, AIHighlightChat, ChatSession, Message, ContractSteps, ValidationResult
+from .models import ContractProject, AIHighlightChat, ChatSession, Message, ContractSteps, ValidationResult, Subscription
 from .serializer import ContractProjectSerializer, AIHighlightChatSerializer, MessageSerializer, ChatSessionSerializer, FeedbackSerializer, ContractStepsSerializer, ValidationResultSerializer
 
 openai.api_key = settings.OPENAI_API_KEY
@@ -1005,3 +1007,4 @@ def feed_back(request):
     else:
         print(serializer.errors)
         return Response(serializer.errors, status=400)
+

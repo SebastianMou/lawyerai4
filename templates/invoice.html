@@ -2,10 +2,426 @@
 {% load static %}
 
 {% block content %}
-<h1>invoice</h1>
 
-<ul>
-    <li>In case of disputes regarding payment terms, the parties shall first attempt to resolve the issue amicably through mediation.</li>
-    <li>If mediation fails, the matter may be escalated to arbitration or legal proceedings as provided by Mexican law.</li>
-    </ul>
+<style>
+    .text-monospace {
+        font-family: 'Courier New', Courier, monospace;
+        letter-spacing: 2px;
+        color: white;
+    }
+
+    .card-body {
+        border-radius: 10px;
+        /* Slightly smaller rounding */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        /* Adjusted for a softer shadow */
+    }
+
+    /* Optional: Add padding to the column for spacing */
+    .col {
+        padding: 10px;
+    }
+    .container-actualizar-suscripcion {
+        width: 80%;
+        margin: 0 auto; /* Center the container horizontally */
+        display: flex;
+        justify-content: center; /* Center items horizontally */
+        align-items: center; /* Center items vertically */
+        flex-wrap: wrap; /* Ensure wrapping for smaller screens */
+    }
+
+    @media (max-width: 768px) {
+        .container-actualizar-suscripcion {
+            width: 100%;
+        }
+    }
+
+
+</style>
+<style>
+.btn-pulse {
+    position: relative;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+</style>
+<div class="container" style="margin-top: 12px;">
+    <!-- Mostrar detalles de la suscripción -->
+    {% if subscription or one_time_payments %}
+    <div class="card mb-4">
+        <div class="card-body">
+
+            <div class="row">
+                {% if subscription %}
+                    <!-- Detalles de la Suscripción -->
+                    <div class="col-md-6 col-12 mb-4">
+                        <div class="card shadow-sm mt-3" style="border-radius: 12px; background-color: #f8f9fa;">
+                            <div class="card-body p-4">
+                                <h5 class="card-title text-uppercase text-primary mb-3" style="font-weight: bold;">Detalles de la Suscripción</h5>
+                                <h4 class="mb-2"><strong>Suscripción:</strong> {{ subscription.product_name }}</h4>
+                                <p class="mb-2"><strong>Precio:</strong> <span class="fw-bold">${{ subscription_price }} MXN</span></p>
+                                <p><strong>Intervalo de Pago:</strong> {{ payment_interval|capfirst }}</p>
+                                <p class="mb-0"><strong>Estado:</strong>
+                                    {% if subscription.subscription_status == "active" %}
+                                        <span class="badge bg-success text-uppercase">Activo</span>
+                                    {% elif subscription.subscription_status == "canceled" %}
+                                        <span class="badge bg-danger text-uppercase">Cancelado</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-uppercase">{{ subscription.subscription_status }}</span>
+                                    {% endif %}
+                                </p>
+
+                                <div class="d-flex gap-2 mt-3">
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">Cancelar Suscripción</button>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#contactModal">Reembolso</button>
+                                    <button type="button" class="btn btn-success btn-pulse" data-bs-toggle="modal" data-bs-target="#SubscriptionUpgrade">Actualizar suscripción <i class="fas fa-arrow-up"></i></button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Render Latest One-Time Payment Details -->
+                {% if one_time_payments and not subscription %}
+                    {% with one_time_payment=one_time_payments.0 %}
+                        <div class="col-md-6 col-12 mb-4">
+                            <div class="card shadow-sm mt-3" style="border-radius: 12px; background-color: #f8f9fa;">
+                                <div class="card-body p-4">
+                                    <h5 class="card-title text-uppercase text-primary mb-3" style="font-weight: bold;">Detalles del Pago Único</h5>
+                                    <h4 class="mb-2"><strong>Producto:</strong> {{ one_time_payment.product_name }}</h4>
+                                    <p class="mb-2"><strong>Precio:</strong> <span class="fw-bold">${{ one_time_payment.amount }} {{ one_time_payment.currency|upper }}</span></p>
+                                    <p><strong>Estado:</strong>
+                                        {% if one_time_payment.status == "paid" %}
+                                            <span class="badge bg-success text-uppercase">Pagado</span>
+                                        {% else %}
+                                            <span class="badge bg-danger text-uppercase">{{ one_time_payment.status }}</span>
+                                        {% endif %}
+                                    </p>
+                                    <p class="mb-0"><strong>Fecha:</strong> {{ one_time_payment.created_at|date:"Y-m-d H:i" }}</p>
+                                    <hr>
+                                    <button type="button" class="btn btn-success btn-pulse" data-bs-toggle="modal" data-bs-target="#SubscriptionUpgrade">Cambiar a suscripción <i class="fas fa-arrow-up"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% endif %}
+
+                <!-- Render Card Details -->
+                <div class="col-md-6 col-12 mb-4">
+                    {% if card_details %}
+                        <div id="cardCarousel" class="carousel slide">
+                            <div class="carousel-inner">
+                                <!-- Card View Slide -->
+                                <div class="carousel-item active">
+                                    <div class="card mt-3 shadow-sm"
+                                        style="border-radius: 12px; background: linear-gradient(135deg, #3b5998, #192f6a); color: white;">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h5 class="text-uppercase text-monospace mb-0" style="font-size: 1.2rem;">
+                                                    Método de Pago</h5>
+                                                {% if card_details.brand == "visa" %}
+                                                <img src="https://img.icons8.com/color/48/000000/visa.png" alt="Visa"
+                                                    style="height: 35px;">
+                                                {% elif card_details.brand == "mastercard" %}
+                                                <img src="https://img.icons8.com/color/48/000000/mastercard.png"
+                                                    alt="MasterCard" style="height: 35px;">
+                                                {% elif card_details.brand == "amex" %}
+                                                <img src="https://img.icons8.com/color/48/000000/amex.png"
+                                                    alt="American Express" style="height: 35px;">
+                                                {% else %}
+                                                <img src="https://img.icons8.com/ios-filled/50/ffffff/bank-card-back-side.png"
+                                                    alt="Card" style="height: 35px;">
+                                                {% endif %}
+                                            </div>
+                                            <div class="mb-3">
+                                                <h5 class="fw-bold text-monospace" style="font-size: 1.5rem;">**** **** ****
+                                                    {{ card_details.last4 }}</h5>
+                                            </div>
+                                            <div class="mb-3">
+                                                <small class="text-uppercase" style="font-size: 0.8rem;">Nombre en la
+                                                    tarjeta</small>
+                                                <h6 class="fw-bold text-uppercase text-monospace" style="font-size: 1rem;">
+                                                    {{ cardholder_name }}</h6>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <small class="text-uppercase" style="font-size: 0.8rem;">Válido
+                                                        hasta</small>
+                                                    <p class="mb-0" style="font-size: 0.9rem;">{{ card_details.exp_month }}/{{ card_details.exp_year }}</p>
+                                                </div>
+                                                <div>
+                                                    <small class="text-uppercase" style="font-size: 0.8rem;">Tipo de
+                                                        tarjeta</small>
+                                                    <p class="mb-0" style="font-size: 0.9rem;">{{ card_details.brand|capfirst }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Table View Slide -->
+                                <div class="carousel-item">
+                                    <div class="card mt-3 shadow-sm bg-light" style="border-radius: 12px;">
+                                        <div class="card-body p-4">
+                                            <table class="table table-striped table-bordered mb-0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Número de tarjeta</td>
+                                                        <td>**** **** **** {{ card_details.last4 }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Nombre en la tarjeta</td>
+                                                        <td>{{ cardholder_name }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Fecha de vencimiento</td>
+                                                        <td>{{ card_details.exp_month }}/{{ card_details.exp_year }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Tipo de tarjeta</td>
+                                                        <td>{{ card_details.brand|capfirst }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Carousel Controls -->
+                            <button class="carousel-control-prev" type="button" data-bs-target="#cardCarousel"
+                                data-bs-slide="prev">
+                                <span class="visually-hidden">Anterior</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#cardCarousel"
+                                data-bs-slide="next">
+                                <span class="visually-hidden">Siguiente</span>
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Mostrar historial de pagos -->
+                <h2 class="mb-3">Historial de Pagos</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Fecha</th>
+                                <th>Monto</th>
+                                <th>Tipo</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ payment.date|date:"Y-m-d H:i" }}</td>
+                                <td>${{ payment.amount }}</td>
+                                <td>
+                                    {% if payment.type == 'subscription' %}
+                                        <span class="badge bg-primary">Suscripción</span>
+                                    {% elif payment.type == 'one-time' %}
+                                        <span class="badge bg-secondary">Pago Único</span>
+                                        <br>
+                                        <small><strong>Producto:</strong> {{ payment.product_name }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if payment.status == 'paid' %}
+                                        <span class="badge bg-success">Pagado</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">{{ payment.status }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No se encontraron pagos.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% else %}
+                <div class="alert alert-warning">
+                    <p>No tienes una suscripción activa.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="contactModalLabel">Información de Contacto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Modal Body -->
+                <h4 class="text-center" style="padding: 12px;">¡Estamos aquí para ayudarte!</h4>
+                <p class="text-center">Si desea un reembolso, contáctenos directamente.</p>
+                <div class="container">
+                    <!-- Email Section -->
+                    <div class="card mb-3" style="border-radius: 50px;">
+                        <div class="card-body d-flex align-items-center justify-content-between"
+                            style="border-radius: 50px;">
+                            <div>
+                                <i class="fas fa-envelope text-secondary me-2"></i>
+                                <strong>Correo Electrónico:</strong>
+                                <a href="mailto:justimex@gmail.com" class="text-decoration-none text-dark">
+                                    justimex@gmail.com
+                                </a>
+                            </div>
+                            <i class="far fa-clipboard text-primary" style="cursor: pointer; padding-right: 14px"
+                                onclick="copyAndShowCheck(this, 'justimex@gmail.com')" title="Copiar"></i>
+                        </div>
+                    </div>
+
+                    <!-- WhatsApp Section -->
+                    <div class="card mb-3" style="border-radius: 50px;">
+                        <div class="card-body d-flex align-items-center justify-content-between"
+                            style="border-radius: 50px;">
+                            <div>
+                                <i class="fab fa-whatsapp text-success me-2"></i>
+                                <strong>WhatsApp:</strong>
+                                <a href="https://wa.me/527445055734" class="text-decoration-none text-dark"
+                                    target="_blank">
+                                    +52 744 505-5734
+                                </a>
+                            </div>
+                            <i class="far fa-clipboard text-primary" style="cursor: pointer; padding-right: 14px;"
+                                onclick="copyAndShowCheck(this, '+52 744 505-5734')" title="Copiar"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Cancelación de Suscripción</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert" style="padding: 12px;">
+                    <b><span style="color: red;">Aviso:</span> Al hacer clic en el botón <u>"Cancelar Suscripción"</u>, tu suscripción será cancelada.</b>
+                </div>
+                <hr>
+                <!-- Input field where the user types "cancelar" -->
+                <label for="confirmCancel">Escribe "cancelar" para cancelar tu suscripción: </label>
+                <input type="text" id="confirmCancel" class="form-control" placeholder="Escribe 'cancelar' aquí">
+
+                <!-- Cancel Subscription Button (Initially Hidden) -->
+                <div id="cancelButtonContainer" style="display: none; margin-top: 9px;">
+                    <form action="{% url 'cancel_subscription' %}" method="POST" class="mb-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger">Cancelar Suscripción</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- model -->
+<div class="modal fade" id="SubscriptionUpgrade" tabindex="-1" aria-labelledby="SubscriptionUpgradeLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="SubscriptionUpgradeLabel">Actualizar Suscripción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row container-actualizar-suscripcion">
+                    {% for plan in all_plans %}
+                        {% if subscription.product_name != plan.name %}
+                            <div class="col-md-6 col-12">
+                                <div class="card shadow-sm mt-3" style="border-radius: 12px; background-color: #f8f9fa;">
+                                    <div class="card-body p-4">
+                                        <h2 class="text-uppercase text-primary mb-3" style="font-weight: bold;">{{ plan.name }}</h2>
+                                        <p class="mb-2"><span class="fw-bold">{{ plan.price }}</span></p>
+                                        <form action="{% url 'create_checkout_session' %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="subscription_type" value="{{ plan.id }}">
+                                            <button type="submit" class="btn btn-primary w-100" style="border-radius: 8px;">
+                                                Cambiar a {{ plan.name }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyAndShowCheck(iconElement, text) {
+        // Copy the text to the clipboard
+        navigator.clipboard.writeText(text);
+
+        // Save the original HTML of the icon
+        const originalHTML = iconElement.outerHTML;
+
+        // Replace the icon with the success icon
+        iconElement.outerHTML = '<i class="fas fa-clipboard-check text-success" style="cursor: pointer;"></i>';
+
+        // Revert back to the original icon after 2 seconds
+        setTimeout(() => {
+            const parentElement = document.querySelector('.d-flex .fa-clipboard-check'); // Target the check icon
+            if (parentElement) {
+                parentElement.outerHTML = originalHTML; // Replace it back with the original clipboard icon
+            }
+        }, 2000);
+    }
+
+    const inputField = document.getElementById('confirmCancel');
+    const buttonContainer = document.getElementById('cancelButtonContainer');
+
+    inputField.addEventListener('input', () => {
+        // Check if the input value matches "cancelar"
+        if (inputField.value.trim().toLowerCase() === 'cancelar') {
+            buttonContainer.style.display = 'block'; // Show the button
+        } else {
+            buttonContainer.style.display = 'none'; // Hide the button
+        }
+    });
+
+    
+
+</script>
+   
+
 {% endblock %}

@@ -130,3 +130,31 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.feedback_type} - {self.created_at}"
+
+class Subscription(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    stripe_customer_id = models.CharField(max_length=255, null=True, blank=True)
+    stripe_subscription_id = models.CharField(max_length=255, null=True, blank=True)
+    subscription_status = models.CharField(max_length=50, choices=[
+        ('active', 'Active'),
+        ('canceled', 'Canceled'),
+        ('past_due', 'Past Due'),
+        ('incomplete', 'Incomplete'),
+    ], default='incomplete')
+    current_period_end = models.DateTimeField(null=True, blank=True)
+    product_name = models.CharField(max_length=255, null=True, blank=True)  # Add this field
+
+    def __str__(self):
+        return f"Subscription for {self.user.username}"
+
+class PaymentRecord(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    stripe_session_id = models.CharField(max_length=255)
+    product_name = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=10)
+    status = models.CharField(max_length=50)  # e.g., "paid", "failed"
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product_name} - {self.amount} {self.currency} ({self.status})"

@@ -19,14 +19,183 @@ from django.utils.html import strip_tags
 from io import BytesIO
 import re
 from xhtml2pdf import pisa
+import datetime
 
 from .tokens import account_activation_token
 from .forms import CustomLoginForm, RegisterForm  
-from api.models import ContractProject, ChatSession, ContractSteps, ValidationResult
+from api.models import ContractProject, ChatSession, ContractSteps, ValidationResult, Subscription, PaymentRecord
+from django.conf import settings
+import stripe
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+print(f"Stripe API key being used: {stripe.api_key}")
 
 # Create your views here.
 def hero(request):
-    return render(request, 'hero.html')
+    return render(request, 'hero.html', {'stripe_public_key': settings.STRIPE_PUBLIC_KEY})
+
+def create_checkout_session(request):
+    try:
+        user_email = request.user.email  # Get the email of the logged-in user
+        subscription_type = request.POST.get('subscription_type')  # Get the selected subscription type
+
+        # Map subscription_type to Stripe price IDs
+        price_mapping = {
+            "basic_plan": 'price_1QZ4yWIs3n8Cewzv25GnCP3z',  # Basic Subscription Price ID
+            "pro_plan": 'price_1QbANhIs3n8CewzvcXYreVPM',    # Pro Subscription Price ID
+            "weekly_access": 'price_1QbqpeIs3n8CewzvRaTup0Iz'  # One-Time Weekly Access Price ID
+        }
+
+        # Check if the subscription type is valid
+        price_id = price_mapping.get(subscription_type)
+        if not price_id:
+            return HttpResponse("Invalid subscription type.", status=400)
+
+        # Determine mode based on subscription type
+        mode = 'subscription' if subscription_type != 'weekly_access' else 'payment'
+
+        # Create the Stripe Checkout session
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            mode=mode,  # 'subscription' for subscriptions, 'payment' for one-time payments
+            line_items=[{
+                'price': price_id,
+                'quantity': 1,
+            }],
+            customer_email=user_email,
+            billing_address_collection='auto',
+            locale='es-419',
+            success_url=request.build_absolute_uri('/success/') + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=request.build_absolute_uri('/cancel/'),
+        )
+        # Redirect the user to the Stripe Checkout page
+        return redirect(session.url)
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {e}")
+
+
+def success_view(request):
+    session_id = request.GET.get('session_id')
+    if not session_id:
+        return HttpResponse("Missing session ID.", status=400)
+    
+    try:
+        session = stripe.checkout.Session.retrieve(session_id)
+
+        # Check if the session was a one-time payment or a subscription
+        if session.mode == 'subscription':
+            subscription_id = session.subscription
+            customer_id = session.customer
+            subscription_data = stripe.Subscription.retrieve(subscription_id)
+            
+            product_name = subscription_data['items']['data'][0]['price']['product']  # Get product ID
+            product_details = stripe.Product.retrieve(product_name)  # Fetch product details from Stripe
+
+            user = request.user
+            subscription, created = Subscription.objects.get_or_create(user=user)
+            subscription.stripe_subscription_id = subscription_id
+            subscription.stripe_customer_id = customer_id
+            subscription.subscription_status = "active"
+            subscription.product_name = product_details['name']  # Save product name
+            subscription.save()
+        else:
+            # Handle one-time payment (Acceso por Una Semana)
+            product_name = "Acceso por Una Semana"
+            user = request.user
+
+            # Save the one-time payment details to the database
+            PaymentRecord.objects.create(
+                user=user,
+                stripe_session_id=session_id,
+                product_name=product_name,
+                amount=session.amount_total / 100,  # Convert cents to currency
+                currency=session.currency,
+                status="paid"
+            )
+
+            print(f"User {user.email} purchased {product_name} with session ID {session_id}")
+
+        return render(request, 'payments/success.html', {'subscription': None, 'product_name': product_name})
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {e}", status=500)
+
+
+"""
+    There's a problem where if admincanceled subscription through stripe adminit will 
+    not update in the Django Database
+"""
+@csrf_exempt
+def stripe_webhook(request):
+    import logging
+    logger = logging.getLogger(__name__)
+
+    payload = request.body
+    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE', '')
+    endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        logger.info(f"Webhook received: {event['type']}")  # Log event type
+        logger.info(f"Webhook payload: {event}")  # Log full payload
+    except (ValueError, stripe.error.SignatureVerificationError) as e:
+        logger.error(f"Webhook signature verification failed: {str(e)}")
+        return JsonResponse({'error': 'Invalid webhook signature'}, status=400)
+    
+    if event['type'] == 'customer.subscription.updated':
+        subscription_data = event['data']['object']
+        stripe_subscription_id = subscription_data['id']
+        status = subscription_data['status']
+        logger.info(f"Subscription {stripe_subscription_id} status updated to {status}")
+
+        try:
+            subscription = Subscription.objects.get(stripe_subscription_id=stripe_subscription_id)
+            subscription.subscription_status = status
+            subscription.save()
+            logger.info(f"Subscription {stripe_subscription_id} updated in database")
+        except Subscription.DoesNotExist:
+            logger.warning(f"Subscription {stripe_subscription_id} does not exist in the database")
+
+    return JsonResponse({'status': 'success'}, status=200)
+
+def cancel_view(request):
+    return render(request, 'payments/cancel.html')  # Render a cancel page
+
+@login_required
+def cancel_subscription(request):
+    try:
+        # Fetch the user's subscription from the database
+        subscription = Subscription.objects.get(user=request.user)
+
+        if subscription.stripe_subscription_id:
+            # Use the Stripe API to cancel the subscription
+            stripe.Subscription.delete(subscription.stripe_subscription_id)
+
+            # Update the subscription status in the database
+            subscription.subscription_status = 'canceled'
+            subscription.save()
+
+            # Redirect to a page displaying success status
+            return render(request, 'payments/status_subscriptions.html', {
+                'message': "Tu suscripción ha sido cancelada exitosamente.",
+                'status': 'success'
+            })
+        else:
+            # Redirect to a page displaying error status
+            return render(request, 'payments/status_subscriptions.html', {
+                'message': "No se encontró una suscripción activa para este usuario.",
+                'status': 'error'
+            })
+    except Subscription.DoesNotExist:
+        return render(request, 'payments/status_subscriptions.html', {
+            'message': "La suscripción no existe.",
+            'status': 'error'
+        })
+    except Exception as e:
+        return render(request, 'payments/status_subscriptions.html', {
+            'message': f"Ocurrió un error: {e}",
+            'status': 'error'
+        })
 
 @login_required(login_url='/login/')  
 def index(request):
@@ -158,37 +327,144 @@ def activate(request, uidb64, token):
         user.is_active = True
         user.save()
 
-        # Log the user in
-        login(request, user)
+        # Specify the backend explicitly
+        backend = 'django.contrib.auth.backends.ModelBackend'
+        login(request, user, backend=backend)  # Provide the backend
 
         messages.success(request, 'Gracias por confirmar tu correo electrónico. Ya puedes iniciar sesión en tu cuenta.')
         return redirect('login')  # Redirect to the login page
     else:
         messages.error(request, 'El enlace de activación no es válido!')
-    return render(request, 'index.html')
+    return redirect('login')  # Redirect to the login page even if activation fails
+
 
 def activateEmail(request, user, to_email):
-    mail_subject = 'Activa tu cuenta de usuario.'
+    domain = get_current_site(request).domain
+    print(f"Domain fetched: {domain}")  # Add this for debugging
+
+    mail_subject = 'Activate your user account.'
     message = render_to_string('authentication/template_activate_account.html', {
         'user': user.username,
-        'domain': get_current_site(request).domain,
+        'domain': '127.0.0.1:7000',  # Overridden domain
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': account_activation_token.make_token(user),
-        'protocol': 'https' if request.is_secure() else 'http'
+        'protocol': 'http'  # Keep this as 'http' for local development
     })
     email = EmailMessage(mail_subject, message, to=[to_email])
     email.content_subtype = "html"
     if email.send():
-        messages.success(request, f'Estimado {user.username}, por favor revisa tu correo electrónico {to_email} y haz clic en el enlace de activación que has recibido para confirmar y completar el registro. Nota: Revisa tu carpeta de spam.')
+        messages.success(request, f'Dear {user.username}, please check your email {to_email} and click the activation link.')
     else:
-        messages.error(request, f'Hubo un problema al enviar el correo de confirmación a {to_email}, por favor verifica si lo ingresaste correctamente.')
+        messages.error(request, f'Problem sending confirmation email to {to_email}.')
+
 
 def check_email(request):
     return render(request, 'authentication/check_email.html')
 
-@login_required(login_url='/login/')  
+from django.utils.timezone import make_aware, now
+
+@login_required(login_url='/login/')
 def invoice(request):
-    return render(request, 'invoice.html')
+    try:
+        # Example context data
+        all_plans = [
+            {'id': 'weekly_access', 'name': 'Acceso por Una Semana', 'price': '$299 MXN / mes'},
+            {'id': 'basic_plan', 'name': 'Suscripción Básica', 'price': '$250 MXN / mes'},
+            {'id': 'pro_plan', 'name': 'Suscripción Estándar', 'price': '$350 MXN / mes'}
+        ]
+        
+        # Retrieve subscription details
+        subscription = Subscription.objects.filter(user=request.user).first()
+        
+        payments = []
+        card_details = None
+        cardholder_name = None
+        payment_interval = None
+        subscription_price = None
+
+        # Retrieve one-time payment records
+        one_time_payments = PaymentRecord.objects.filter(user=request.user).order_by('-created_at')
+
+        # English-to-Spanish mapping for intervals
+        interval_translation = {
+            "day": "Día",
+            "week": "Semana",
+            "month": "Mes",
+            "year": "Año",
+        }
+
+        if subscription and subscription.stripe_customer_id:
+            # Retrieve subscription details
+            stripe_subscription = stripe.Subscription.retrieve(subscription.stripe_subscription_id)
+            price_object = stripe_subscription['items']['data'][0]['price']  # Debug output
+            print("Price Object from Stripe:", price_object)  # Debug price object
+
+            subscription_price = price_object.get('unit_amount', 0) / 100  # Convert to currency
+            print("Extracted Price:", subscription_price)  # Debug extracted price
+            
+            # Fetch invoices for the customer
+            invoices = stripe.Invoice.list(customer=subscription.stripe_customer_id)
+            for invoice in invoices['data']:
+                payments.append({
+                    'date': make_aware(datetime.datetime.fromtimestamp(invoice['created'])),  # Make datetime timezone-aware
+                    'amount': invoice['amount_paid'] / 100,
+                    'status': invoice['status'],
+                    'type': 'subscription',  # Add type to differentiate subscription payments
+                })
+
+            # Fetch payment methods for the customer
+            payment_methods = stripe.PaymentMethod.list(
+                customer=subscription.stripe_customer_id,
+                type="card"
+            )
+            if payment_methods['data']:
+                card = payment_methods['data'][0]['card']
+                card_details = {
+                    'brand': card['brand'],
+                    'last4': card['last4'],
+                    'exp_month': card['exp_month'],
+                    'exp_year': card['exp_year'],
+                }
+
+            # Retrieve the customer details for the cardholder name
+            customer = stripe.Customer.retrieve(subscription.stripe_customer_id)
+            cardholder_name = customer.get('name', 'Nombre no disponible')
+
+            # Retrieve subscription details
+            stripe_subscription = stripe.Subscription.retrieve(subscription.stripe_subscription_id)
+            interval = stripe_subscription['items']['data'][0]['price']['recurring']['interval']  # e.g., "month", "week"
+            payment_interval = interval_translation.get(interval, interval)  # Translate to Spanish
+
+            # Retrieve price information
+            subscription_price = stripe_subscription['items']['data'][0]['price']['unit_amount'] / 100  # Convert cents to currency
+
+        # Add one-time payments to the combined list
+        for otp in one_time_payments:
+            payments.append({
+                'date': otp.created_at,
+                'amount': otp.amount,
+                'status': otp.status,
+                'type': 'one-time',  # Add type to differentiate one-time payments
+                'product_name': otp.product_name,  # Include product name for one-time payments
+            })
+
+        # Sort payments by date (newest first)
+        payments = sorted(payments, key=lambda x: x['date'], reverse=True)
+
+        return render(request, 'invoice.html', {
+            'subscription': subscription,  # Active subscription details
+            'payments': payments,  # Combined payment history
+            'one_time_payments': one_time_payments,  # List of one-time payments
+            'card_details': card_details,
+            'cardholder_name': cardholder_name,
+            'payment_interval': payment_interval,
+            'subscription_price': subscription_price,
+            'all_plans': all_plans,
+        })
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {e}", status=500)
+
+
 
 @login_required(login_url='/login/')  
 def contract_checklist_basis(request):
@@ -387,6 +663,9 @@ def generate_contract_pdf_full_doc(request, contract_id):
 
     return response
 
+
+from django.http import JsonResponse
+
 @login_required(login_url='/login/')
 def full_doc_ai_check(request, pk):
     contract = get_object_or_404(ContractProject, pk=pk)
@@ -394,3 +673,4 @@ def full_doc_ai_check(request, pk):
         'contract': contract,
     }
     return render(request, 'documents/full-doc-ai-check.html', context)
+
