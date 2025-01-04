@@ -626,17 +626,29 @@
     <div style="background: linear-gradient(67deg, rgba(154,44,227,1) 8%, rgba(81,160,224,1) 57%, rgba(25,238,203,1) 93%); border-bottom-left-radius: 40%; border-bottom-right-radius: 40%;">
         <nav class="navbar navbar-expand-lg navbar-transparent">
             <div class="container-fluid">
-                <a class="sidebar-brand" href="/">
+                <a class="sidebar-brand align-items-center d-flex" href="/">
                     <span style="font-size: larger; color: white">Justimex.</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        
+                    <ul class="navbar-nav mx-auto align-items-center justify-content-center text-center">
+                        <!-- Ensured all links are styled consistently -->
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#about" style="margin-bottom: -100%;">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#services" style="margin-bottom: -100%;">Services</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#services" style="margin-bottom: -100%;">Services</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#contact" style="margin-bottom: -10%;">Contact</a>
+                        </li>
                     </ul>
-                    <div class="d-flex">
+                    <div class="d-flex align-items-center">
                         <button class="btn btn-primary btn-glow" style="border-radius: 50px; background-color: #6382e0; border-color: #6382e0; color: white;">
                             Register
                         </button>
@@ -644,10 +656,10 @@
                 </div>
             </div>
         </nav>
-
+        
         <div class="center">
             <center>
-                <div class="icon-text-container">
+                <div class="icon-text-container" style="margin-top: 45px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-plus top-left-icon fade-left" viewBox="0 0 16 16">
                         <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
                     </svg>
@@ -659,6 +671,9 @@
                 <h3 style="color: white; margin-top: 15px;" class="Subheadline fade-up" id="typing-effect">
                     <!-- Selling description -->
                 </h3>
+                <div class="center">
+                    <button class="btn btn-primary fade-up" style="margin-top: 25px; border-radius: 50px; border: 2px solid blueviolet;"><u>Empieza Ahora</u> <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i></button>
+                </div>
                 <div class="gallery">
                     <div class="gallery-container">
                         <img class="gallery-item gallery-item-1 img-fluid" src="{% static 'img/photos/unsplash-1.jpg' %}" data-index="1">
@@ -741,11 +756,12 @@
                     <h3 class="pricing-cost"><s class="old-price">$350</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
                       </svg> $299 MXN</h3>
-                    <form action="{% url 'create_checkout_session' %}" method="post">
-                        {% csrf_token %}
+                    <form action="{% url 'signup' %}" method="get">
                         <input type="hidden" name="subscription_type" value="weekly_access">
                         <button type="submit" class="pricing-link">Comprar Pase Semanal</button>
                     </form>
+                    
+                    
                 </div>
             </div>
 
@@ -780,11 +796,11 @@
                     <h3 class="pricing-cost"><s class="old-price">$350</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
                       </svg> $250 MXN / mes</h3>
-                    <form action="{% url 'create_checkout_session' %}" method="post">
-                        {% csrf_token %}
+                    <form action="{% url 'signup' %}" method="get">
                         <input type="hidden" name="subscription_type" value="basic_plan">
-                        <button type="submit" class="pricing-link" style="text-decoration: none;">Suscribirse</button>
+                        <button type="submit" class="pricing-link">Subscribe to Basic Plan</button>
                     </form>
+                    
                     
                 </div>
             </div>
@@ -820,12 +836,12 @@
                     <h3 class="pricing-cost"><s class="old-price">$350</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
                       </svg> $350 MXN / mes</h3>
-                    <form action="{% url 'create_checkout_session' %}" method="post">
-                        {% csrf_token %}
+                    <form action="{% url 'signup' %}" method="get">
                         <input type="hidden" name="subscription_type" value="pro_plan">
-                        <button type="submit" class="pricing-link" style="text-decoration: none;">Suscribirse</button>
+                        <button type="submit" class="pricing-link">Suscribirse a Pro</button>
                     </form>
-                   
+                    
+                    
                 </div>
             </div>
         </section>

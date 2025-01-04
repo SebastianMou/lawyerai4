@@ -15,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 import requests
 from google.auth.transport import requests
 from django.utils.html import strip_tags
+from django.urls import reverse
 
 from io import BytesIO
 import re
@@ -37,18 +38,17 @@ def hero(request):
 
 def create_checkout_session(request):
     try:
-        user_email = request.user.email  # Get the email of the logged-in user
-        subscription_type = request.POST.get('subscription_type')  # Get the selected subscription type
-
+        subscription_type = request.POST.get('subscription_type') or request.GET.get('subscription_type')
+        user_email = request.user.email 
         # Map subscription_type to Stripe price IDs
         price_mapping = {
             "basic_plan": 'price_1QZ4yWIs3n8Cewzv25GnCP3z',  # Basic Subscription Price ID
             "pro_plan": 'price_1QbANhIs3n8CewzvcXYreVPM',    # Pro Subscription Price ID
             "weekly_access": 'price_1QbqpeIs3n8CewzvRaTup0Iz'  # One-Time Weekly Access Price ID
         }
-
         # Check if the subscription type is valid
         price_id = price_mapping.get(subscription_type)
+
         if not price_id:
             return HttpResponse("Invalid subscription type.", status=400)
 
@@ -73,7 +73,6 @@ def create_checkout_session(request):
         return redirect(session.url)
     except Exception as e:
         return HttpResponse(f"An error occurred: {e}")
-
 
 def success_view(request):
     session_id = request.GET.get('session_id')
@@ -282,6 +281,8 @@ def signup(request):
     # Redirect if the user is already authenticated
     if request.user.is_authenticated:
         return redirect('/')
+    
+    subscription_type = request.GET.get('subscription_type', None)
 
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -298,7 +299,7 @@ def signup(request):
                 user.save()
 
                 # Call your email activation function to handle the email verification process
-                activateEmail(request, user, email)
+                activateEmail(request, user, email, subscription_type)  
 
                 # Redirect to 'check_email' page instead of the homepage
                 return redirect('check_email')
@@ -323,6 +324,8 @@ def activate(request, uidb64, token):
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
 
+    subscription_type = request.GET.get('subscription_type')
+
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
@@ -331,14 +334,18 @@ def activate(request, uidb64, token):
         backend = 'django.contrib.auth.backends.ModelBackend'
         login(request, user, backend=backend)  # Provide the backend
 
+        # Redirect to Stripe checkout
+        if subscription_type:
+            return redirect(f"{reverse('create_checkout_session')}?subscription_type={subscription_type}")
+
         messages.success(request, 'Gracias por confirmar tu correo electrónico. Ya puedes iniciar sesión en tu cuenta.')
-        return redirect('login')  # Redirect to the login page
+        return redirect('index')  # Redirect to the login page
     else:
         messages.error(request, 'El enlace de activación no es válido!')
-    return redirect('login')  # Redirect to the login page even if activation fails
+    return redirect('index')  # Redirect to the login page even if activation fails
 
 
-def activateEmail(request, user, to_email):
+def activateEmail(request, user, to_email, subscription_type):
     domain = get_current_site(request).domain
     print(f"Domain fetched: {domain}")  # Add this for debugging
 
@@ -348,7 +355,8 @@ def activateEmail(request, user, to_email):
         'domain': '127.0.0.1:7000',  # Overridden domain
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': account_activation_token.make_token(user),
-        'protocol': 'http'  # Keep this as 'http' for local development
+        'protocol': 'http',
+        'subscription_type': subscription_type,
     })
     email = EmailMessage(mail_subject, message, to=[to_email])
     email.content_subtype = "html"
