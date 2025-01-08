@@ -51,6 +51,10 @@
 			overflow-y: auto;
 			border-radius: .25rem;
 		}
+		.sidebar-item::marker {
+			content: none;
+		}
+
     </style>
 </head>
 <!--
@@ -129,7 +133,7 @@
 					}
 				</style>
 				
-				<ul class="sidebar-nav">
+				<!-- <ul class="sidebar-nav">
 					<li class="sidebar-header">
 						Pages
 					</li>
@@ -144,13 +148,13 @@
 									<i class="fas fa-list-alt"></i> Todos los Diálogos
 								</a>
 							</li>
-							<!-- Properly using an UL for chat sessions -->
+							
 							<li id="list-wrapper-chats" style="padding-left: 38px;"></li>
 						</ul>
 					</li>
 					
-				</ul>
-				<script>
+				</ul> -->
+				<!-- <script>
 					document.addEventListener('DOMContentLoaded', function() {
 						function buildListChats() {
 							var wrapper = document.getElementById('list-wrapper-chats');
@@ -204,9 +208,9 @@
 				
 						buildListChats();
 					});
-					</script>
+					</script> -->
 																				
-					<li class="sidebar-item {% if request.resolver_match.url_name == 'contracts' %}active{% endif %}"">
+					<li style="margin-top: 20px;" class="sidebar-item {% if request.resolver_match.url_name == 'contracts' %}active{% endif %}"">
 						<a class="sidebar-link " href="{% url 'contracts' %}">
 							<i class="align-middle me-2 fas fa-fw fa-file-contract"></i> <span class="align-middle">Contratos</span>
 						</a>
@@ -218,12 +222,15 @@
 						</a>
 					</li>
 
-					<li class="sidebar-item {% if request.resolver_match.url_name == 'invoice' %}active{% endif %}"">
-						<a class="sidebar-link" href="{% url 'invoice' %}">
-							<i class="align-middle" data-feather="credit-card" style="color: #5784db;"></i> <span class="align-middle">Factura</span>
-						</a>
-					</li>
-
+					<!-- Factura Item Positioned at the Bottom -->
+					<div style="position: absolute; bottom: 0; width: 100%; margin-bottom: 15px;">
+						<li class="sidebar-item {% if request.resolver_match.url_name == 'invoice' %}active{% endif %}">
+							<a class="sidebar-link" href="{% url 'invoice' %}">
+								<i class="align-middle" data-feather="credit-card" style="color: #5784db;"></i>
+								<span class="align-middle">Factura</span>
+							</a>
+						</li>
+					</div>
 
 					<!-- <li class="sidebar-item">
 						<a href="#auth" data-bs-toggle="collapse" class="sidebar-link collapsed">

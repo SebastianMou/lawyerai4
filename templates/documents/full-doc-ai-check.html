@@ -150,42 +150,27 @@
 
     </div>
 
-    <div class="container-ai-checks">
+    <div class="container-ai-checks" data-contract-id="{{ contract.id }}">
         <div class="table-container" style="margin-bottom: 5px;">
             <h4>AI Check List</h4>
             <ul id="list-wrapper-ai" style="list-style: none; padding: 0; margin: 0;">
-                {% if latest_validation_result %}
-                    <li style="padding-bottom: 5px; cursor: pointer;" id="view-issues">
-                        {% if latest_validation_result.passed %}
-                            <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
-                                class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                            </svg> 
-                            <strong>Legal Check - Passed</strong>
-                        {% else %}
-                            <i class="align-middle me-2 far fa-fw fa-times-circle" style="color: red;"></i> 
-                            <strong>Legal Check - Failed</strong>
-                        {% endif %}
-                    </li>
-                {% endif %}
+                <!-- Dynamically display the newest ValidationResult -->
             </ul>
         </div>
     
-        {% if ai_check_completed %}
-            <button id="ai-check-btn" class="btn btn-outline-primary form-control" style="border-radius: 50px;">Run AI Check Again &rarr;</button>
-        {% endif %}
+        <button id="ai-check-btn" class="btn btn-outline-primary form-control" style="border-radius: 50px;">Run AI Check Again &rarr;</button>
     
         <div class="table-container" id="issues-container" style="margin-top: 5px; display: none;">
             <h4>Issues</h4>
-            <div id="issues-content"></div> 
-            <small id="issue-timestamp"></small> 
+            <div id="issues-content"></div>
+            <small id="issue-timestamp"></small>
         </div>
-        
     </div>
-
+    
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.3/marked.min.js" integrity="sha512-kZ9BCD8vqCw2vJ1XG3EVZN5M5aRNxxMK3+uYuZPWc+TtW2Z1zSgmFlTIVHYHaWH0bH2lp2dUlB/1+M1h+lvfeg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
     const baseUrl = "http://127.0.0.1:7000";
@@ -195,6 +180,147 @@
         const urlParts = window.location.pathname.split('/');
         return urlParts[urlParts.length - 2]; // Assuming the URL ends with /29/
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const contractId = document.querySelector(".container-ai-checks").getAttribute("data-contract-id");
+        const wrapper = document.getElementById("list-wrapper-ai");
+        const issuesContainer = document.getElementById("issues-container");
+        const issuesContent = document.getElementById("issues-content");
+        const issueTimestamp = document.getElementById("issue-timestamp");
+        const aiCheckButton = document.getElementById("ai-check-btn");
+        const csrftoken = getCookie("csrftoken");
+
+        // Fetch validation results and render the latest result
+        function fetchValidationResults() {
+            const url = `/api/contract/${contractId}/full-test-legality-check/`;
+
+            fetch(url)
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch validation results.");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log("Validation Results JSON Data:", data); // Log JSON data ALWAYS
+
+                    if (data.length > 0) {
+                        const latestResult = data[0]; // The newest result is the first object
+                        renderListItem(
+                            wrapper,
+                            `${latestResult.check_type} - ${latestResult.passed ? "Passed" : "Failed"}`,
+                            !latestResult.passed,
+                            latestResult.issues,
+                            latestResult.created_at
+                        );
+                    } else {
+                        wrapper.innerHTML = "<li>No validation results available.</li>";
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching validation results:", error);
+                });
+        }
+
+        // Render a single ValidationResult in the list
+        function renderListItem(wrapper, message, isFailed, issues = null, timestamp = null) {
+            wrapper.innerHTML = ""; // Clear previous results
+
+            const listItem = document.createElement("li");
+            listItem.style.paddingBottom = "5px";
+            listItem.style.cursor = "pointer";
+
+            if (!isFailed) {
+                listItem.innerHTML = `
+                    <svg style="color: green;" xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor"
+                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                    </svg>
+                    <strong>${message}</strong>
+                `;
+            } else {
+                listItem.innerHTML = `
+                    <i class="align-middle me-2 far fa-fw fa-times-circle" style="color: red;"></i>
+                    <strong>${message}</strong>
+                `;
+
+                listItem.addEventListener("click", () => {
+                    if (issues) {
+                        const formattedIssues = marked.parse(issues); // Use marked.js to format Markdown
+                        issuesContent.innerHTML = formattedIssues; // Render issues as HTML
+                        issueTimestamp.textContent = `Checked on: ${new Date(timestamp).toLocaleString()}`;
+                        issuesContainer.style.display = "block";
+                    } else {
+                        console.log("No issues found for this check.");
+                    }
+                });
+            }
+
+            wrapper.appendChild(listItem);
+        }
+
+        // Run AI Check Again
+        aiCheckButton.addEventListener("click", function () {
+            const url = `/api/contract/${contractId}/full-test-legality-check/`;
+
+            wrapper.innerHTML = ""; // Clear previous results
+            const loadingItem = document.createElement("li");
+            loadingItem.innerHTML = `
+                <div style="width: 19px; height: 19px;" class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div> Checking legality...
+            `;
+            wrapper.appendChild(loadingItem);
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken,
+                },
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Failed to run AI check.");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log("New Validation Result:", data); // Log JSON data ALWAYS
+                    renderListItem(
+                        wrapper,
+                        `${data.check_type} - ${data.passed ? "Passed" : "Failed"}`,
+                        !data.passed,
+                        data.issues,
+                        data.created_at
+                    );
+                })
+                .catch((error) => {
+                    console.error("Error running AI check:", error);
+                    wrapper.innerHTML = `<li>Error occurred ❗</li>`;
+                });
+        });
+
+        // Fetch and display validation results on page load
+        fetchValidationResults();
+    });
+
+    // Helper to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        const cookies = document.cookie.split(";");
+        cookies.forEach((cookie) => {
+            if (cookie.trim().startsWith(`${name}=`)) {
+                cookieValue = decodeURIComponent(cookie.trim().substring(name.length + 1));
+            }
+        });
+        return cookieValue;
+    }
+
+
+
+
+
 
     function BuildDocLayout() {
         var wrapper = document.getElementById('list-wrapper-chat');
@@ -376,9 +502,6 @@
             window.location.href = pdfUrl;
         });
     }
-
-
-
 
     BuildDocLayout()
 </script>

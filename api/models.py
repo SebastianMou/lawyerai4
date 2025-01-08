@@ -102,9 +102,8 @@ class ContractSteps(models.Model):
 
         super().save(*args, **kwargs)
 
-
 class ValidationResult(models.Model):
-    contract = models.ForeignKey('ContractSteps', on_delete=models.CASCADE, related_name='validation_results')
+    contract = models.ForeignKey('ContractSteps', on_delete=models.CASCADE, related_name='validation_results', null=True) # Allow null valuesblank=True  # Allow blank values in forms
     check_type = models.CharField(max_length=255)  # Type of check (e.g., "Legal Check", "Spelling Check")
     passed = models.BooleanField()  # Whether the check passed or failed
     issues = models.TextField(blank=True, null=True)  # Details of the issues if the check failed
@@ -112,6 +111,7 @@ class ValidationResult(models.Model):
 
     def __str__(self):
         return f"{self.check_type} - {'Passed' if self.passed else 'Failed'}"
+
 
 class Feedback(models.Model):
     FEEDBACK_TYPE_CHOICES = [

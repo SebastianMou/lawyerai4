@@ -130,7 +130,7 @@
 						Pages
 					</li>
 					
-					<li class="sidebar-item">
+					<!-- <li class="sidebar-item">
 						<a data-bs-toggle="collapse" href="#dashboards" class="sidebar-link" aria-expanded="true" aria-controls="dashboards">
 							<i class="align-middle me-2 far fa-fw fa-comment-dots"></i> <span class="align-middle">Diálogos</span>
 						</a>
@@ -140,7 +140,7 @@
 									<i class="fas fa-list-alt"></i> Todos los Diálogos
 								</a>
 							</li>
-							<!-- Properly using an UL for chat sessions -->
+
 							<li id="list-wrapper-chats" style="padding-left: 38px;"></li>
 						</ul>
 					</li>
@@ -199,26 +199,29 @@
 					
 							buildListChats();
 						});
-					</script>
+					</script> -->
                     
-					<li class="sidebar-item {% if request.resolver_match.url_name == 'contracts' %}active{% endif %}"">
+					<li style="margin-top: 20px;" class="sidebar-item {% if request.resolver_match.url_name == 'contracts' %}active{% endif %}"">
 						<a class="sidebar-link " href="{% url 'contracts' %}">
 							<i class="align-middle me-2 fas fa-fw fa-file-contract"></i> <span class="align-middle">Contratos</span>
 						</a>
 					</li>
 
-                    <li class="sidebar-item {% if request.resolver_match.url_name == 'contract_checklist_basis' %}active{% endif %}"">
+					<li class="sidebar-item {% if request.resolver_match.url_name == 'contract_checklist_basis' %}active{% endif %}"">
 						<a class="sidebar-link " href="{% url 'contract_checklist_basis' %}">
 							<i class="align-middle me-2 fas fa-fw fa-file-contract"></i> <span class="align-middle">Contract steps</span>
 						</a>
 					</li>
 
-					<li class="sidebar-item {% if request.resolver_match.url_name == 'invoice' %}active{% endif %}"">
-						<a class="sidebar-link" href="{% url 'invoice' %}">
-							<i class="align-middle" data-feather="credit-card" style="color: #5784db;"></i> <span class="align-middle">Factura</span>
-						</a>
-					</li>
-
+					<!-- Factura Item Positioned at the Bottom -->
+					<div style="position: absolute; bottom: 0; width: 100%; margin-bottom: 15px;">
+						<li class="sidebar-item {% if request.resolver_match.url_name == 'invoice' %}active{% endif %}">
+							<a class="sidebar-link" href="{% url 'invoice' %}">
+								<i class="align-middle" data-feather="credit-card" style="color: #5784db;"></i>
+								<span class="align-middle">Factura</span>
+							</a>
+						</li>
+					</div>
 
 					<!-- <li class="sidebar-item">
 						<a href="#auth" data-bs-toggle="collapse" class="sidebar-link collapsed">
@@ -657,6 +660,7 @@
                                     <input type="text" id="name" name="name" maxlength="100" class="form-control custom-input"
                                         placeholder="Introduzca el nombre del proyecto" value="{{ contract.name }}">
                                 </div>
+
                                 <!-- Button trigger modal -->
                                 <button type="button" class="btn btn-outline-secondary plantillas-icon-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" style="margin-top: 4px; margin-bottom: 4px; border-radius: 28px;">
                                     <i class="align-middle me-2 far fa-fw fa-file-alt plantillas-icon"></i>Plantillas
@@ -668,6 +672,10 @@
                                 <button class="full-btn-pdf btn btn-outline-danger" style="margin-top: 4px; margin-bottom: 4px; border-radius: 28px;" data-contract-id="{{ contract.id }}">
                                     <i class="far fa-file-pdf"></i> Generate PDF
                                 </button>
+
+                                <a href="{% url 'full_doc_ai_check' pk=contract.id %}" class="btn btn-primary" style="border-radius: 28px">
+                                    Go to Full Document AI Check
+                                </a>
                                 
                                 <div class="form-group">
                                     <textarea id="description" name="description" class="form-control" placeholder="Introduzca la descripción del proyecto" rows="10" data-contract-id="{{ contract.id }}">

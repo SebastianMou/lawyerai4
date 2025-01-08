@@ -25,6 +25,7 @@ urlpatterns = [
     path('generate-ai-text/', views.generate_ai_text, name='generate-ai-text'),
     path('contract-check-basis/<int:pk>/', views.contract_check_basis, name='contract-check-basis'),
     path('contract/<int:pk>/test-legality-check/', views.legality_check_view, name='legality-check-view'),
+    path('contract/<int:pk>/full-test-legality-check/', views.full_doc_ai_check_view, name='full-doc-ai-check-view'),
 
     path('contract-steps-project/', views.contract_steps_project, name='contract-steps-project'),
     path('contract-steps-project-detail/<int:pk>/', views.contract_steps_project_detail, name='contract-steps-project-detail'),

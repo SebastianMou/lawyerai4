@@ -1,653 +1,922 @@
-{% extends './base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<style>
-    html,
-    body {
-        height: 100%;
-        margin: 0;
-    }
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5">
+    <meta name="author" content="AdminKit">
+    <meta name="keywords"
+        content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
 
-    #chat-form {
-        position: fixed;
-        bottom: 0px;
-        right: 0px;
-        width: calc(100% - 290px);
-        /* Adjusting width based on sidebar (typically 250px) */
-        padding-right: 15px;
-        z-index: 1;
-        /* Ensure the chat form is below the sidebar */
-    }
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="shortcut icon" href="{% static 'img/icons/Anton Logo 1.png' %}" />
 
-    .input-group {
-        display: flex;
-        padding-bottom: 10px;
-    }
+    <link rel="canonical" href="https://demo.adminkit.io/" />
 
-    /* Styling the input and button with rounded corners */
-    .input-group .form-control {
-        border-top-left-radius: 15px;
-        border-bottom-left-radius: 15px;
-    }
+    <title>{% block title %}Justimex.{% endblock %}</title>
 
-    .input-group .btn {
-        border-top-right-radius: 15px;
-        border-bottom-right-radius: 15px;
-    }
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
-    /* Sidebar styling to ensure it sits above the form */
-    .sidebar {
-        z-index: 1000;
-        /* Set a higher z-index for the sidebar */
-    }
+    <link class="js-stylesheet" href="{% static 'css/light.css' %}?v=1" rel="stylesheet">
+    <link class="js-stylesheet" href="{% static 'css/hero.css' %}?v=1" rel="stylesheet">
 
-    /* When the screen width is 991px or less, make the form take up full width */
-    @media (max-width: 991px) {
-        #chat-form {
+</head>
+
+<body>
+    <style>
+        .gallery {
             width: 100%;
-            /* Make the form full width */
-            padding-right: 15px;
-            /* Remove padding */
-            padding-left: 15px;
-            /* Remove padding */
-        }
-    }
-
-    /* Style the textarea to look like an input */
-    .input-like {
-        resize: none;
-        height: 40px;
-        /* Fixed height to look like an input initially */
-        padding: 0.375rem 0.75rem;
-        /* Standard input padding */
-        border-radius: 0.25rem;
-        /* Rounded corners like an input */
-        border: 1px solid #ced4da;
-        /* Input border */
-        font-size: 1rem;
-        /* Match input font size */
-        line-height: 1.5;
-        /* Match input line height */
-        appearance: none;
-        /* Removes default textarea styling */
-        -webkit-appearance: none;
-        /* Removes default textarea styling in Webkit browsers */
-    }
-
-    /* Skeleton loading animation styles */
-    .ai-message.loading {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        font-weight: normal;
-        /* Remove bold for skeleton loading */
-        background-color: rgba(128, 128, 128, 0.089);
-        /* Slightly lighter background */
-        padding: 10px;
-        /* Maintain padding */
-        width: 100%;
-        /* Ensure container takes full width */
-        box-sizing: border-box;
-        /* Include padding in width calculations */
-    }
-
-    /* Skeleton line styles */
-    .skeleton-line {
-        width: 100%;
-        /* Make skeleton lines take full width */
-        max-width: calc(100% - 20px);
-        /* Reduce slightly to fit within padding */
-        height: 10px;
-        background-color: #e0e0e0;
-        position: relative;
-        overflow: hidden;
-        border-radius: 4px;
-    }
-
-    /* Shimmer effect for skeleton line */
-    .skeleton-line::before {
-        content: '';
-        display: block;
-        position: absolute;
-        top: 0;
-        left: -100%;
-        height: 100%;
-        width: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.152), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4), transparent);
-        animation: loadingAnimation 1.5s infinite;
-    }
-
-    /* Animation keyframes */
-    @keyframes loadingAnimation {
-        0% {
-            left: -100%;
         }
 
-        100% {
-            left: 100%;
-        }
-    }
-
-    /* CSS */
-    .badge-container {
-        position: fixed;
-        top: calc(50% + 100px); /* Adjust the vertical position as needed */
-        left: 56%; /* Center horizontally based on the width */
-        transform: translateX(-50%);
-        width: 50%; /* Example fixed width, adjust as needed */
-        overflow: hidden; /* Ensures that overflowing content is not visible */
-        white-space: nowrap; /* Keeps items in a single line */
-        padding: 10px 0; /* Optional: Adds vertical padding */
-        border-radius: 10px; /* Optional: Rounds the corners */
-    }
-
-    .badge-item {
-        padding: 2px 5px; /* Padding inside each badge */
-        margin: 0 10px; /* Horizontal space between badges */
-        border-radius: 28px; /* Rounded corners for badges */
-        display: inline-block; /* Allows items to sit inline */
-    }
-
-    .carousel-track {
-        display: flex;
-        animation: scroll 10s linear infinite; /* Speed of the scroll */
-    }
-
-    @keyframes scroll {
-        from {
-            transform: translateX(0);
-        }
-        to {
-            transform: translateX(calc(-100% / 2)); /* Scrolls half the total width to start repeat */
-        }
-    }
-
-    /* Style for the welcome message */
-    .welcome-container {
-        position: fixed;
-        top: 50%;
-        left: 56%; /* Increased from 50% to push it right */
-        transform: translate(-50%, -50%); /* Keeps it centered but can adjust translateX to move it more to the right */
-        text-align: center;
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        z-index: 10;
-        display: block; /* Ensure it's shown initially */
-    }
-
-    /* Additional style for the message box */
-    .welcome-message h2 {
-        margin: 0;
-        font-size: 1.5rem;
-    }
-
-    @media (max-width: 969px) {
-        /* Style for the welcome message */
-        .welcome-container {
-            position: fixed;
-            top: 50%;
-            left: 50%; /* Centered horizontally */
-            transform: translate(-50%, -50%); /* Adjust for center alignment */
-            width: 80%; /* Or any specific pixel width like 600px */
-            max-width: 960px; /* Optional: to prevent it from getting too wide on larger screens */
+        .gallery-container {
+            align-items: center;
+            display: flex;
+            height: 400px;
+            margin: 0 auto;
+            max-width: 1000px;
+            position: relative;
         }
 
-        /* CSS */
-        .badge-container {
-            position: fixed;
-            top: calc(56% + 100px); /* Adjust the vertical position as needed */
-            left: 50%; /* Center horizontally based on the width */
+        .gallery-item {
+            height: 200px;
+            opacity: 0;
+            position: absolute;
+            transition: all 1.0s ease-in-out;
+            /* Reduced duration for faster sliding */
+            width: 330px;
+            z-index: 0;
+            border-radius: 15px;
+            background-size: contain;
+        }
+
+        .gallery-item-1 {
+            left: 15%;
+            opacity: .4;
             transform: translateX(-50%);
-            width: 77%; /* Example fixed width, adjust as needed */
-            overflow: hidden; /* Ensures that overflowing content is not visible */
-            white-space: nowrap; /* Keeps items in a single line */
-            padding: 10px 0; /* Optional: Adds vertical padding */
-            border-radius: 10px; /* Optional: Rounds the corners */
         }
 
+        .gallery-item-2,
+        .gallery-item-4 {
+            height: 250px;
+            opacity: 0.8;
+            width: 388px;
+            z-index: 1;
+        }
 
-    }
+        .gallery-item-2 {
+            left: 30%;
+            transform: translateX(-50%);
+        }
 
-</style>
+        .gallery-item-3 {
+            box-shadow: -2px 5px 33px 6px rgba(0, 0, 0, 0.35);
+            height: 300px;
+            opacity: 1;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 430px;
+            z-index: 2;
+        }
 
-<div class="container-fluid d-flex flex-column chat-container">
-    <!-- Welcome message that will disappear after first message -->
-    <div id="welcome-message">
-        <div class="welcome-container" class="welcome-message">
-            <h2 id="welcome"></h2>
-            <p>Siente la libertad de contarme lo que está sucediendo o de hacer cualquier pregunta que tengas. Cuanto más sepa, mejor podré orientarte. Simplemente comienza a escribir abajo y te ayudaré a descubrir qué hacer a continuación.</p>
-        </div>
-        <!-- Carousel container -->
-        <div class="badge-container">
-            <div class="carousel-track">
-                <!-- Repeat your badges to create a long continuous strip, doubled for infinite effect -->
-                <span class="badge-item btn btn-outline-primary"><i class="fas fa-balance-scale"></i> Derecho familiar</span>
-                <span class="badge-item btn btn-outline-secondary"><i class="fas fa-gavel"></i> Derecho penal</span>
-                <span class="badge-item btn btn-outline-success"><i class="fas fa-briefcase"></i> Derecho laboral</span>
-                <span class="badge-item btn btn-outline-danger"><i class="fas fa-building"></i> Derecho comercial</span>
-                <span class="badge-item btn btn-outline-warning"><i class="fas fa-file-invoice-dollar"></i> Derecho tributario</span>
-                <span class="badge-item btn btn-outline-info"><i class="fas fa-home"></i> Derecho inmobiliario</span>
-                <span class="badge-item btn btn-outline-dark"><i class="fas fa-globe"></i> Derecho internacional</span>
-                <span class="badge-item btn btn-outline-primary"><i class="fas fa-university"></i> Derecho constitucional</span>
-                <!-- Repeat the sequence to ensure smooth cycling -->
-                <span class="badge-item btn btn-outline-secondary"><i class="fas fa-balance-scale"></i> Derecho familiar</span>
-                <span class="badge-item btn btn-outline-success"><i class="fas fa-gavel"></i> Derecho penal</span>
-                <span class="badge-item btn btn-outline-danger"><i class="fas fa-briefcase"></i> Derecho laboral</span>
-                <span class="badge-item btn btn-outline-warning"><i class="fas fa-building"></i> Derecho comercial</span>
-                <span class="badge-item btn btn-outline-info"><i class="fas fa-file-invoice-dollar"></i> Derecho tributario</span>
-                <span class="badge-item btn btn-outline-dark"><i the "fas fa-home"></i> Derecho inmobiliario</span>
-                <span class="badge-item btn btn-outline-primary"><i class="fas fa-globe"></i> Derecho internacional</span>
-                <span class="badge-item btn btn-outline-secondary"><i class="fas fa-university"></i> Derecho constitucional</span>
-            </div>
-        </div>
-    </div>  
+        .gallery-item-4 {
+            left: 70%;
+            transform: translateX(-50%);
+        }
 
-    <div id="list-wrapper-messages" class="list-wrapper-messages">
-        <!-- Messages will appear here -->
-    </div>
+        .gallery-item-5 {
+            left: 80%;
+            opacity: .4;
+            transform: translateX(-50%);
+        }
 
-    <form id="chat-form" class="mt-auto">
-        <div class="input-group">
-            <textarea class="form-control input-like" placeholder="¿Necesitas orientación legal? Describe tu problema o comparte tu historia aquí. Cuanto más sepa, más preciso puede ser mi consejo" id="chat-input" rows="1"></textarea>
-            <button class="btn btn-primary" type="submit"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </form>
-</div>
+        .gallery-controls-previous {
+            position: relative;
+        }
 
-<script>
-    var i = 0;
-    var txt = 'Bienvenido a Anton, tu guía legal personal!';
-    var speed = 30;
-    
-    function typeWriterWelcome() {
-      if (i < txt.length) {
-        document.getElementById("welcome").innerHTML += txt.charAt(i);
-        i++;
-        setTimeout(typeWriterWelcome, speed);  // Correct the function name here
-      }
-    }
-    
-    typeWriterWelcome();  // Ensure this is called after defining it
-</script>
+        .gallery-controls-previous::before {
+            border: solid #000;
+            border-width: 0 5px 5px 0;
+            content: '';
+            display: inline-block;
+            height: 5px;
+            left: -30px;
+            padding: 10px;
+            position: absolute;
+            top: 25%;
+            transform: rotate(135deg) translateY(-50%);
+            transition: left 0.15s ease-in-out;
+            width: 5px;
+        }
 
+        .gallery-controls-previous:hover::before {
+            left: -40px;
+        }
 
-<style>
-    .chat-container {
-        background-color: #f9f9f9;
-        padding: 20px;
-        border-radius: 10px;
-        height: 86vh;
-        display: flex;
-        flex-direction: column;
-    }
+        .gallery-controls-next {
+            position: relative;
+        }
 
-    .list-wrapper-messages {
-        flex-grow: 1;
-        overflow-y: auto;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        background-color: #fff;
-    }
+        .gallery-controls-next::before {
+            border: solid #000;
+            border-width: 0 5px 5px 0;
+            content: '';
+            display: inline-block;
+            height: 5px;
+            padding: 10px;
+            position: absolute;
+            right: -30px;
+            top: 45%;
+            transform: rotate(-45deg) translateY(-50%);
+            transition: right 0.15s ease-in-out;
+            width: 5px;
+        }
 
-    .user-message,
-    .ai-message {
-        background-color: rgba(128, 128, 128, 0.074);
-        margin-bottom: 10px;
-        padding: 10px;
-        border-radius: 10px;
-        max-width: 75%;
-        display: inline-block;
-    }
+        .gallery-controls-next:hover::before {
+            right: -40px;
+        }
 
-    .user-message {
-        background-color: #19222c;
-        text-align: left;
-        align-self: flex-end;
-        float: right;
-        clear: both;
-        color: white;
-    }
+        .gallery-nav {
+            bottom: -15px;
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            padding: 0;
+            position: absolute;
+            width: 100%;
+        }
 
-    .ai-message {
-        font-weight: bold;
-        text-align: left;
-        align-self: flex-start;
-        float: left;
-        clear: both;
-    }
+        .gallery-nav li {
+            background: #ccc;
+            border-radius: 50%;
+            height: 10px;
+            margin: 0 16px;
+            width: 10px;
+        }
 
-    /* Scrollbar customization */
-    .list-wrapper-messages::-webkit-scrollbar {
-        width: 8px;
-    }
+        .gallery-nav li.gallery-item-selected {
+            background: #555;
+        }
 
-    .list-wrapper-messages::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:wght@400;600&display=swap');
 
-    .list-wrapper-messages::-webkit-scrollbar-thumb {
-        background-color: #888;
-        border-radius: 10px;
-        border: 3px solid #f1f1f1;
-    }
+        .navbar-transparent {
+            background-color: transparent !important;
+            border: none !important;
+            /* Remove any borders */
+            box-shadow: none !important;
+            /* Remove shadow */
+        }
 
-    .list-wrapper-messages::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
+        .btn-glow {
+            position: relative;
+            animation: pulse 5s infinite; /* Pulsing by default */
+            transition: box-shadow 0.3s ease-in-out; /* Smooth transition for hover */
+        }
 
-    /* Optional: styling the send button */
-    .btn-primary {
-        border-radius: 0 10px 10px 0;
-    }
+        .btn-glow:hover {
+            animation: none; /* Stop pulsing when hovered */
+            box-shadow: 0 0 15px #6382e0, 0 0 25px #9a2ce3, 0 0 35px #6382e0; /* Persistent glow on hover */
+        }
 
-    /* Textarea styling */
-    textarea {
-        border-radius: 10px 0 0 10px;
-        resize: none;
-    }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 10px #9a2ce3, 0 0 20px #9a2ce3, 0 0 30px #9a2ce3;
+            }
 
-    .copy-button {
-        margin-left: 8px;
-        padding: 4px 8px;
-        font-size: 12px;
-        cursor: pointer;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-    }
+            50% {
+                box-shadow: 0 0 20px #3498db, 0 0 40px #3498db, 0 0 60px #3498db;
+            }
 
-    .copy-button:hover {
-        background-color: #0056b3;
-    }
-
-    .read-button {
-        margin-left: 8px;
-        padding: 4px 8px;
-        font-size: 12px;
-        cursor: pointer;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-    }
-
-    .read-button:hover {
-        background-color: #0056b3;
-    }
-</style>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.3/marked.min.js" integrity="sha512-kZ9BCD8vqCw2vJ1XG3EVZN5M5aRNxxMK3+uYuZPWc+TtW2Z1zSgmFlTIVHYHaWH0bH2lp2dUlB/1+M1h+lvfeg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-<script>
-const baseUrl = "http://127.0.0.1:7000";
-
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('chat-form');
-    const chatInput = document.getElementById('chat-input');
-    const messageWrapper = document.getElementById('list-wrapper-messages');
-    const welcomeMessage = document.getElementById('welcome-message');
-
-    let sessionId = null;  // Store the session ID after the first message
-    let isSpeaking = false;
-    let isGeneratingResponse = false;  // State variable to prevent multiple submissions
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+            100% {
+                box-shadow: 0 0 10px #9a2ce3, 0 0 20px #9a2ce3, 0 0 30px #9a2ce3;
             }
         }
-        return cookieValue;
-    }
 
-    const csrftoken = getCookie('csrftoken');
-
-    function loadChatHistory() {
-        if (sessionId !== null) {
-            fetch(`${baseUrl}/api/chatsessions/${sessionId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    messageWrapper.innerHTML = '';
-                    data.messages.forEach(message => {
-                        displayMessage(message.sender, message.content, message.id);
-                    });
-                    scrollToBottom();
-                })
-                .catch(error => console.error('Error fetching chat history:', error));
+        .ibm-plex-sans-semibold {
+            font-family: "IBM Plex Sans", sans-serif;
+            font-weight: 800;
+            color: white;
+            font-style: normal;
         }
-    }
 
-    function smoothScrollToBottom() {
-        setTimeout(() => {
-            messageWrapper.scrollTop = messageWrapper.scrollHeight;
-        }, 100); // Small delay for smoother transition
-    }
+        .Subheadline {
+            width: 50%;
+        }
 
-    function formatMessageContent(content) {
-        return marked.parse(content);
-    }
+        @media (min-width: 770px) {
+            .Subheadline {
+                width: 100%;
+            }
+        }
 
-    function displayMessage(sender, content, id) {
-        const formattedContent = formatMessageContent(content);
-        const uniqueId = `message-${id || Date.now()}`;
-        const messageHTML = `
-        <div class="${sender === 'user' ? 'user-message' : 'ai-message'}" id="${uniqueId}">
-            <div>
-                <span class="message-text-content" id="${uniqueId}-text">${formattedContent}</span>
-            </div>
-            ${sender === 'AI' ? `
-                <button onclick="copyToClipboard('${uniqueId}-text')" class="copy-button">
-                    <i class="align-middle me-2 far fa-fw fa-clipboard"></i>copiar
+        .icon-text-container {
+            position: relative;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .icon-text-container h1 {
+            position: relative;
+            color: white;
+            font-family: "IBM Plex Sans", sans-serif;
+        }
+
+        .top-left-icon,
+        .bottom-right-icon {
+            position: absolute;
+            width: 34px;
+            /* Adjust size */
+            height: 34px;
+            fill: #ffffff;
+            /* Icon color */
+        }
+
+        .top-left-icon {
+            top: -17px;
+            /* Adjust positioning */
+            left: -24px;
+        }
+
+        .bottom-right-icon {
+            bottom: -10px;
+            /* Adjust positioning */
+            right: -25px;
+        }
+
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
+
+
+        h1 {
+            text-align: center;
+        }
+
+        ul {
+            --col-gap: 2rem;
+            --row-gap: 2rem;
+            --line-w: 0.25rem;
+            display: grid;
+            grid-template-columns: var(--line-w) 1fr;
+            grid-auto-columns: max-content;
+            column-gap: var(--col-gap);
+            list-style: none;
+            width: min(60rem, 90%);
+            margin-inline: auto;
+        }
+
+        /* line */
+        ul::before {
+            content: "";
+            grid-column: 1;
+            grid-row: 1 / span 20;
+            background: rgb(225, 225, 225);
+            border-radius: calc(var(--line-w) / 2);
+        }
+
+        /* columns*/
+
+        /* row gaps */
+        ul li:not(:last-child) {
+            margin-bottom: var(--row-gap);
+        }
+
+        /* card */
+        ul li {
+            grid-column: 2;
+            --inlineP: 1.5rem;
+            margin-inline: var(--inlineP);
+            grid-row: span 2;
+            display: grid;
+            grid-template-rows: min-content min-content min-content;
+        }
+
+        /* date */
+        ul li .date {
+            --dateH: 3rem;
+            height: var(--dateH);
+            margin-inline: calc(var(--inlineP) * -1);
+
+            text-align: center;
+            background: rgb(25,238,203);
+            background: linear-gradient(67deg, rgba(25,238,203,1) 29%, rgba(154,44,227,1) 73%);
+
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+
+            display: grid;
+            place-content: center;
+            position: relative;
+
+            border-radius: calc(var(--dateH) / 2) 0 0 calc(var(--dateH) / 2);
+        }
+
+        /* date flap */
+        ul li .date::before {
+            content: "";
+            width: var(--inlineP);
+            aspect-ratio: 1;
+            background: var(--accent-color);
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2) 100%, transparent);
+            position: absolute;
+            top: 100%;
+
+            clip-path: polygon(0 0, 100% 0, 0 100%);
+            right: 0;
+        }
+
+        /* circle */
+        ul li .date::after {
+            content: "";
+            position: absolute;
+            width: 2rem;
+            aspect-ratio: 1;
+            background: var(--bgColor);
+            border: 0.3rem solid var(--accent-color);
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(50%, -50%);
+            right: calc(100% + var(--col-gap) + var(--line-w) / 2);
+        }
+
+        /* title descr */
+        ul li .title,
+        ul li .descr {
+            background: var(--bgColor);
+            position: relative;
+            padding-inline: 1.5rem;
+        }
+
+        ul li .title {
+            overflow: hidden;
+            padding-block-start: 1.5rem;
+            padding-block-end: 1rem;
+            font-weight: 500;
+        }
+
+        ul li .descr {
+            padding-block-end: 1.5rem;
+            font-weight: 300;
+        }
+
+        /* shadows */
+        ul li .title::before,
+        ul li .descr::before {
+            content: "";
+            position: absolute;
+            width: 90%;
+            height: 0.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            left: 50%;
+            border-radius: 50%;
+            filter: blur(4px);
+            transform: translate(-50%, 50%);
+        }
+
+        ul li .title::before {
+            bottom: calc(100% + 0.125rem);
+        }
+
+        ul li .descr::before {
+            z-index: -1;
+            bottom: 0.25rem;
+        }
+
+        @media (min-width: 40rem) {
+            ul {
+                grid-template-columns: 1fr var(--line-w) 1fr;
+            }
+
+            ul::before {
+                grid-column: 2;
+            }
+
+            ul li:nth-child(odd) {
+                grid-column: 1;
+            }
+
+            ul li:nth-child(even) {
+                grid-column: 3;
+            }
+
+            /* start second card */
+            ul li:nth-child(2) {
+                grid-row: 2/4;
+            }
+
+            ul li:nth-child(odd) .date::before {
+                clip-path: polygon(0 0, 100% 0, 100% 100%);
+                left: 0;
+            }
+
+            ul li:nth-child(odd) .date::after {
+                transform: translate(-50%, -50%);
+                left: calc(100% + var(--col-gap) + var(--line-w) / 2);
+            }
+
+            ul li:nth-child(odd) .date {
+                border-radius: 0 calc(var(--dateH) / 2) calc(var(--dateH) / 2) 0;
+            }
+        }
+
+        .credits {
+            margin-top: 1rem;
+            text-align: right;
+        }
+
+        .credits a {
+            color: var(--color);
+        }
+
+
+        #pricing-section {
+            margin-top: 20px;
+        }
+
+        .pricing-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 10px 0;
+        }
+
+        .pricing-box {
+            position: relative;
+            width: 320px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            /* Stack content vertically */
+            justify-content: space-between;
+            /* Distribute content */
+
+            justify-content: center;
+            align-items: center;
+            margin: 40px 30px;
+            transition: 0.5s;
+        }
+
+        .pricing-box::before {
+            content: ' ';
+            position: absolute;
+            top: 0;
+            left: 50px;
+            width: 50%;
+            height: 100%;
+            text-decoration: none;
+            background: #fff;
+            border-radius: 8px;
+            transform: skewX(15deg);
+            transition: 0.5s;
+        }
+
+        .pricing-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50;
+            width: 50%;
+            height: 100%;
+            background: #fff;
+            border-radius: 8px;
+            transform: skewX(15deg);
+            transition: 0.5s;
+            filter: blur(30px);
+        }
+
+        .pricing-box:hover::before,
+        .pricing-box:hover::after {
+            transform: skewX(0deg);
+            left: 20px;
+            width: calc(100% - 90px);
+        }
+
+        #basic-plan::before,
+        #basic-plan::after {
+            background: linear-gradient(315deg, #764def, #00D0FF);
+        }
+
+        #pro-plan::before,
+        #pro-plan::after {
+            background: linear-gradient(315deg, #03A9F4, #72F2EB);
+        }
+
+        #premium-plan::before,
+        #premium-plan::after {
+            background: linear-gradient(315deg, #5F4BB6, #28C76F);
+        }
+
+        .pricing-box span {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .pricing-content {
+            position: relative;
+            left: 0;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            z-index: 1;
+            color: #fff;
+            transition: 0.5s;
+        }
+
+        .pricing-content:hover {
+            left: -25px;
+            padding: 30px 20px;
+        }
+
+        .pricing-title {
+            font-size: 2em;
+            font-weight: bolder;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .pricing-link {
+            display: inline-block;
+            font-size: 1.1em;
+            color: white;
+            background-color: #6e85da;
+            padding: 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 5px;
+            border: 2px solid #6460f1;
+            border-radius: 50px;
+        }
+
+        .pricing-cost {
+            color: white;
+            font-weight: bolder;
+            margin-top: 10px;
+            font-size: 1.5rem;
+        }
+
+        .old-price {
+            color: red;
+            font-size: small;
+        }
+
+        .fade-up {
+            opacity: 0; /* Start invisible */
+            transform: translateY(30px); /* Start below the original position */
+            animation: fadeUp 1.5s ease-in-out forwards; /* Trigger animation */
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px); /* Starting point */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0); /* End at the original position */
+            }
+        }
+
+        .fade-left {
+            opacity: 0; /* Start invisible */
+            transform: translateX(160px); /* Start off-screen to the left */
+            animation: fadeInLeft 1.5s ease-in-out forwards; /* Animation on page load */
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(160px); /* Off-screen to the left */
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0); /* End at the original position */
+            }
+        }
+
+        .fade-right {
+            opacity: 0; /* Start invisible */
+            transform: translateX(-160px); /* Start off-screen to the right */
+            animation: fadeInRight 1.5s ease-in-out forwards; /* Animation on page load */
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(-160px); /* Off-screen to the right */
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0); /* End at the original position */
+            }
+        }
+
+    </style>
+    <div style="background: linear-gradient(67deg, rgba(154,44,227,1) 8%, rgba(81,160,224,1) 57%, rgba(25,238,203,1) 93%); border-bottom-left-radius: 40%; border-bottom-right-radius: 40%;">
+        <nav class="navbar navbar-expand-lg navbar-transparent">
+            <div class="container-fluid">
+                <a class="sidebar-brand align-items-center d-flex" href="/">
+                    <span style="font-size: larger; color: white">Justimex.</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
                 </button>
-                <button data-text-id="${uniqueId}-text" class="read-button">
-                    <span id="${uniqueId}-icon"><i style="color: white;" class="align-middle me-2 fas fa-volume-up"></i></span>Leer
-                </button>
-            ` : ''}
-        </div>
-        `;
-        messageWrapper.insertAdjacentHTML('beforeend', messageHTML);
-    }
-
-    function typeMessageEffect(elementId, formattedText, speed = 2) {
-        const element = document.getElementById(elementId);
-        element.innerHTML = ""; // Clear the element before starting typing effect
-
-        let index = 0;
-
-        function typeWriter() {
-            if (index < formattedText.length) {
-                element.innerHTML = formattedText.substring(0, index + 4); // Show text in chunks of 4 characters
-                index += 4;
-                setTimeout(typeWriter, speed);
-                smoothScrollToBottom();
-            } else {
-                smoothScrollToBottom(); // Final scroll after typing
-            }
-        }
-
-        typeWriter(); // Start typing effect
-    }
-
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        if (isGeneratingResponse) {
-            return; // Prevent submission while AI is generating a response
-        }
-
-        const userMessage = chatInput.value.trim();
-        if (!userMessage) return;
-
-        // Set the state to true to prevent further submissions
-        isGeneratingResponse = true;
-        chatInput.disabled = true; // Disable input to prevent further user input
-
-        // Hide the welcome message after the user inputs something
-        if (welcomeMessage) {
-            welcomeMessage.style.display = 'none';
-        }
-
-        let url;
-        if (sessionId === null) {
-            // Create a new session if not already created
-            url = `${baseUrl}/api/chatsessions/create/`;
-        } else {
-            // Use existing session
-            url = `${baseUrl}/api/chatsessions/${sessionId}/send_message/`;
-        }
-
-        const data = { message: userMessage };
-
-        // Display the user's message
-        const uniqueId = `user-message-${Date.now()}`;
-        const userMessageHTML = `
-        <div class="user-message" id="${uniqueId}">
-            <span class="message-text">${userMessage}</span>
-        </div>
-        `;
-        messageWrapper.insertAdjacentHTML('beforeend', userMessageHTML);
-        chatInput.value = '';
-        chatInput.style.height = 'auto';
-        chatInput.focus();
-        smoothScrollToBottom();
-
-        // Show loading skeleton for AI response
-        const loadingMessageId = `loading-message-${Date.now()}`;
-        const loadingMessageHTML = `
-        <div class="ai-message loading" id="${loadingMessageId}">
-            <span class="skeleton-line"></span>
-            <span class="skeleton-line"></span>
-            <span class="skeleton-line"></span>
-        </div>
-        `;
-        messageWrapper.insertAdjacentHTML('beforeend', loadingMessageHTML);
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (sessionId === null) {
-                sessionId = data.id;
-            }
-            document.getElementById(loadingMessageId).remove(); // Remove loading skeleton
-
-            // Display AI response with typing effect
-            const aiMessage = data.messages[data.messages.length - 1];
-            const aiContent = formatMessageContent(aiMessage.content);
-            const uniqueId = `ai-message-${Date.now()}`;
-            const aiMessageHTML = `
-                <div class="ai-message" id="${uniqueId}">
-                    <span class="message-text" id="${uniqueId}-text"></span>
-                    <div>
-                        <button onclick="copyToClipboard('${uniqueId}-text')" class="copy-button">
-                            <i class="align-middle me-2 far fa-fw fa-clipboard"></i>copiar
-                        </button>
-                        <button data-text-id="${uniqueId}-text" class="read-button">
-                            <span id="${uniqueId}-icon"><i style="color: white;" class="align-middle me-2 fas fa-volume-up"></i></span>Leer
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mx-auto align-items-center justify-content-center text-center">
+                        <!-- Ensured all links are styled consistently -->
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#about" style="margin-bottom: -100%;">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#services" style="margin-bottom: -100%;">Services</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#services" style="margin-bottom: -100%;">Services</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{% url 'contract_stepbystep' %}" style="margin-bottom: -10%;">Crear Contracto</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-primary btn-glow" style="border-radius: 50px; background-color: #6382e0; border-color: #6382e0; color: white;">
+                            Register
                         </button>
                     </div>
                 </div>
-            `;
-            messageWrapper.insertAdjacentHTML('beforeend', aiMessageHTML);
-            typeMessageEffect(`${uniqueId}-text`, aiContent); // Typing effect
+            </div>
+        </nav>
+        
+        <div class="center">
+            <center>
+                <div class="icon-text-container" style="margin-top: 45px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-plus top-left-icon fade-left" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                    </svg>
+                    <h3 class="ibm-plex-sans-semibold fade-up">Simplifica lo legal con la potencia de la IA</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-plus bottom-right-icon fade-right" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                    </svg>
+                </div>
+                <h3 style="color: white; margin-top: 15px;" class="Subheadline fade-up" id="typing-effect">
+                    <!-- Selling description -->
+                </h3>
+                <div class="center">
+                    <button class="btn btn-primary fade-up" style="margin-top: 25px; border-radius: 50px; border: 2px solid blueviolet;"><u>Empieza Ahora</u> <i class="align-middle me-2 fas fa-fw fa-arrow-right"></i></button>
+                </div>
+                <div class="gallery">
+                    <div class="gallery-container">
+                        <img class="gallery-item gallery-item-1 img-fluid" src="{% static 'img/photos/unsplash-1.jpg' %}" data-index="1">
+                        <img class="gallery-item gallery-item-2 img-fluid" src="{% static 'img/photos/unsplash-2.jpg' %}" data-index="2">
+                        <img class="gallery-item gallery-item-3 img-fluid" src="{% static 'img/photos/unsplash-3.jpg' %}" data-index="3">
+                        <img class="gallery-item gallery-item-4 img-fluid" src="{% static 'img/photos/unsplash-1.jpg' %}" data-index="4">
+                        <img class="gallery-item gallery-item-5 img-fluid" src="{% static 'img/photos/unsplash-2.jpg' %}" data-index="5">
+                        <img class="gallery-item gallery-item-6 img-fluid" src="{% static 'img/photos/unsplash-2.jpg' %}" data-index="6">
+                        <img class="gallery-item gallery-item-7 img-fluid" src="{% static 'img/flags/ae.png' %}" data-index="7">
+                    </div>
+                </div>
 
-            // Reset state and enable input
-            isGeneratingResponse = false;
-            chatInput.disabled = false;
-            chatInput.focus();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            document.getElementById(loadingMessageId).remove(); // Remove loading skeleton on error
+            </center>
+        </div>
+        <br><br><br><br><br><br><br>
+    </div>
+    <div class="container text-center">
+        <img style="width: 7%; height: auto; margin-top: 12px;" src="{% static 'img/icons/Anton Logo 1.png' %}" alt="">
 
-            // Reset state and enable input on error
-            isGeneratingResponse = false;
-            chatInput.disabled = false;
-            chatInput.focus();
+        <h1>UL timeline cards</h1>
+        <ul>
+            <li style="--accent-color:#41516C">
+                <div class="date">Legal Advice</div>
+                <!-- <div class="title">Title 1</div> -->
+                <!-- <div class="descr">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quas itaque hic quibusdam fugiat est numquam harum, accusamus suscipit consequatur laboriosam!</div> -->
+                <img class="img-fluid" style="border-radius: 10px; border: 2px solid #19eecb;" src="{% static 'img/photos/Screenshot 2024-12-05 112611.png' %}" alt="" srcset="">
+            </li>
+            <li style="--accent-color:#FBCA3E">
+                <div class="date">Legal Document Creation</div>
+                <img class="img-fluid" style="border-radius: 10px; border: 2px solid #19eecb;" src="{% static 'img/photos/Screenshot 2024-12-05 112611.png' %}" alt="" srcset="">
+            </li>
+            <li style="--accent-color:#E24A68">
+                <div class="date">Legal Document by steps</div>
+                <img class="img-fluid" style="border-radius: 10px; border: 2px solid #19eecb;" src="{% static 'img/photos/Screenshot 2024-12-05 112611.png' %}" alt="" srcset="">
+            </li>
+            <li style="--accent-color:#1B5F8C">
+                <div class="date">2017</div>
+                <img class="img-fluid" style="border-radius: 10px; border: 2px solid #19eecb;" src="{% static 'img/photos/Screenshot 2024-12-05 112611.png' %}" alt="" srcset="">
+            </li>
+            <li style="--accent-color:#4CADAD">
+                <div class="date">2022</div>
+                <img class="img-fluid" style="border-radius: 10px; border: 2px solid #19eecb;" src="{% static 'img/photos/Screenshot 2024-12-05 112611.png' %}" alt="" srcset="">
+            </li>
+        </ul>
+    </div>
+
+    <!-- Pricing Section -->
+    <div class="container-fluid" id="pricing-section" style="background-color: rgba(95, 95, 95, 0.094);">
+        <h1 class="text-center" style="padding-top: 12px; color: rgb(88, 88, 88); font-weight: bold;" id="pricing-header">Suscripciones</h1>
+        <section class="pricing-container">
+
+            <!-- Basic Plan -->
+            <div class="pricing-box" id="basic-plan">
+                <span></span>
+                <div class="pricing-content">
+                    <h3 class="pricing-title">Acceso por Una Semana</h3>
+                    <ol style="list-style: none; padding: 0; margin: 0;">
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                        </li>
+                    </ol>
+                    <h3 class="pricing-cost"><s class="old-price">$350</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                      </svg> $299 MXN</h3>
+                    <form action="{% url 'signup' %}" method="get">
+                        <input type="hidden" name="subscription_type" value="weekly_access">
+                        <button type="submit" class="pricing-link">Comprar Pase Semanal</button>
+                    </form>
+                    
+                    
+                </div>
+            </div>
+
+            <!-- Pro Plan -->
+            <div class="pricing-box" id="pro-plan">
+                <span></span>
+                <div class="pricing-content">
+                    <h3 class="pricing-title">Justimex Básica</h3>
+                    <ol style="list-style: none; padding: 0; margin: 0;">
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                        </li>
+                    </ol>
+                    <h3 class="pricing-cost"><s class="old-price">$350</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                      </svg> $250 MXN / mes</h3>
+                    <form action="{% url 'signup' %}" method="get">
+                        <input type="hidden" name="subscription_type" value="basic_plan">
+                        <button type="submit" class="pricing-link">Subscribe to Basic Plan</button>
+                    </form>
+                    
+                    
+                </div>
+            </div>
+
+            <div class="pricing-box" id="premium-plan">
+                <span></span>
+                <div class="pricing-content">
+
+                    <h3 class="pricing-title">Justimex Estándar</h3>
+                    <ol style="list-style: none; padding: 0; margin: 0;">
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                        </li>
+                        <li style="display: flex; align-items: center; margin: 0;">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                        </li>
+                    </ol>
+                    <h3 class="pricing-cost"><s class="old-price">$350</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                      </svg> $350 MXN / mes</h3>
+                    <form action="{% url 'signup' %}" method="get">
+                        <input type="hidden" name="subscription_type" value="pro_plan">
+                        <button type="submit" class="pricing-link">Suscribirse a Pro</button>
+                    </form>
+                    
+                    
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <section class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+            <div class="col-md-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+                    <svg class="bi" width="30" height="24">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+                <span class="text-muted">© 2024 Justimex, Inc</span>
+            </div>
+
+            <div>
+                <img class="img-fluid" style="width: 25px; height: auto;"
+                    src="{% static 'img/icons/Anton Logo 1.png' %}" alt="">
+            </div>
+
+            <ol class="nav col-md-4 justify-content-end list-unstyled d-flex">
+                <li class="ms-3">
+                    <a class="text-muted" href="">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-twitter-x" viewBox="0 0 16 16">
+                            <path
+                                d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" />
+                        </svg>
+                    </a>
+                </li>
+                <li class="ms-3">
+                    <a class="text-muted" href="">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-instagram" viewBox="0 0 16 16">
+                            <path
+                                d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334" />
+                        </svg>
+                    </a>
+                </li>
+                <li class="ms-3">
+                    <a class="text-muted" href="">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-facebook" viewBox="0 0 16 16">
+                            <path
+                                d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951" />
+                        </svg>
+                    </a>
+                </li>
+            </ol>
+        </footer>
+    </section>
+
+
+    <script src="{% static 'js/app.js' %}"></script>
+    <script src="{% static 'js/sliders.js' %}?v=1"></script>    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const text = "Crea contratos, verifica su validez y cumple con las leyes de México, todo en minutos.";
+            const typingContainer = document.getElementById("typing-effect");
+            let index = 0;
+
+            function typeEffect() {
+                if (index < text.length) {
+                    typingContainer.textContent += text[index];
+                    index++;
+                    setTimeout(typeEffect, 20); // Adjust the speed (50ms per character)
+                }
+            }
+
+            typeEffect();
         });
-    });
 
-    messageWrapper.addEventListener('click', function (event) {
-        if (event.target.closest('.read-button')) {
-            const button = event.target.closest('.read-button');
-            const elementId = button.getAttribute('data-text-id');
-            toggleReadAloud(elementId);
-        }
-    });
+    </script>
+</body>
 
-    window.copyToClipboard = function (elementId) {
-        const element = document.getElementById(elementId);
-        const htmlToCopy = element.innerHTML;
-
-        navigator.clipboard.write([
-            new ClipboardItem({
-                "text/html": new Blob([htmlToCopy], { type: "text/html" }),
-                "text/plain": new Blob([element.innerText], { type: "text/plain" })
-            })
-        ]).then(() => {
-            console.log("Rich text copied successfully!");
-        }).catch(error => console.error("Failed to copy text: ", error));
-    };
-
-    function toggleReadAloud(elementId) {
-        const iconElement = document.getElementById(`${elementId.replace('-text', '')}-icon`);
-
-        if (isSpeaking) {
-            window.speechSynthesis.cancel();
-            isSpeaking = false;
-            iconElement.innerHTML = '<i style="color: white;" class="align-middle me-2 fas fas fa-volume-up"></i>';
-        } else {
-            const textToRead = document.getElementById(elementId).innerText;
-            const speech = new SpeechSynthesisUtterance(textToRead);
-            speech.lang = 'es-ES';
-
-            iconElement.innerHTML = '<i class="align-middle me-2 far fa-fw fa-pause-circle"></i>';
-
-            speech.onend = () => {
-                isSpeaking = false;
-                iconElement.innerHTML = '<i style="color: white;" class="align-middle me-2 fas fas fa-volume-up"></i>';
-            };
-
-            window.speechSynthesis.speak(speech);
-            isSpeaking = true;
-        }
-    }
-
-    chatInput.style.maxHeight = '150px';
-
-    chatInput.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-        }
-    });
-
-    chatInput.addEventListener('input', function () {
-        this.style.height = 'auto';
-        this.style.height = `${this.scrollHeight}px`;
-    });
-
-    loadChatHistory();
-});
-
-</script>
-
-
-{% endblock %}
+</html>

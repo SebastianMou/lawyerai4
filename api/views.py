@@ -998,6 +998,116 @@ def legality_check_view(request, pk):
     except Exception as e:
         return Response({"error": str(e)}, status=500)
 
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def full_doc_ai_check_view(request, pk):
+    """
+    API endpoint to handle full document AI checks and fetch validation results.
+    """
+    if request.method == 'GET':
+        try:
+            # Fetch all validation results for the associated contract steps
+            contract_project = get_object_or_404(ContractProject, pk=pk)
+            validation_results = ValidationResult.objects.filter(contract=contract_project.contract_steps).order_by('-created_at')
+            
+            # Serialize the data
+            data = [
+                {
+                    "id": result.id,
+                    "check_type": result.check_type,
+                    "passed": result.passed,
+                    "issues": result.issues,
+                    "created_at": result.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                }
+                for result in validation_results
+            ]
+            return Response(data, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+    elif request.method == 'POST':
+        try:
+            validation_result = full_doc_ai_check_logic(pk)
+            serializer = ValidationResultSerializer(validation_result)
+            return Response(serializer.data, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+def full_doc_ai_check_logic(contract_id):
+    """
+    Perform AI full document check on the specified ContractProject and save the results.
+    """
+    try:
+        # Fetch the ContractProject
+        contract_project = get_object_or_404(ContractProject, id=contract_id)
+        contract_steps = contract_project.contract_steps  # Linked ContractSteps (may be None)
+
+        # Prepare contract text
+        if contract_steps:
+            contract_text = f"""
+                Title: {contract_steps.title}
+                Party One: {contract_steps.party_one_name} ({contract_steps.party_one_role})
+                Party Two: {contract_steps.party_two_name} ({contract_steps.party_two_role})
+                Effective Date: {contract_steps.effective_date}
+                Purpose: {contract_steps.purpose}
+                Obligations: {contract_steps.obligations}
+                Payment Terms: {contract_steps.payment_terms}
+                Duration: {contract_steps.duration}
+                Termination Clause: {contract_steps.termination_clause}
+                Confidentiality Clause: {contract_steps.confidentiality_clause}
+                Dispute Resolution: {contract_steps.dispute_resolution}
+                Penalties for Breach: {contract_steps.penalties_for_breach}
+                Notary Required: {contract_steps.notary_required}
+            """
+        else:
+            contract_text = f"""
+                Description: {contract_project.description}
+            """
+
+        # AI prompt
+        prompt = f"""
+            Analyze the following contract for completeness, clarity, and legal compliance with Mexican law.
+            Provide concise, actionable feedback and identify missing or unclear elements.
+
+            Contract:
+            {contract_text}
+        """
+
+        # Call OpenAI API
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a legal expert specializing in Mexican law."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=1000,
+            temperature=0.2,
+        )
+        ai_response = response.choices[0].message.content.strip()
+        passed = "no issues" in ai_response.lower()
+
+        # Create ValidationResult
+        validation_result = ValidationResult.objects.create(
+            contract=contract_steps,  # Can be None
+            check_type="Full Document Legal Check",
+            passed=passed,
+            issues=ai_response if not passed else None
+        )
+        contract_project.check_completed = True
+        contract_project.save()
+
+        return validation_result
+
+    except Exception as e:
+        validation_result = ValidationResult.objects.create(
+            contract=contract_steps,  # Can be None
+            check_type="Full Document Legal Check",
+            passed=False,
+            issues=f"Error during full document check: {str(e)}"
+        )
+        return validation_result
+
+
 @api_view(['POST'])
 def feed_back(request):
     serializer = FeedbackSerializer(data=request.data)

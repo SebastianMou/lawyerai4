@@ -8,8 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5">
     <meta name="author" content="AdminKit">
-    <meta name="keywords"
-        content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
+    <meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
 
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link rel="shortcut icon" href="{% static 'img/icons/Anton Logo 1.png' %}" />
@@ -621,7 +620,6 @@
                 transform: translateX(0); /* End at the original position */
             }
         }
-
     </style>
     <div style="background: linear-gradient(67deg, rgba(154,44,227,1) 8%, rgba(81,160,224,1) 57%, rgba(25,238,203,1) 93%); border-bottom-left-radius: 40%; border-bottom-right-radius: 40%;">
         <nav class="navbar navbar-expand-lg navbar-transparent">
@@ -645,7 +643,7 @@
                             <a class="nav-link text-white" href="#services" style="margin-bottom: -100%;">Services</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="#contact" style="margin-bottom: -10%;">Contact</a>
+                            <a class="nav-link text-white" href="{% url 'contract-stepbystep' %}" style="margin-bottom: -10%;">Contact</a>
                         </li>
                     </ul>
                     <div class="d-flex align-items-center">

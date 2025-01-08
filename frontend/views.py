@@ -7,7 +7,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.core.paginator import Paginator
@@ -33,6 +33,9 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 print(f"Stripe API key being used: {stripe.api_key}")
 
 # Create your views here.
+def index(request):
+    return render(request, 'index.html', {'stripe_public_key': settings.STRIPE_PUBLIC_KEY})
+
 def hero(request):
     return render(request, 'hero.html', {'stripe_public_key': settings.STRIPE_PUBLIC_KEY})
 
@@ -196,9 +199,6 @@ def cancel_subscription(request):
             'status': 'error'
         })
 
-@login_required(login_url='/login/')  
-def index(request):
-    return render(request, 'index.html')
 
 @login_required(login_url='/login/')  
 def chats(request):
@@ -671,14 +671,16 @@ def generate_contract_pdf_full_doc(request, contract_id):
 
     return response
 
-
-from django.http import JsonResponse
-
 @login_required(login_url='/login/')
 def full_doc_ai_check(request, pk):
     contract = get_object_or_404(ContractProject, pk=pk)
+    validation_results = ValidationResult.objects.filter(contract=contract.contract_steps).order_by('-created_at')
+    
     context = {
         'contract': contract,
+        'validation_results': validation_results,  # Pass all results to the template
+        'ai_check_completed': validation_results.exists(),
     }
     return render(request, 'documents/full-doc-ai-check.html', context)
+
 
