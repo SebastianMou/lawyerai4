@@ -275,7 +275,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)  # This logs out the user
-    return redirect('login')
+    return redirect('/')
 
 def signup(request):
     # Redirect if the user is already authenticated

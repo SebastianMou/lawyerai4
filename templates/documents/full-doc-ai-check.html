@@ -142,7 +142,9 @@
             <button class="full-btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
             <button class="full-btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
             <button class="full-btn-pdf btn btn-danger btn-sm" data-contract-id="{{ contract.id }}"><i class="far fa-file-pdf"></i></button>
-            <button class="btn-edit btn btn-success btn-sm" onclick="transferToProject({{ contract.id }})">edit document</button>
+            <a href="{% url 'contract' contract.pk %}">
+                <button class="btn-edit btn btn-success btn-sm">edit document</button>
+            </a>
         </div>
         <div class="document-data">
 

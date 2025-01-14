@@ -377,27 +377,27 @@ function sendMessage() {
         return; // Prevent sending a new message while another action is ongoing
     }
 
-    isPopupActive = true; 
+    isPopupActive = true;
 
     const contractProjectId = popup.getAttribute('data-contract-id');
-    const highlightedText = document.getElementById('highlightDisplay').textContent.trim() || '';  // Default to empty string if no highlight
+    const highlightedText = document.getElementById('highlightDisplay').textContent.trim() || ''; // Default to empty string if no highlight
     const instruction = textarea.value.trim();  // Trim user input to avoid empty space submission
+
 
     // Check if both fields are empty
     if (!highlightedText && !instruction) {
         console.log("Nothing to send, both highlighted text and instruction are empty.");
-        isPopupActive = false; 
+        isPopupActive = false;
         return;
     }
 
     // Append the user's message immediately to the chat history
     const chatHistoryContainer = document.getElementById('chatHistoryContainer');
     const userMessage = document.createElement('div');
-    userMessage.classList.add('message');  // Same structure as history
-    let highlightHTML = '';
-    if (highlightedText) {
-        highlightHTML = `<div><span class="highlight">${highlightedText}</span></div>`;
-    }
+    userMessage.classList.add('message'); // Same structure as history
+    let highlightHTML = highlightedText
+        ? `<div><span class="highlight">${highlightedText}</span></div>`
+        : '';
     userMessage.innerHTML = `
         <div class="chat-bubble user-bubble">
             ${highlightHTML}
@@ -416,17 +416,13 @@ function sendMessage() {
         </div>
     `;
     chatHistoryContainer.insertAdjacentHTML('beforeend', loadingMessageHTML);
-
-    // Scroll to the bottom to show the loading indicator
     chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
 
     // Clear the input field after sending the message
     textarea.value = '';
     textarea.style.height = 'auto'; // Reset height
-
-    // Clear the highlight display and hide template buttons after sending
-    document.getElementById('highlightDisplay').textContent = '';  // Clear highlighted text
-    document.querySelector('.template-buttons').style.display = 'none';  // Hide template buttons
+    document.getElementById('highlightDisplay').textContent = ''; // Clear highlighted text
+    document.querySelector('.template-buttons').style.display = 'none'; // Hide template buttons
 
     // Make the API call to submit the message
     fetch(`${baseUrl}/api/create-ai-chat-contract/${contractProjectId}/`, {
@@ -436,117 +432,131 @@ function sendMessage() {
             'X-CSRFToken': csrftoken,
         },
         body: JSON.stringify({
-            highlighted_text: highlightedText,  // This could be empty
-            instruction: instruction            // This will not be empty after the trim check
-        })
+            highlighted_text: highlightedText, // This could be empty
+            instruction: instruction, // This will not be empty after the trim check
+        }),
     })
-    .then(response => response.json())
-    .then(data => {
-        // Remove the loading message
-        document.getElementById(loadingMessageId).remove();
+        .then(response => response.json())
+        .then(data => {
+            // Check if the response is valid before proceeding
+            if (!data || !data.ai_response) {
+                console.error('Invalid AI response:', data);
+                throw new Error('Invalid AI response format.');
+            }
 
-        // Create a unique ID for this AI message
-        const uniqueId = `aiResponse_${data.id}_${Date.now()}`; // Use data.id and a timestamp to ensure uniqueness
+            // Remove the loading message
+            document.getElementById(loadingMessageId).remove();
 
-        // Parse the AI response into formatted HTML
-        const formattedResponse = marked.parse(data.ai_response);
+            // Generate a unique ID for this AI message
+            const uniqueId = `aiResponse_${Date.now()}`; // Use a timestamp to ensure uniqueness
 
-        // Create the AI message container
-        const aiMessage = document.createElement('div');
-        aiMessage.classList.add('message');  // Match the history structure
+            // Parse the AI response into formatted HTML
+            const formattedResponse = marked.parse(data.ai_response);
 
-        aiMessage.innerHTML = `
-            <div class="chat-bubble ai-bubble">
-                <div id="${uniqueId}"></div> <!-- Empty container for typing effect -->
-                <button class="copy-button btn btn-outline-light btn-sm" data-response-id="${uniqueId}" title="Copy AI response">
-                    <i class="align-middle me-2 far fa-fw fa-clipboard"></i>
-                </button>
-                <button class="read-button btn btn-outline-light btn-sm" data-response-id="${uniqueId}" title="Read AI response">
-                    <i class="fas fa-volume-up"></i>
-                </button>
-            </div>
-        `;
+            // Create the AI message container
+            const aiMessage = document.createElement('div');
+            aiMessage.classList.add('message'); // Match the history structure
 
-        // Append the AI message bubble to the chat history container
-        chatHistoryContainer.appendChild(aiMessage);
-
-        // Implement the typing effect with HTML content
-        let i = 0;
-        const responseElement = document.getElementById(uniqueId);  // Target the container with uniqueId
-        const speed = 5; // Typing speed in milliseconds
-
-        function typeWriter() {
-            // Use innerHTML to add progressively from formattedResponse's HTML content
-            responseElement.innerHTML = formattedResponse.slice(0, i);
-            i++;
-
-            // Scroll to the bottom with each new character
+            aiMessage.innerHTML = `
+                <div class="chat-bubble ai-bubble">
+                    <div id="${uniqueId}"></div> <!-- Empty container for typing effect -->
+                    <button class="copy-button btn btn-outline-light btn-sm" data-response-id="${uniqueId}" title="Copy AI response">
+                        <i class="align-middle me-2 far fa-fw fa-clipboard"></i>
+                    </button>
+                    <button class="read-button btn btn-outline-light btn-sm" data-response-id="${uniqueId}" title="Read AI response">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                </div>
+            `;
+            chatHistoryContainer.appendChild(aiMessage);
             chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
 
-            if (i <= formattedResponse.length) {
-                setTimeout(typeWriter, speed);
-            } else {
-                isPopupActive = false; // Reset state after the typing effect is complete
+            // Implement the typing effect with HTML content
+            let i = 0;
+            const responseElement = document.getElementById(uniqueId); // Target the container with uniqueId
+            const speed = 5; // Typing speed in milliseconds
+
+            function typeWriter() {
+                // Use innerHTML to add progressively from formattedResponse's HTML content
+                responseElement.innerHTML = formattedResponse.slice(0, i);
+                i++;
+
+                // Scroll to the bottom with each new character
+                chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
+
+                if (i <= formattedResponse.length) {
+                    setTimeout(typeWriter, speed);
+                } else {
+                    isPopupActive = false; // Reset state after the typing effect is complete
+                }
             }
-        }
 
-        typeWriter(); // Start the typing effect
+            typeWriter(); // Start the typing effect
 
-        // Add copy event listener to the new copy button
-        const copyButton = aiMessage.querySelector('.copy-button');
-        copyButton.addEventListener('click', function() {
-            const responseId = this.getAttribute('data-response-id');
-            const aiResponse = document.getElementById(responseId).innerHTML; // Use innerHTML for rich text
-
-            // Copy the AI response as rich text to the clipboard
-            navigator.clipboard.write([
-                new ClipboardItem({
-                    "text/html": new Blob([aiResponse], { type: "text/html" }),
-                    "text/plain": new Blob([document.getElementById(responseId).innerText], { type: "text/plain" })
-                })
-            ]).catch(err => {
-                console.error('Failed to copy AI response: ', err);
-            });
-        });
-
-        // Add read event listener to the new read button
-        const readButton = aiMessage.querySelector('.read-button');
-        let isSpeaking = false; // Track if the speech is currently playing
-
-        readButton.addEventListener('click', function() {
-            if (isSpeaking) {
-                // Stop the current speech
-                window.speechSynthesis.cancel();
-                isSpeaking = false;
-                readButton.innerHTML = '<i class="fas fa-volume-up"></i>'; // Change icon back to "Read"
-            } else {
+            // Add copy event listener to the new copy button
+            const copyButton = aiMessage.querySelector('.copy-button');
+            copyButton.addEventListener('click', function () {
                 const responseId = this.getAttribute('data-response-id');
-                const aiResponse = document.getElementById(responseId).textContent;
+                const aiResponse = document.getElementById(responseId).innerHTML; // Use innerHTML for rich text
 
-                // Use Web Speech API to read the text aloud in Spanish
-                const utterance = new SpeechSynthesisUtterance(aiResponse);
-                utterance.lang = 'es-ES'; // Set the language to Spanish (Spain), or use 'es-MX' for Mexican Spanish
-                
-                // Set an event listener to update the button once speech ends
-                utterance.onend = function() {
+                // Copy the AI response as rich text to the clipboard
+                navigator.clipboard
+                    .write([
+                        new ClipboardItem({
+                            'text/html': new Blob([aiResponse], { type: 'text/html' }),
+                            'text/plain': new Blob([document.getElementById(responseId).innerText], { type: 'text/plain' }),
+                        }),
+                    ])
+                    .catch(err => {
+                        console.error('Failed to copy AI response: ', err);
+                    });
+            });
+
+            // Add read event listener to the new read button
+            const readButton = aiMessage.querySelector('.read-button');
+            let isSpeaking = false; // Track if the speech is currently playing
+
+            readButton.addEventListener('click', function () {
+                if (isSpeaking) {
+                    // Stop the current speech
+                    window.speechSynthesis.cancel();
                     isSpeaking = false;
                     readButton.innerHTML = '<i class="fas fa-volume-up"></i>'; // Change icon back to "Read"
-                };
+                } else {
+                    const responseId = this.getAttribute('data-response-id');
+                    const aiResponse = document.getElementById(responseId).textContent;
 
-                window.speechSynthesis.speak(utterance);
-                isSpeaking = true;
-                readButton.innerHTML = '<i class="fas fa-stop"></i>'; // Change icon to "Stop"
-            }
+                    // Use Web Speech API to read the text aloud in Spanish
+                    const utterance = new SpeechSynthesisUtterance(aiResponse);
+                    utterance.lang = 'es-ES'; // Set the language to Spanish (Spain), or use 'es-MX' for Mexican Spanish
+
+                    // Set an event listener to update the button once speech ends
+                    utterance.onend = function () {
+                        isSpeaking = false;
+                        readButton.innerHTML = '<i class="fas fa-volume-up"></i>'; // Change icon back to "Read"
+                    };
+
+                    window.speechSynthesis.speak(utterance);
+                    isSpeaking = true;
+                    readButton.innerHTML = '<i class="fas fa-stop"></i>'; // Change icon to "Stop"
+                }
+            });
+
+            // Scroll to the bottom after receiving the AI's message
+            chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Display error to the user (optional)
+            const errorMessage = document.createElement('div');
+            errorMessage.classList.add('chat-bubble', 'error-bubble');
+            errorMessage.textContent = 'An error occurred. Please try again.';
+            chatHistoryContainer.appendChild(errorMessage);
+
+            isPopupActive = false; // Reset state on error
         });
-
-        // Scroll to the bottom after receiving the AI's message
-        chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        isPopupActive = false; // Reset state on error
-    });
 }
+
 
 // Function to auto-resize the textarea
 const textarea = document.getElementById('aiInput');

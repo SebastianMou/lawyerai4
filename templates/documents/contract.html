@@ -32,6 +32,7 @@
 	<!-- BEGIN SETTINGS -->
 	<!-- Remove this after purchasing -->
 	<link class="js-stylesheet" href="{% static 'css/light.css' %}?v=1" rel="stylesheet">
+	<link class="js-stylesheet" href="{% static 'css/contract.css' %}?v=1" rel="stylesheet">
     <!-- TinyMCE script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.1.2/tinymce.min.js" referrerpolicy="origin"></script>
     <script src="{% static 'js/templates.js' %}"></script>
@@ -279,25 +280,26 @@
                     .main-content {
                         flex-grow: 1;
                         transition: all 0.5s ease; /* Smooth transition when the side panel opens */
+                        margin-right: 0 !important;
                     }
 
                     /* Side Popup styling */
                     .side-popup {
-                        position: absolute;
-                        right: 0; /* Make it pop out from the right */
+                        position: relative;
+                        right: 0;
                         top: 0;
-                        height: 100%; /* Full height of the viewport */
+                        height: 100vh;
                         width: 0;
                         overflow-x: hidden;
-                        transition: width 0.5s ease; /* Smooth transition */
+                        transition: width 0.5s ease;
                         background-color: #f8f9fa;
                         box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
                         z-index: 1000;
                     }
 
-                    /* When the side panel is active, expand it */
+                    /* Expanded state */
                     .side-popup.active {
-                        width: 30%;
+                        width: 35%; /* Increase this value to make it wider */
                     }
 
                     /* Form styling inside the side popup */
@@ -651,7 +653,7 @@
                 </div>
 
                 <div class="main-container">
-                    <div class="main-content">
+                    <div class="main-content" style="margin-right: 0;">
                         <div class="list-wrapper-contract container">
                             <form id="contractProjectForm" method="post">
                                 {% csrf_token %}
@@ -676,7 +678,7 @@
                                 <a href="{% url 'full_doc_ai_check' pk=contract.id %}" class="btn btn-primary" style="border-radius: 28px">
                                     Go to Full Document AI Check
                                 </a>
-                                
+
                                 <div class="form-group">
                                     <textarea id="description" name="description" class="form-control" placeholder="Introduzca la descripción del proyecto" rows="10" data-contract-id="{{ contract.id }}">
                                         {{ contract.description|default_if_none:'' }}
@@ -692,9 +694,15 @@
                                         <li>
                                             <button type="submit" class="dropdown-item"><i style="color: gray;" class="align-middle me-2 far fa-fw fa-save"></i> Guardar</button>
                                         </li>
-                                        <li><a class="dropdown-item" id="downloadPdf" href="#">
-                                            <i style="color: gray;" class="align-middle me-2 far fa-fw fa-file-pdf"></i> Download PDF
-                                        </a></li>
+                                        <li>
+                                            <a class="dropdown-item" id="downloadPdf" href="#">
+                                                <i style="color: gray;" class="align-middle me-2 far fa-fw fa-file-pdf"></i> Download PDF
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <button type="submit" class="dropdown-item" id="openValidationResultButton"><i style="color: gray;" class="align-middle me-2 fas fa-fw fa-clipboard-check"></i> revisiones</button>
+                                        </li>
                                         
                                         <li>
                                             <button class="dropdown-item" id="openSubtaskPopup" data-contract-id="{{ contract.id }}">
@@ -709,11 +717,12 @@
                     <!-- Side Panel for AI chat -->
                     <div class="side-popup" id="createSubtaskPopup">
                         <div style="padding: 12px;" class="d-flex align-items-center">
-                            <h2 class="me-auto">Chat de IA</h2>
+                            <h4 class="me-auto">Chat de IA</h4>
                             <button type="button" class="btn btn-sm p-0" id="deleteChatButton" data-contract-id="{{ contract.id }}" aria-label="Delete" style="background: none; border: none; margin-right: 18px;">
-                                <i style="color: gray; font-size: 1.25rem;" class="far fa-trash-alt"></i>
+                                <i style="color: gray; width: 0.75rem; height: 0.75rem;" class="far fa-trash-alt"></i>
                             </button>
-                            <button type="button" class="btn-close me-2" id="closePopup" aria-label="Close"></button>
+                            <button type="button" class="btn-close" id="closePopup" aria-label="Close" style="width: 0.75rem; height: 0.75rem;"></button>
+                            
                         </div>
 
                         <!-- AI Interaction Section -->
@@ -2988,6 +2997,109 @@
 		</div>
 	</div>
 
+    <style>
+        .validation-result {
+            width: 400px;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .validation-result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #222e3c;
+            color: white;
+            cursor: move;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+
+        .close-button {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .close-button:hover {
+            background: #cc0000;
+        }
+            </style>
+
+    <div id="validationResult" class="validation-result">
+        <div id="validationResultHeader" class="validation-result-header">
+            <span>Resolución de la verificación legal de la IA.</span>
+            <button class="close-button" onclick="closeValidationResult()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="validation-result-content">
+            <div id="issuesContainer" class="overflow-auto" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; height: 380px; background-color: #f9f9f9;">
+                <!-- Issues will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const validationResult = document.getElementById("validationResult");
+        const validationResultHeader = document.getElementById("validationResultHeader");
+        const openValidationResultButton = document.getElementById("openValidationResultButton");
+
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+
+        validationResultHeader.addEventListener("mousedown", (e) => {
+            isDragging = true;
+            offsetX = e.clientX - validationResult.offsetLeft;
+            offsetY = e.clientY - validationResult.offsetTop;
+            document.addEventListener("mousemove", moveValidationResult);
+            document.addEventListener("mouseup", stopDragging);
+        });
+
+        function moveValidationResult(e) {
+            if (isDragging) {
+                validationResult.style.left = `${e.clientX - offsetX}px`;
+                validationResult.style.top = `${e.clientY - offsetY}px`;
+            }
+        }
+
+        function stopDragging() {
+            isDragging = false;
+            document.removeEventListener("mousemove", moveValidationResult);
+            document.removeEventListener("mouseup", stopDragging);
+        }
+
+        openValidationResultButton.addEventListener("click", () => {
+            if (validationResult.style.display === "block") {
+                validationResult.style.display = "none";
+                openValidationResultButton.textContent = "Open ValidationResult";
+            } else {
+                validationResult.style.display = "block";
+                openValidationResultButton.textContent = "Close ValidationResult";
+            }
+        });
+
+        function closeValidationResult() {
+            validationResult.style.display = "none";
+            openValidationResultButton.textContent = "Open ValidationResult";
+        }
+
+    </script>
+
+    <script src="script.js"></script>
+
+
 	<script src="{% static 'js/app.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.3/marked.min.js" integrity="sha512-kZ9BCD8vqCw2vJ1XG3EVZN5M5aRNxxMK3+uYuZPWc+TtW2Z1zSgmFlTIVHYHaWH0bH2lp2dUlB/1+M1h+lvfeg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{% static 'js/contract.js' %}?v=1"></script>
@@ -2997,6 +3109,46 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 	<script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParts = window.location.pathname.split('/');
+            const contractId = urlParts[urlParts.length - 2];
+
+            const apiUrl = `${baseUrl}/api/contract-detail/${contractId}/`;
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Contract Details:", data);
+
+                    // Find the newest ValidationResult
+                    const newestValidationResult = data.validation_results.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+
+                    if (newestValidationResult && newestValidationResult.issues) {
+                        console.log("Newest ValidationResult Issues:", newestValidationResult.issues);
+
+                        // Display the issues in an HTML element
+                        const issuesContainer = document.getElementById('issuesContainer');
+                        if (issuesContainer) {
+                            // Use marked.js to parse Markdown into HTML
+                            const formattedIssues = marked.parse(newestValidationResult.issues);
+                            issuesContainer.innerHTML = formattedIssues;
+                        }
+
+                    } else {
+                        console.log("No validation issues found.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching contract details:", error);
+                });
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             const copyButton = document.getElementById('copy-button'); // Ensure you have a button with this ID in your HTML
 

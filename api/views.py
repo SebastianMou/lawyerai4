@@ -15,6 +15,8 @@ import stripe
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework import status, pagination
+from django.db.models import Q
+from rapidfuzz.fuzz import ratio
 
 from .models import ContractProject, AIHighlightChat, ChatSession, Message, ContractSteps, ValidationResult, Subscription
 from .serializer import ContractProjectSerializer, AIHighlightChatSerializer, MessageSerializer, ChatSessionSerializer, FeedbackSerializer, ContractStepsSerializer, ValidationResultSerializer
@@ -73,9 +75,12 @@ def contract_project(request):
 
 @api_view(['GET'])
 def contract_project_detail(request, pk):
-    contracts = ContractProject.objects.get(id=pk)
-    serializer = ContractProjectSerializer(contracts, many=False)
-    return Response(serializer.data)
+    try:
+        contract_project = ContractProject.objects.get(id=pk)
+        serializer = ContractProjectSerializer(contract_project)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except ContractProject.DoesNotExist:
+        return Response({'error': 'Contract project not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 def contract_project_create(request):
@@ -118,6 +123,60 @@ def contract_project_delete(request, pk):
     contract.delete()
     return Response('Contract project deleted successfully :)')
 
+def should_include_validation(instruction, highlighted_text):
+    # Expanded list of Spanish keywords/phrases
+    relevant_keywords = [
+        "validación", "errores", "problemas", "fallos", "inconsistencias", 
+        "resultados de validación", "corrección", "comprobación", "detalles de validación", 
+        "verificación", "análisis", "revisión", "problemas detectados", "error",
+        "contrato", "cláusula", "condiciones", "documento", "redacción", 
+        "términos", "incumplimientos", "violaciones", "ajustes legales", 
+        "revisar contrato", "puntos del contrato", "modificaciones",
+        "mejorar", "corregir", "detectar", "resolver", "inspeccionar",
+        "ajustar", "rectificar", "buscar fallos", "optimizar texto", 
+        "evaluar", "arreglar", "detectar errores", "revisar errores",
+        "estructura", "formato", "deficiencias", "inexactitudes", 
+        "detalles incorrectos", "observaciones", "comentarios", 
+        "faltas", "discrepancias", "defectos", "incorrecciones",
+        "cumplimiento", "normas legales", "obligaciones", "acuerdos", 
+        "jurídico", "legalidad", "obligaciones legales", "incumplimiento", 
+        "sección", "apartado", "artículo", "párrafo", "cláusulas", 
+        "validacón", "arores", "vallidación", "prolemas", "revisón", 
+        "erorres", "validasión", "detallles", "revisar el contracto", 
+        "deteción", "detctar", "probleas", "comprobasion"
+    ]
+
+    # Combine instruction and highlighted text for comprehensive matching
+    combined_text = f"{instruction} {highlighted_text}".lower()
+
+    # Define a stricter similarity threshold for fuzzy matching
+    similarity_threshold = 90
+
+    # Check for exact matches or fuzzy matches
+    for keyword in relevant_keywords:
+        for word in combined_text.split():
+            # Debug log for keyword and word comparison
+            print(f"Checking keyword: '{keyword}' with word: '{word}'")
+
+            # Exact match: Match the whole word only
+            if keyword == word:
+                print(f"Exact match found: '{keyword}' matches '{word}'")
+                return True
+
+            # Skip fuzzy matching for short keywords
+            if len(keyword) < 5:
+                continue
+
+            # Fuzzy match: Check similarity score
+            match_ratio = ratio(keyword, word)
+            print(f"Fuzzy match ratio: {match_ratio} for '{keyword}' and '{word}'")
+            if match_ratio >= similarity_threshold:
+                print(f"Fuzzy match found: '{keyword}' matches '{word}' with ratio {match_ratio}")
+                return True
+
+    # No matches found
+    return False
+
 @api_view(['POST']) 
 def create_ai_chat_contract(request, contract_project_id):
     try:
@@ -125,12 +184,31 @@ def create_ai_chat_contract(request, contract_project_id):
         
         # Fetch the contract project and check for user input
         contract_project = ContractProject.objects.get(id=contract_project_id)
-        print(f"Contract Project ID: {contract_project_id}, User: {request.user}")
-
         user = request.user
         highlighted_text = request.data.get('highlighted_text', '').strip()
         instruction = request.data.get('instruction')
-        print(f"Highlighted Text: {highlighted_text}, Instruction: {instruction}")
+
+        # Fetch ValidationResult issues
+        validation_results = ValidationResult.objects.filter(
+            Q(contract_project=contract_project) | Q(contract=contract_project.contract_steps)
+        ).order_by('-created_at')  # Newest first
+
+        issues_text = ""
+        if validation_results.exists() and should_include_validation(instruction, highlighted_text):
+            latest_result = validation_results.first()
+            if latest_result.issues:
+                issues_text = latest_result.issues
+            print("ValidationResult issues included in the prompt.")
+        else:
+            print("No relevant ValidationResult issues included.")
+
+
+        # Build prompt with ValidationResult issues
+        context = (
+            f"The following issues were found in the contract: {issues_text}\n\n"
+            if issues_text else "No issues were found in the contract.\n\n"
+        )
+        prompt = f"{context}User instruction: {instruction or highlighted_text}"
 
         # Retrieve chat history
         chat_history = AIHighlightChat.objects.filter(
@@ -184,6 +262,13 @@ def create_ai_chat_contract(request, contract_project_id):
                 )
             }
         ]
+
+        if issues_text:
+            conversation_history.append({
+                "role": "system",
+                "content": f"The contract has the following issues: {issues_text}. "
+            })
+
         if summary_text:
             conversation_history.append({"role": "assistant", "content": f"Resumen de la conversación anterior: {summary_text}"})
             print("Added summary to conversation history.")
@@ -891,7 +976,6 @@ def generate_ai_text(request):
         print(f"Error generating AI text: {e}")
         return Response({"error": "Failed to generate AI text."}, status=500)
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def contract_check_basis(request, pk):
@@ -962,6 +1046,7 @@ def legality_check_ai(contract_id):
         # Save result to ValidationResult model
         validation_result = ValidationResult.objects.create(
             contract=contract,
+            contract_project=contract_project if not contract_steps else None,
             check_type="Legal Check",
             passed=passed,
             issues=ai_response if not passed else None  # Store issues if validation fails
@@ -976,6 +1061,7 @@ def legality_check_ai(contract_id):
         # Handle errors and save as a failed validation result
         validation_result = ValidationResult.objects.create(
             contract=contract,
+            contract_project=contract_project if contract_project else None,
             check_type="Legal Check",
             passed=False,
             issues=f"Error during legality check: {str(e)}"
@@ -1107,7 +1193,6 @@ def full_doc_ai_check_logic(contract_id):
         )
         return validation_result
 
-
 @api_view(['POST'])
 def feed_back(request):
     serializer = FeedbackSerializer(data=request.data)
@@ -1118,3 +1203,22 @@ def feed_back(request):
         print(serializer.errors)
         return Response(serializer.errors, status=400)
 
+@api_view(['GET'])
+def validation_results_detail(request, contract_steps_id):
+    try:
+        # Get ValidationResult objects linked to the specified ContractSteps ID
+        validation_results = ValidationResult.objects.filter(contract_id=contract_steps_id)
+        serializer = ValidationResultSerializer(validation_results, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def all_validation_results(request):
+    try:
+        # Fetch all ValidationResult objects
+        validation_results = ValidationResult.objects.all()
+        serializer = ValidationResultSerializer(validation_results, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import ContractProject, AIHighlightChat, ChatSession, Message, Feedback, ContractSteps, ValidationResult, Subscription
+from django.db.models import Q  # Import Q for queries
 
 class AIHighlightChatSerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,11 +9,20 @@ class AIHighlightChatSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ContractProjectSerializer(serializers.ModelSerializer):
-    ai_chats = AIHighlightChatSerializer(many=True, read_only=True)  # Add this line to include related AI chats
+    ai_chats = AIHighlightChatSerializer(many=True, read_only=True)
+    validation_results = serializers.SerializerMethodField()  # Add this method field
 
     class Meta:
         model = ContractProject
         fields = '__all__'
+
+    def get_validation_results(self, obj):
+        # Get validation results directly linked to the ContractProject or through ContractSteps
+        results = ValidationResult.objects.filter(
+            Q(contract=obj.contract_steps) | Q(contract_project=obj)
+        )
+        return ValidationResultSerializer(results, many=True).data
+
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:

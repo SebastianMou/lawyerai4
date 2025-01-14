@@ -43,6 +43,7 @@ pyphen==0.15.0
 python-bidi==0.6.3
 PyYAML==6.0.2
 qrcode==8.0
+RapidFuzz==3.11.0
 reportlab==4.2.5
 requests==2.32.3
 rsa==4.9

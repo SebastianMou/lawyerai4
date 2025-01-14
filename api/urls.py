@@ -31,6 +31,9 @@ urlpatterns = [
     path('contract-steps-project-detail/<int:pk>/', views.contract_steps_project_detail, name='contract-steps-project-detail'),
     path('contract-steps-project-update/<int:pk>/', views.contract_steps_project_update, name='contract-steps-project-update'),
     path('contract-steps-project-delete/<int:pk>/', views.contract_steps_project_delete, name='contract-steps-project-delete'),
+    
+    path('validation-results/<int:contract_steps_id>/', views.validation_results_detail, name='validation-results'),
+    path('validation-results/', views.all_validation_results, name='all-validation-results'),
 
     # Chat Session Lawyer URLs
     path('chatsessions/', views.list_chat_sessions, name='list_chat_sessions'),
