@@ -177,16 +177,72 @@ def should_include_validation(instruction, highlighted_text):
     # No matches found
     return False
 
+# Define the keyword for access
+ACCESS_KEYWORD = "analyze_contract"
+
+@csrf_exempt
+def ai_chat_view(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            user_input = data.get("prompt", "")
+            user_id = request.user.id  # Assuming user authentication is in place
+
+            # Check if the keyword is in the user input
+            if ACCESS_KEYWORD in user_input.lower():
+                # Fetch the ContractProject associated with the user
+                contract_project = ContractProject.objects.filter(user_id=user_id).first()
+                if contract_project:
+                    # Access and analyze the description
+                    description = contract_project.description
+                    analysis_result = analyze_description(description)
+                    return JsonResponse({"analysis": analysis_result})
+                else:
+                    return JsonResponse({"error": "No ContractProject found for this user."})
+            else:
+                return JsonResponse({"error": "Keyword not detected in the prompt."})
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format."}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=400)
+
+def analyze_description(description):
+    """
+    Analyzes the description field of the ContractProject model.
+    """
+    # Replace this with your AI analysis logic
+    return f"Analyzing the description: {description}"
+
+
 @api_view(['POST']) 
 def create_ai_chat_contract(request, contract_project_id):
     try:
-        print("Starting create_ai_chat_contract function...")
-        
         # Fetch the contract project and check for user input
         contract_project = ContractProject.objects.get(id=contract_project_id)
         user = request.user
         highlighted_text = request.data.get('highlighted_text', '').strip()
         instruction = request.data.get('instruction')
+
+        # Check for the ACCESS_KEYWORD in the instruction or highlighted text
+        if ACCESS_KEYWORD in instruction.lower() or ACCESS_KEYWORD in highlighted_text.lower():
+            description = contract_project.description
+            user_prompt = f"User asked: {instruction}\n\nDescription to analyze:\n\n{description}"
+            # Call OpenAI with the combined prompt
+            response = openai.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "Eres un asistente legal..."},
+                    {"role": "user", "content": user_prompt}
+                ],
+                max_tokens=500,
+                temperature=0.7
+            )
+            ai_response = response.choices[0].message.content.strip()
+            return JsonResponse({"ai_response": f"Keyword detected. {ai_response}"}, status=200)
+
 
         # Fetch ValidationResult issues
         validation_results = ValidationResult.objects.filter(
@@ -201,7 +257,6 @@ def create_ai_chat_contract(request, contract_project_id):
             print("ValidationResult issues included in the prompt.")
         else:
             print("No relevant ValidationResult issues included.")
-
 
         # Build prompt with ValidationResult issues
         context = (

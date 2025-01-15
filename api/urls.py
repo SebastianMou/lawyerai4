@@ -15,6 +15,7 @@ urlpatterns = [
     path('create-ai-chat-contract/<int:contract_project_id>/', views.create_ai_chat_contract, name='create-ai-chat-contract'),
     path('get-chat-history-contract/<int:contract_project_id>/', views.get_chat_history_contract, name='get-chat-history-contract'),
     path('delete-chat-history-contract/<int:contract_project_id>/', views.delete_chat_history_contract, name='delete-chat-history-contract'),
+    path('ai-chat/', views.ai_chat_view, name='ai-chat'),  
 
     path('search/', views.search_api, name='api_search'),
     path('feed-back/', views.feed_back, name='feed-back'),
