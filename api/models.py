@@ -93,8 +93,7 @@ class ContractSteps(models.Model):
         return self.title
     
     def save(self, *args, **kwargs):
-        text_fields = ['purpose', 'obligations', 'payment_terms', 'termination_clause', 
-                       'confidentiality_clause', 'dispute_resolution', 'penalties_for_breach', 'notarization']
+        text_fields = ['purpose', 'obligations', 'payment_terms', 'termination_clause', 'confidentiality_clause', 'dispute_resolution', 'penalties_for_breach', 'notarization']
         
         for field in text_fields:
             if getattr(self, field) is None:

@@ -143,7 +143,7 @@
             <button class="full-btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
             <button class="full-btn-pdf btn btn-danger btn-sm" data-contract-id="{{ contract.id }}"><i class="far fa-file-pdf"></i></button>
             <a href="{% url 'contract' contract.pk %}">
-                <button class="btn-edit btn btn-success btn-sm">edit document</button>
+                <button class="btn-edit btn btn-success btn-sm"><i class="align-middle far fa-fw fa-edit"></i> Editar contrato</button>
             </a>
         </div>
         <div class="document-data">
@@ -154,16 +154,16 @@
 
     <div class="container-ai-checks" data-contract-id="{{ contract.id }}">
         <div class="table-container" style="margin-bottom: 5px;">
-            <h4>AI Check List</h4>
+            <h4>Justimex Análisis</h4>
             <ul id="list-wrapper-ai" style="list-style: none; padding: 0; margin: 0;">
                 <!-- Dynamically display the newest ValidationResult -->
             </ul>
         </div>
     
-        <button id="ai-check-btn" class="btn btn-outline-primary form-control" style="border-radius: 50px;">Run AI Check Again &rarr;</button>
+        <button id="ai-check-btn" class="btn btn-outline-primary form-control" style="border-radius: 50px;">Repetir análisis de Justimex &rarr;</button>
     
         <div class="table-container" id="issues-container" style="margin-top: 5px; display: none;">
-            <h4>Issues</h4>
+            <h4>Asuntos</h4>
             <div id="issues-content"></div>
             <small id="issue-timestamp"></small>
         </div>
@@ -210,7 +210,7 @@
                         const latestResult = data[0]; // The newest result is the first object
                         renderListItem(
                             wrapper,
-                            `${latestResult.check_type} - ${latestResult.passed ? "Passed" : "Failed"}`,
+                            `${latestResult.check_type} - ${latestResult.passed ? "Aprobado" : "Rechazado"}`,
                             !latestResult.passed,
                             latestResult.issues,
                             latestResult.created_at
@@ -270,7 +270,7 @@
             loadingItem.innerHTML = `
                 <div style="width: 19px; height: 19px;" class="spinner-border" role="status">
                     <span class="visually-hidden">Loading...</span>
-                </div> Checking legality...
+                </div> Comprobando la legalidad...
             `;
             wrapper.appendChild(loadingItem);
 
@@ -291,7 +291,7 @@
                     console.log("New Validation Result:", data); // Log JSON data ALWAYS
                     renderListItem(
                         wrapper,
-                        `${data.check_type} - ${data.passed ? "Passed" : "Failed"}`,
+                        `${data.check_type} - ${data.passed ? "Aprobado" : "Rechazado"}`,
                         !data.passed,
                         data.issues,
                         data.created_at
@@ -318,11 +318,6 @@
         });
         return cookieValue;
     }
-
-
-
-
-
 
     function BuildDocLayout() {
         var wrapper = document.getElementById('list-wrapper-chat');

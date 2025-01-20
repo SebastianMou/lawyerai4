@@ -142,145 +142,141 @@
             <button class="full-btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
             <button class="full-btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
             <button class="full-btn-pdf btn btn-danger btn-sm" data-contract-id="{{ contract.id }}"><i class="far fa-file-pdf"></i></button>
-            <a href="{% url 'contract-step' contract.pk %}">
-                <button class="btn-edit btn btn-success btn-sm">edit page</button>
-            </a>
-            <button class="btn-edit btn btn-success btn-sm" onclick="transferToProject({{ contract.id }})">edit full document</button>
+            <button class="btn-edit btn btn-success btn-sm" onclick="transferToProject({{ contract.id }})"><i class="align-middle far fa-fw fa-edit"></i> Editar contrato</button>
         </div>
 
         <div class="section card-hover" id="">
-            <h1 id="contract-title">Loading...</h1>
-            <p><strong>Effective Date:</strong> <span id="effective-date">Loading...</span></p>
+            <h1 id="contract-title">Cargando...</h1>
+            <p><strong>Fecha de Vigencia:</strong> <span id="effective-date">Cargando...</span></p>
             <div class="section-buttons">
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
                 <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=1">
-                    Edit Parties Section
+                    <i class="align-middle far fa-fw fa-edit"></i> Editar sección del contrato
                  </a>
             </div>
         </div>
 
         <div class="section card-hover" id="parties-section">
-            <h2>Parties</h2>
-            <p><strong>Party One:</strong> <span id="party-one-name">Loading...</span> (<span id="party-one-role">Loading...</span>)</p>
-            <p><strong>Party Two:</strong> <span id="party-two-name">Loading...</span> (<span id="party-two-role">Loading...</span>)</p>
+            <h2>Partes</h2>
+            <p><strong>Parte Uno:</strong> <span id="party-one-name">Cargando...</span> (<span id="party-one-role">Cargando...</span>)</p>
+            <p><strong>Parte Dos:</strong> <span id="party-two-name">Cargando...</span> (<span id="party-two-role">Cargando...</span>)</p>
             <div class="section-buttons">
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
                 <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=2">
-                   Edit Parties Section
+                    <i class="align-middle far fa-fw fa-edit"></i> Editar sección del contrato
                 </a>
-                
             </div>
         </div>
 
         <div class="section card-hover" id="purpose-section">
-            <p id="contract-purpose">Loading...</p>
+            <p id="contract-purpose">Cargando...</p>
             <div class="section-buttons">
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
                 <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=5">
-                    Edit Parties Section
+                    <i class="align-middle far fa-fw fa-edit"></i> Editar sección del contrato
                  </a>
             </div>
         </div>
 
         <div class="section card-hover" id="obligations-section">
-            <p id="contract-obligations">Loading...</p>
+            <p id="contract-obligations">Cargando...</p>
             <div class="section-buttons">
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
                 <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=6">
-                    Edit Parties Section
+                    <i class="align-middle far fa-fw fa-edit"></i> Editar sección del contrato
                  </a>
             </div>
         </div>
 
         <div class="section card-hover" id="payment-terms-section">
-            <p id="contract-payment-terms">Loading...</p>
+            <p id="contract-payment-terms">Cargando...</p>
             <div class="section-buttons">
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
                 <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=7">
-                    Edit Parties Section
+                    <i class="align-middle far fa-fw fa-edit"></i> Editar sección del contrato
                  </a>
             </div>
         </div>
 
         <div class="section card-hover" id="duration-section">
-            <p id="contract-duration">Loading...</p>
+            <p id="contract-duration">Cargando...</p>
 
             <div class="section-buttons">
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
                 <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=8">
-                    Edit Parties Section
+                    <i class="align-middle far fa-fw fa-edit"></i> Editar sección del contrato
                 </a>
             </div>
         </div>
 
         <div class="section card-hover" id="termination-clause-section">
-            <p id="contract-termination-clause">Loading...</p>
+            <p id="contract-termination-clause">Cargando...</p>
             <div class="section-buttons">
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
                 <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=9">
-                    Edit Parties Section
+                    <i class="align-middle far fa-fw fa-edit"></i>Editar sección del contrato
                 </a>
             </div>
         </div>
 
         <div class="section card-hover" id="confidentiality-clause-section">
-            <p id="contract-confidentiality-clause">Loading...</p>
+            <p id="contract-confidentiality-clause">Cargando...</p>
             <div class="section-buttons">
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
                 <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=10">
-                    Edit Parties Section
+                    <i class="align-middle far fa-fw fa-edit"></i> Editar sección del contrato
                 </a>
             </div>
         </div>
 
         <div class="section card-hover" id="dispute-resolution-section">
-            <p id="contract-dispute-resolution">Loading...</p>
+            <p id="contract-dispute-resolution">Cargando...</p>
             <div class="section-buttons">
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
                 <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=11">
-                    Edit Parties Section
+                    <i class="align-middle far fa-fw fa-edit"></i> Editar sección del contrato
                 </a>
             </div>
         </div>
 
         <div class="section card-hover" id="penalties-for-breach">
-            <p id="contract-penalties-for-breach">Loading...</p>
+            <p id="contract-penalties-for-breach">Cargando...</p>
             <div class="section-buttons">
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
                 <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=12">
-                    Edit Parties Section
+                    <i class="align-middle far fa-fw fa-edit"></i> Editar sección del contrato
                 </a>
             </div>
         </div>
 
         <div class="section card-hover" id="notarization">
-            <p id="contract-notarization">Loading...</p>
+            <p id="contract-notarization">Cargando...</p>
             <div class="section-buttons">
                 <button class="btn-copy btn btn-primary btn-sm"><i class="far fa-clipboard"></i></button>
                 <button class="btn-read btn btn-primary btn-sm"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-pdf btn btn-danger btn-sm"><i class="far fa-file-pdf"></i></button>
-                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=12">
-                    Edit Parties Section
+                <a class="btn-edit btn btn-success btn-sm" href="{% url 'contract-step' contract.pk %}?step=13">
+                    <i class="align-middle far fa-fw fa-edit"></i> Editar sección del contrato
                 </a>
             </div>
         </div>
@@ -289,7 +285,7 @@
 
     <div class="container-ai-checks">
         <div class="table-container" style="margin-bottom: 5px;">
-            <h4>AI Check List</h4>
+            <h4>Justimex Análisis</h4>
             <ul id="list-wrapper-ai" style="list-style: none; padding: 0; margin: 0;">
                 {% if latest_validation_result %}
                     <li style="padding-bottom: 5px; cursor: pointer;" id="view-issues">
@@ -298,10 +294,10 @@
                                 class="bi bi-check-circle-fill" viewBox="0 0 16 16">
                                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
                             </svg> 
-                            <strong>Legal Check - Passed</strong>
+                            <strong>Revisión Legal - Aprobada</strong>
                         {% else %}
                             <i class="align-middle me-2 far fa-fw fa-times-circle" style="color: red;"></i> 
-                            <strong>Legal Check - Failed</strong>
+                            <strong>Revisión Legal - Rechazada</strong>
                         {% endif %}
                     </li>
                 {% endif %}
@@ -309,17 +305,16 @@
         </div>
     
         {% if ai_check_completed %}
-            <button id="ai-check-btn" class="btn btn-outline-primary form-control" style="border-radius: 50px;">Run AI Check Again &rarr;</button>
+            <button id="ai-check-btn" class="btn btn-outline-primary form-control" style="border-radius: 50px;">Repetir análisis de Justimex &rarr;</button>
         {% endif %}
     
         <div class="table-container" id="issues-container" style="margin-top: 5px; display: none;">
-            <h4>Issues</h4>
+            <h4>Asuntos</h4>
             <div id="issues-content"></div> 
             <small id="issue-timestamp"></small> 
         </div>
         
     </div>
-
 </div>
 
 <style>
@@ -392,6 +387,8 @@ function getCookie(name) {
 
 const csrftoken = getCookie('csrftoken');
 
+const baseUrl = "http://127.0.0.1:7000";
+
 document.addEventListener("DOMContentLoaded", function () {
     const contractContainer = document.querySelector(".containexr");
     const contractId = contractContainer.getAttribute("data-contract-id");
@@ -401,7 +398,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
-    fetch(`http://127.0.0.1:7000/api/contract-check-basis/${contractId}/`)
+    fetch(`${baseUrl}/api/contract-check-basis/${contractId}/`)
         .then(response => {
             if (!response.ok) {
                 throw new Error("Failed to fetch contract data");
@@ -631,7 +628,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-
     // Function to reset all icons to default
     function resetAllIcons() {
         document.querySelectorAll(".btn-read, .full-btn-read").forEach(button => {
@@ -734,11 +730,11 @@ window.addEventListener('DOMContentLoaded', function() {
         loadingItem.innerHTML = `
             <div style="width: 19px; height: 19px;" class="spinner-border" role="status">
                 <span class="visually-hidden">Loading...</span>
-            </div> Checking legality...
+            </div> Comprobando la legalidad...
         `;
         wrapper.appendChild(loadingItem);
 
-        const url = `http://127.0.0.1:7000/api/contract/${contractId}/test-legality-check/`; 
+        const url = `${baseUrl}/api/contract/${contractId}/test-legality-check/`; 
 
         fetch(url, {
             method: 'POST', 
@@ -752,9 +748,9 @@ window.addEventListener('DOMContentLoaded', function() {
         .then(function(data) {
             wrapper.innerHTML = ''; 
             if (data.passed) {
-                renderListItem(wrapper, 'Legal Check - Passed', true);
+                renderListItem(wrapper, 'Verificación Legal - Aprobada', true);
             } else {
-                renderListItem(wrapper, 'Legal Check - Failed', false, data.issues, data.created_at);
+                renderListItem(wrapper, 'Revisión Legal - Rechazada', false, data.issues, data.created_at);
             }
         })
         .catch(function(error) {
@@ -775,12 +771,12 @@ window.addEventListener('DOMContentLoaded', function() {
                     class="bi bi-check-circle-fill" viewBox="0 0 16 16">
                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
                 </svg> 
-                <strong>Legal Check - Passed</strong>
+                <strong>Verificación Legal - Aprobada</strong>
             `;
         } else {
             listItem.innerHTML = `
                 <i class="align-middle me-2 far fa-fw fa-times-circle" style="color: red;"></i> 
-                <strong>Legal Check - Failed</strong>
+                <strong>Revisión Legal - Rechazada</strong>
             `;
         }
 
@@ -831,19 +827,17 @@ window.addEventListener('DOMContentLoaded', function() {
 function transferToProject(contractId) {
     console.log("Contract ID:", contractId);
 
-    // Define the API URL
-    const url = `http://127.0.0.1:7000/api/contract/transfer/${contractId}/`;
+    const url = `${baseUrl}/api/contract/transfer/${contractId}/`;
 
-    // Make the API request
     fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,  // Add CSRF token header
+            'X-CSRFToken': csrftoken, 
         },
     })
     .then(response => {
-        console.log("Response status:", response.status);  // Debugging
+        console.log("Response status:", response.status);  
         if (!response.ok) {
             if (response.status === 403) {
                 alert('You do not have permission to perform this action. Please check your login status.');
@@ -860,7 +854,7 @@ function transferToProject(contractId) {
         return response.json();
     })
     .then(data => {
-        console.log("Response data:", data);  // Debugging
+        console.log("Response data:", data);  
         if (data.contract_project_id) {
             // Redirect to the contract project editing page
             window.location.href = `/contract/${data.contract_project_id}/`;
@@ -874,8 +868,5 @@ function transferToProject(contractId) {
         alert('An error occurred while transferring the contract. Please try again.');
     });
 }
-
-
-
 </script>
 {% endblock %}

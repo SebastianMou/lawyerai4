@@ -67,7 +67,7 @@
 						<sup style="margin-right: 7px;">
 							<img style="width: 37px; height: auto;" src="{% static 'img/icons/Anton Logo 1.png' %}" alt="">
 						</sup>
-						<span style="font-size: larger;">Anton.</span>
+						<span style="font-size: larger;">Justimex.</span>
 					</span>
 					<svg class="sidebar-brand-icon align-middle" width="32px" height="32px" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5"
 						stroke-linecap="square" stroke-linejoin="miter" color="#FFFFFF" style="margin-left: -3px">
@@ -443,22 +443,6 @@
                         z-index: 1000;
                     }
 
-                    .plantillas-icon-btn .plantillas-icon {
-                        color: gray;
-                    }
-
-                    .plantillas-icon-btn:hover .plantillas-icon {
-                        color: white;
-                    }
-
-                    .copy-icon-btn .copy-icon {
-                        color: rgba(0, 0, 255, 0.567);
-                    }
-
-                    .copy-icon-btn:hover .copy-icon {
-                        color: white;
-                    }
-
                     .pdf-icon {
                         color: red;
                     }
@@ -526,11 +510,11 @@
                     }
 
                     .highlight {
-                        background-color: yellow; /* Highlight background color */
-                        font-weight: bold;        /* Make text bold (optional) */
-                        padding: 2px 4px;         /* Add some padding around the text */
-                        border-radius: 5px;       /* Optional: round the corners for a smoother look */
-                        color: black;             /* Set text color */
+                        background-color: yellow; 
+                        font-weight: bold;        
+                        padding: 2px 4px;         
+                        border-radius: 5px;       
+                        color: black;             
                     }
 
                     /* Make the right side of the modal a scroll area */
@@ -541,34 +525,34 @@
 
                     /* Cards should take up most of the space, leaving some room on the right */
                     .card-container {
-                        flex: 0.9; /* Take up 90% of the modal width */
-                        overflow: auto; /* Enable scrolling inside the card if needed */
+                        flex: 0.9; 
+                        overflow: auto; 
                     }
 
                     /* Scroll area on the right */
                     .scroll-area {
-                        flex: 0.1; /* This leaves 10% of the modal width for scrolling */
-                        background-color: #f1f1f1; /* A subtle background to indicate the scroll area */
-                        cursor: pointer; /* Make it clear that this area can be interacted with */
-                        border-left: 2px dashed #ccc; /* Optional: Add a border to further highlight the scroll area */
-                        position: relative; /* Position relative to contain the icon */
+                        flex: 0.1; 
+                        background-color: #f1f1f1; 
+                        cursor: pointer; 
+                        border-left: 2px dashed #ccc; 
+                        position: relative;
                         border-radius: 15px;
                     }
 
                     /* Make the icon stay fixed and always visible */
                     .scroll-area i {
                         position: fixed;
-                        right: 10px; /* Place it near the right edge */
-                        top: 20px; /* Place it at the top of the modal, adjust as needed */
-                        font-size: 24px; /* Adjust the size as needed */
+                        right: 10px; 
+                        top: 20px; 
+                        font-size: 24px;
                         transition: color 0.2s ease;
                     }
 
                     .alert {
-                        border-radius: 0.25rem !important; /* Enforce rounded corners */
-                        padding: 0.75rem 1.25rem !important; /* Ensure padding is correct */
-                        color: #856404 !important; /* Ensure the text color matches warning alerts */
-                        border: 1px solid #ffeeba !important; /* Ensure border color */
+                        border-radius: 0.25rem !important; 
+                        padding: 0.75rem 1.25rem !important; 
+                        color: #856404 !important; 
+                        border: 1px solid #ffeeba !important;
                     }
 
                     .copy-button {
@@ -644,7 +628,40 @@
                             left: 100%;
                         }
                     }
+                    
+                    /* Thinking Animation */
+                    .thinking-animation {
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                    }
 
+                    .thinking-animation .dot {
+                        width: 8px;
+                        height: 8px;
+                        background-color: #007bff; 
+                        border-radius: 50%;
+                        animation: thinking 1.5s infinite ease-in-out;
+                    }
+
+                    .thinking-animation .dot:nth-child(1) {
+                        animation-delay: 0s;
+                    }
+                    .thinking-animation .dot:nth-child(2) {
+                        animation-delay: 0.2s;
+                    }
+                    .thinking-animation .dot:nth-child(3) {
+                        animation-delay: 0.4s;
+                    }
+
+                    @keyframes thinking {
+                        0%, 80%, 100% {
+                            transform: scale(0);
+                        }
+                        40% {
+                            transform: scale(1);
+                        }
+                    }
                 </style>
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
                     <i style="padding: 5px; margin-right: 9%px;" class="fas fa-exclamation-triangle"></i>
@@ -663,20 +680,27 @@
                                         placeholder="Introduzca el nombre del proyecto" value="{{ contract.name }}">
                                 </div>
 
+                                <button class="btn btn-success">
+                                    <i style="color: white;" class="align-middle me-2 far fa-fw fa-save"></i> Guardar
+                                </button>
+
                                 <!-- Button trigger modal -->
-                                <button type="button" class="btn btn-outline-secondary plantillas-icon-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" style="margin-top: 4px; margin-bottom: 4px; border-radius: 28px;">
+                                <button type="button" class="btn btn-secondary plantillas-icon-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" style="margin-top: 4px; margin-bottom: 4px;">
                                     <i class="align-middle me-2 far fa-fw fa-file-alt plantillas-icon"></i>Plantillas
                                 </button>
-                                <button class="btn btn-outline-primary copy-icon-btn" style="margin-top: 4px; margin-bottom: 4px; border-radius: 28px;" id="copy-button">
+
+                                <button class="btn btn-primary copy-icon-btn" style="margin-top: 4px; margin-bottom: 4px;" id="copy-button">
                                     <i class="align-middle me-2 far fa-fw fa-clipboard copy-icon"></i>Copiar Doc
                                 </button>
 
-                                <button class="full-btn-pdf btn btn-outline-danger" style="margin-top: 4px; margin-bottom: 4px; border-radius: 28px;" data-contract-id="{{ contract.id }}">
-                                    <i class="far fa-file-pdf"></i> Generate PDF
+                                <button class="full-btn-pdf btn btn-danger" style="margin-top: 4px; margin-bottom: 4px;" data-contract-id="{{ contract.id }}">
+                                    <i class="far fa-file-pdf"></i> Generar PDF
                                 </button>
 
-                                <a href="{% url 'full_doc_ai_check' pk=contract.id %}" class="btn btn-primary" style="border-radius: 28px">
-                                    Go to Full Document AI Check
+                                <a href="{% url 'full_doc_ai_check' pk=contract.id %}" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Análisis completo del documento con IA">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                                        <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                                      </svg> IA
                                 </a>
 
                                 <div class="form-group">
@@ -696,7 +720,7 @@
                                         </li>
                                         <li>
                                             <a class="dropdown-item" id="downloadPdf" href="#">
-                                                <i style="color: gray;" class="align-middle me-2 far fa-fw fa-file-pdf"></i> Download PDF
+                                                <i style="color: gray;" class="align-middle me-2 far fa-fw fa-file-pdf"></i> Generar PDF
                                             </a>
                                         </li>
 
@@ -714,6 +738,7 @@
                             </form>
                         </div>
                     </div>
+
                     <!-- Side Panel for AI chat -->
                     <div class="side-popup" id="createSubtaskPopup">
                         <div style="padding: 12px;" class="d-flex align-items-center">
@@ -722,7 +747,6 @@
                                 <i style="color: gray; width: 0.75rem; height: 0.75rem;" class="far fa-trash-alt"></i>
                             </button>
                             <button type="button" class="btn-close" id="closePopup" aria-label="Close" style="width: 0.75rem; height: 0.75rem;"></button>
-                            
                         </div>
 
                         <!-- AI Interaction Section -->
@@ -3083,10 +3107,10 @@
         openValidationResultButton.addEventListener("click", () => {
             if (validationResult.style.display === "block") {
                 validationResult.style.display = "none";
-                openValidationResultButton.textContent = "Open ValidationResult";
+                openValidationResultButton.innerHTML = '<i style="color: gray;" class="align-middle me-2 fas fa-fw fa-clipboard-check"></i> Revisiones';
             } else {
                 validationResult.style.display = "block";
-                openValidationResultButton.textContent = "Close ValidationResult";
+                openValidationResultButton.innerHTML = '<i style="color: gray;" class="align-middle me-2 fas fa-fw fa-clipboard-check"></i> Cerrar Revisiones';
             }
         });
 
@@ -3095,6 +3119,44 @@
             openValidationResultButton.textContent = "Open ValidationResult";
         }
 
+        // AI thinking on analyzing contract
+        document.getElementById('aiInput').addEventListener('input', function () {
+            const inputText = this.value; // Get the text from the textarea
+            const highlightDisplay = document.getElementById('highlightDisplay');
+            const highlightPhrase = "oye justi";
+            const logoURL = "{% static 'img/icons/Anton Logo 1.png' %}"; // Replace with the actual path to your logo
+
+            // Check if the input contains the highlight phrase
+            if (inputText.toLowerCase().includes(highlightPhrase.toLowerCase())) {
+                // Show the thinking animation
+                highlightDisplay.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
+                        <img src="${logoURL}" alt="Company Logo" style="width: 20px; height: 20px;">
+                        <div class="thinking-animation">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                highlightDisplay.innerHTML = ""; // Clear highlight if phrase is not found
+            }
+        });
+
+        // Ensure saveChanges is triggered before leaving the page
+        window.addEventListener('beforeunload', () => {
+            if (typeof saveChanges === 'function') {
+                saveChanges(); // Call the function if it exists globally
+            }
+        });
+
+        // Attach debouncedAutosave to the input event
+        document.getElementById('description').addEventListener('input', () => {
+            if (typeof debouncedAutosave === 'function') {
+                debouncedAutosave(); // Call the function if it exists globally
+            }
+        });
     </script>
 
     <script src="script.js"></script>

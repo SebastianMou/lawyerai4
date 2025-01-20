@@ -178,7 +178,7 @@ def should_include_validation(instruction, highlighted_text):
     return False
 
 # Define the keyword for access
-ACCESS_KEYWORD = "analyze_contract"
+ACCESS_KEYWORD = "oye justi"
 
 @csrf_exempt
 def ai_chat_view(request):
@@ -196,11 +196,21 @@ def ai_chat_view(request):
                     # Access and analyze the description
                     description = contract_project.description
                     analysis_result = analyze_description(description)
-                    return JsonResponse({"analysis": analysis_result})
+                    
+                    # Save to AIHighlightChat model
+                    ai_chat = AIHighlightChat.objects.create(
+                        user=request.user,
+                        contract_project=contract_project,
+                        highlighted_text="",
+                        instruction=user_input,
+                        ai_response=f"Keyword detected. Analysis result: {analysis_result}"
+                    )
+                    print("Keyword-triggered chat saved to database.")
+
+                    return JsonResponse({"analysis": analysis_result}, status=201)
                 else:
-                    return JsonResponse({"error": "No ContractProject found for this user."})
-            else:
-                return JsonResponse({"error": "Keyword not detected in the prompt."})
+                    return JsonResponse({"error": "No ContractProject found for this user."}, status=404)
+
 
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON format."}, status=400)
@@ -214,7 +224,7 @@ def analyze_description(description):
     Analyzes the description field of the ContractProject model.
     """
     # Replace this with your AI analysis logic
-    return f"Analyzing the description: {description}"
+    return f"Analizando el contrato: {description}"
 
 
 @api_view(['POST']) 
@@ -241,7 +251,18 @@ def create_ai_chat_contract(request, contract_project_id):
                 temperature=0.7
             )
             ai_response = response.choices[0].message.content.strip()
-            return JsonResponse({"ai_response": f"Keyword detected. {ai_response}"}, status=200)
+
+            # Save the interaction to AIHighlightChat
+            ai_chat = AIHighlightChat.objects.create(
+                user=request.user,
+                contract_project=contract_project,
+                highlighted_text=highlighted_text,
+                instruction=instruction,
+                ai_response=f"Keyword detected. {ai_response}"
+            )
+            print("Keyword-triggered chat saved to database.")
+
+            return JsonResponse({"ai_response": f"Keyword detected. {ai_response}"}, status=201)
 
 
         # Fetch ValidationResult issues
@@ -336,7 +357,7 @@ def create_ai_chat_contract(request, contract_project_id):
         print("Final conversation history sent to OpenAI:", conversation_history)
 
         # Add the latest user instruction with Markdown request
-        prompt = f"Highlight: {highlighted_text}\nInstruction: {instruction}\nRespond in Markdown format.\n" if highlighted_text else f"Instruction: {instruction}\nRespond in Markdown format.\n"
+        prompt = f"Resaltar: {highlighted_text}\nInstrucción: {instruction}\nResponde en formato Markdown.\n" if highlighted_text else f"Instrucción: {instruction}\nResponde en formato Markdown.\n"
         conversation_history.append({"role": "user", "content": prompt})
 
         # Call the OpenAI API with the structured conversation history
@@ -415,7 +436,7 @@ def create_chat_session(request):
         session_name_response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are an AI assistant that generates short session names based on user input."},
+                {"role": "system", "content": "Eres un asistente de IA que genera nombres cortos para sesiones basándose en la entrada del usuario."},
                 {"role": "user", "content": prompt_for_name}
             ],
             max_tokens=50,
@@ -666,10 +687,10 @@ def transfer_contract_to_project(request, pk):
             name=contract_steps.title,  # Use the title as the name
             description=(
                 f"<h1>{contract_steps.title}</h1>"
-                f"<p><strong>Effective Date:</strong> {contract_steps.effective_date or ''}</p>"
-                f"<p><strong>Party One:</strong> {contract_steps.party_one_name or ''} "
+                f"<p><strong>Fecha de vigencia:</strong> {contract_steps.effective_date or ''}</p>"
+                f"<p><strong>Parte Uno:</strong> {contract_steps.party_one_name or ''} "
                 f"({contract_steps.party_one_role or ''})</p>"
-                f"<p><strong>Party Two:</strong> {contract_steps.party_two_name or ''} "
+                f"<p><strong>Parte Dos:</strong> {contract_steps.party_two_name or ''} "
                 f"<p>({contract_steps.party_two_role or ''})</p>"
                 f"<p>{contract_steps.purpose or ''}</p>"
                 f"<p>{contract_steps.obligations or ''}</p>"
@@ -687,7 +708,7 @@ def transfer_contract_to_project(request, pk):
 
         return Response(
             {
-                "message": "Contract successfully transferred to a project.",
+                "message": "Contrato transferido exitosamente a un proyecto.",
                 "contract_project_id": contract_project.id,
             },
             status=status.HTTP_201_CREATED,
@@ -723,7 +744,7 @@ def update_chat_session(request, session_id):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     except ChatSession.DoesNotExist:
-        return Response({"error": "Chat session not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Sesión de chat no encontrada."}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         print(f"Error occurred: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -739,10 +760,10 @@ def delete_chat_session(request, session_id):
         chat_session.delete()
 
         # Return a success response
-        return Response({"message": "Chat session deleted successfully."}, status=status.HTTP_200_OK)
+        return Response({"message": "Sesión de chat eliminada exitosamente."}, status=status.HTTP_200_OK)
 
     except ChatSession.DoesNotExist:
-        return Response({"error": "Chat session not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Sesión de chat no encontrada."}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         print(f"Error occurred: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -892,16 +913,17 @@ def generate_suggestions(request):
 
         # Create a prompt to generate three suggestions
         prompt = (
-            f"You are an AI assistant that generates professional contract names based on user input. "
-            f"Suggest three professional or legal contract names for the input: '{user_input}'. "
-            f"If the input doesn't fit a legal name, make them sound more professional. (Don't format it in a list like adding numbers or dashes)"
+            f"Eres un asistente de IA que genera nombres profesionales de contratos basados en la entrada del usuario. "
+            f"Sugiere tres nombres profesionales o legales para contratos según la entrada: '{user_input}'. "
+            f"Si la entrada no encaja con un nombre legal, haz que suenen más profesionales. (No los formatees en una lista ni agregues números o guiones)"
         )
+
 
         # Call OpenAI API
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You suggest three professional or legal contract names."},
+                {"role": "system", "content": "Tú sugieres tres nombres profesionales o legales para contratos."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=4096,
@@ -924,67 +946,67 @@ def generate_suggestions(request):
 
 FIELD_PROMPTS = {
     "purpose": (
-        "You are refining the 'Purpose' section of a contract. "
-        "The user's input is:\n\n'{user_input}'\n\n"
-        "Rewrite this section to make it clearer, more professional, and legally compliant. "
-        "Focus only on the 'Purpose' section. Do not add information about other contract sections."
-        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+        "Estás refinando la sección 'Propósito' de un contrato. "
+        "La entrada del usuario es:\n\n'{user_input}'\n\n"
+        "Reescribe esta sección para que sea más clara, profesional y cumpla con los requisitos legales. "
+        "Enfócate únicamente en la sección 'Propósito'. No agregues información sobre otras secciones del contrato. "
+        "Usa Markdown para encabezados, viñetas y listas numeradas para mejorar la legibilidad si es necesario."
     ),
     "obligations": (
-        "You are refining the 'Obligations and Responsibilities' section of a contract. "
-        "The user's input is:\n\n'{user_input}'\n\n"
-        "Rewrite this section to clearly define the responsibilities and obligations of the parties. "
-        "Do not include unrelated sections such as payment terms or confidentiality clauses."
-        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+        "Estás refinando la sección 'Obligaciones y Responsabilidades' de un contrato. "
+        "La entrada del usuario es:\n\n'{user_input}'\n\n"
+        "Reescribe esta sección para definir claramente las responsabilidades y obligaciones de las partes. "
+        "No incluyas secciones no relacionadas, como términos de pago o cláusulas de confidencialidad. "
+        "Usa Markdown para encabezados, viñetas y listas numeradas para mejorar la legibilidad si es necesario."
     ),
     "payment_terms": (
-        "You are refining the 'Payment Terms' section of a contract. "
-        "The user's input is:\n\n'{user_input}'\n\n"
-        "Rewrite this section to clarify the payment terms, ensuring they are legally sound and easy to understand. "
-        "Do not reference other sections such as obligations or penalties."
-        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+        "Estás refinando la sección 'Términos de Pago' de un contrato. "
+        "La entrada del usuario es:\n\n'{user_input}'\n\n"
+        "Reescribe esta sección para aclarar los términos de pago, asegurándote de que sean legales y fáciles de entender. "
+        "No hagas referencia a otras secciones como obligaciones o penalidades. "
+        "Usa Markdown para encabezados, viñetas y listas numeradas para mejorar la legibilidad si es necesario."
     ),
     "duration": (
-        "You are refining the 'Duration' section of a contract. "
-        "The user's input is:\n\n'{user_input}'\n\n"
-        "Rewrite this section to clearly specify the duration of the contract, ensuring the timeframe is unambiguous. "
-        "Avoid referencing unrelated sections like termination clauses."
-        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+        "Estás refinando la sección 'Duración' de un contrato. "
+        "La entrada del usuario es:\n\n'{user_input}'\n\n"
+        "Reescribe esta sección para especificar claramente la duración del contrato, asegurándote de que el marco de tiempo sea inequívoco. "
+        "Evita referenciar secciones no relacionadas como cláusulas de terminación. "
+        "Usa Markdown para encabezados, viñetas y listas numeradas para mejorar la legibilidad si es necesario."
     ),
     "termination_clause": (
-        "You are refining the 'Termination Clause' of a contract. "
-        "The user's input is:\n\n'{user_input}'\n\n"
-        "Rewrite this section to clearly define the conditions under which the contract can be terminated. "
-        "Ensure the language is professional and legally compliant. Do not reference other sections."
-        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+        "Estás refinando la 'Cláusula de Terminación' de un contrato. "
+        "La entrada del usuario es:\n\n'{user_input}'\n\n"
+        "Reescribe esta sección para definir claramente las condiciones bajo las cuales el contrato puede ser terminado. "
+        "Asegúrate de que el lenguaje sea profesional y cumpla con los requisitos legales. No hagas referencia a otras secciones. "
+        "Usa Markdown para encabezados, viñetas y listas numeradas para mejorar la legibilidad si es necesario."
     ),
     "confidentiality_clause": (
-        "You are refining the 'Confidentiality Clause' of a contract. "
-        "The user's input is:\n\n'{user_input}'\n\n"
-        "Rewrite this section to clearly define the confidentiality obligations of the parties. "
-        "Ensure the clause is legally sound and avoids referencing unrelated sections."
-        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+        "Estás refinando la 'Cláusula de Confidencialidad' de un contrato. "
+        "La entrada del usuario es:\n\n'{user_input}'\n\n"
+        "Reescribe esta sección para definir claramente las obligaciones de confidencialidad de las partes. "
+        "Asegúrate de que la cláusula sea legalmente válida y evita hacer referencia a secciones no relacionadas. "
+        "Usa Markdown para encabezados, viñetas y listas numeradas para mejorar la legibilidad si es necesario."
     ),
     "dispute_resolution": (
-        "You are refining the 'Dispute Resolution' section of a contract. "
-        "The user's input is:\n\n'{user_input}'\n\n"
-        "Rewrite this section to clarify how disputes will be resolved, ensuring the methods are fair and legally compliant. "
-        "Avoid referencing unrelated sections such as penalties or obligations."
-        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+        "Estás refinando la sección 'Resolución de Disputas' de un contrato. "
+        "La entrada del usuario es:\n\n'{user_input}'\n\n"
+        "Reescribe esta sección para aclarar cómo se resolverán las disputas, asegurándote de que los métodos sean justos y cumplan con los requisitos legales. "
+        "Evita referenciar secciones no relacionadas como penalidades u obligaciones. "
+        "Usa Markdown para encabezados, viñetas y listas numeradas para mejorar la legibilidad si es necesario."
     ),
     "penalties_for_breach": (
-        "You are refining the 'Penalties for Breach' section of a contract. "
-        "The user's input is:\n\n'{user_input}'\n\n"
-        "Rewrite this section to clearly define the penalties for breaching the agreement. "
-        "Ensure the penalties are enforceable and do not include details about other contract sections."
-        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+        "Estás refinando la sección 'Penalidades por Incumplimiento' de un contrato. "
+        "La entrada del usuario es:\n\n'{user_input}'\n\n"
+        "Reescribe esta sección para definir claramente las penalidades por incumplir el acuerdo. "
+        "Asegúrate de que las penalidades sean aplicables y no incluyas detalles sobre otras secciones del contrato. "
+        "Usa Markdown para encabezados, viñetas y listas numeradas para mejorar la legibilidad si es necesario."
     ),
     "notary_required": (
-        "You are refining the 'Notary Required' section of a contract. "
-        "The user's input is:\n\n'{user_input}'\n\n"
-        "Rewrite this section to specify if a notary is required and under what conditions. "
-        "Avoid referencing other sections or adding unrelated details."
-        "Use Markdown for headers, bullet points, and numbered lists to enhance readability if needed."
+        "Estás refinando la sección 'Notario Requerido' de un contrato. "
+        "La entrada del usuario es:\n\n'{user_input}'\n\n"
+        "Reescribe esta sección para especificar si se requiere un notario y bajo qué condiciones. "
+        "Evita hacer referencia a otras secciones o agregar detalles no relacionados. "
+        "Usa Markdown para encabezados, viñetas y listas numeradas para mejorar la legibilidad si es necesario."
     ),
 }
 
@@ -1015,8 +1037,8 @@ def generate_ai_text(request):
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You assist in drafting structured legal documents following Mexican law."},
-                {"role": "user", "content": f"Contract Title: {title}\n\n{prompt}"}
+                {"role": "system", "content": "Asistes en la redacción de documentos legales estructurados conforme a la legislación mexicana."},
+                {"role": "user", "content": f"Título del Contrato: {title}\n\n{prompt}"}
             ],
             max_tokens=500,
             temperature=0.7,
@@ -1055,28 +1077,28 @@ def legality_check_ai(contract_id):
 
     # Prepare contract text for AI
     contract_text = f"""
-        Title: {contract.title}
-        Party One: {contract.party_one_name} ({contract.party_one_role})
-        Party Two: {contract.party_two_name} ({contract.party_two_role})
-        Effective Date: {contract.effective_date}
-        Purpose: {contract.purpose}
-        Obligations: {contract.obligations}
-        Payment Terms: {contract.payment_terms}
-        Duration: {contract.duration}
-        Termination Clause: {contract.termination_clause}
-        Confidentiality Clause: {contract.confidentiality_clause}
-        Dispute Resolution: {contract.dispute_resolution}
-        Penalties for Breach: {contract.penalties_for_breach}
-        Notary Required: {contract.notary_required}
+        Título: {contract.title}
+        Parte Uno: {contract.party_one_name} ({contract.party_one_role})
+        Parte Dos: {contract.party_two_name} ({contract.party_two_role})
+        Fecha de Vigencia: {contract.effective_date}
+        Propósito: {contract.purpose}
+        Obligaciones: {contract.obligations}
+        Términos de Pago: {contract.payment_terms}
+        Duración: {contract.duration}
+        Cláusula de Terminación: {contract.termination_clause}
+        Cláusula de Confidencialidad: {contract.confidentiality_clause}
+        Resolución de Disputas: {contract.dispute_resolution}
+        Penalidades por Incumplimiento: {contract.penalties_for_breach}
+        Notario Requerido: {contract.notary_required}
     """
 
     # AI prompt
     prompt = f"""
-        Analyze the following contract for legality according to Mexican law.
-        Identify any inconsistencies, missing elements, and suggest improvements.
-        Make your Responds short, concise & clear.
+        Analiza el siguiente contrato para determinar su legalidad conforme a la legislación mexicana.
+        Identifica cualquier inconsistencia, elementos faltantes y sugiere mejoras.
+        Haz que tus respuestas sean breves, concisas y claras.
 
-        Contract:
+        Contrato:
         {contract_text}
     """
 
@@ -1085,7 +1107,7 @@ def legality_check_ai(contract_id):
         response = openai.chat.completions.create(
             model="gpt-4o",  # Use the appropriate model
             messages=[
-                {"role": "system", "content": "You are a legal expert specializing in Mexican law."},
+                {"role": "system", "content": "Eres Justimex un experto legal especializado en la legislación mexicana."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=1000,
@@ -1102,7 +1124,7 @@ def legality_check_ai(contract_id):
         validation_result = ValidationResult.objects.create(
             contract=contract,
             contract_project=contract_project if not contract_steps else None,
-            check_type="Legal Check",
+            check_type="Verificación Legal",
             passed=passed,
             issues=ai_response if not passed else None  # Store issues if validation fails
         )
@@ -1117,7 +1139,7 @@ def legality_check_ai(contract_id):
         validation_result = ValidationResult.objects.create(
             contract=contract,
             contract_project=contract_project if contract_project else None,
-            check_type="Legal Check",
+            check_type="Verificación Legal",
             passed=False,
             issues=f"Error during legality check: {str(e)}"
         )
@@ -1186,31 +1208,31 @@ def full_doc_ai_check_logic(contract_id):
         # Prepare contract text
         if contract_steps:
             contract_text = f"""
-                Title: {contract_steps.title}
-                Party One: {contract_steps.party_one_name} ({contract_steps.party_one_role})
-                Party Two: {contract_steps.party_two_name} ({contract_steps.party_two_role})
-                Effective Date: {contract_steps.effective_date}
-                Purpose: {contract_steps.purpose}
-                Obligations: {contract_steps.obligations}
-                Payment Terms: {contract_steps.payment_terms}
-                Duration: {contract_steps.duration}
-                Termination Clause: {contract_steps.termination_clause}
-                Confidentiality Clause: {contract_steps.confidentiality_clause}
-                Dispute Resolution: {contract_steps.dispute_resolution}
-                Penalties for Breach: {contract_steps.penalties_for_breach}
-                Notary Required: {contract_steps.notary_required}
+                Título: {contract_steps.title}
+                Parte Uno: {contract_steps.party_one_name} ({contract_steps.party_one_role})
+                Parte Dos: {contract_steps.party_two_name} ({contract_steps.party_two_role})
+                Fecha de Vigencia: {contract_steps.effective_date}
+                Propósito: {contract_steps.purpose}
+                Obligaciones: {contract_steps.obligations}
+                Términos de Pago: {contract_steps.payment_terms}
+                Duración: {contract_steps.duration}
+                Cláusula de Terminación: {contract_steps.termination_clause}
+                Cláusula de Confidencialidad: {contract_steps.confidentiality_clause}
+                Resolución de Disputas: {contract_steps.dispute_resolution}
+                Penalidades por Incumplimiento: {contract_steps.penalties_for_breach}
+                Notario Requerido: {contract_steps.notary_required}
             """
         else:
             contract_text = f"""
-                Description: {contract_project.description}
+                Descripción: {contract_project.description}
             """
 
         # AI prompt
         prompt = f"""
-            Analyze the following contract for completeness, clarity, and legal compliance with Mexican law.
-            Provide concise, actionable feedback and identify missing or unclear elements.
+            Analiza el siguiente contrato para evaluar su integridad, claridad y cumplimiento legal conforme a la legislación mexicana.
+            Proporciona comentarios concisos y accionables, e identifica elementos faltantes o poco claros.
 
-            Contract:
+            Contrato:
             {contract_text}
         """
 
@@ -1218,7 +1240,7 @@ def full_doc_ai_check_logic(contract_id):
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a legal expert specializing in Mexican law."},
+                {"role": "system", "content": "Eres Justimex un experto legal especializado en la legislación mexicana."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=1000,
@@ -1230,7 +1252,7 @@ def full_doc_ai_check_logic(contract_id):
         # Create ValidationResult
         validation_result = ValidationResult.objects.create(
             contract=contract_steps,  # Can be None
-            check_type="Full Document Legal Check",
+            check_type="Verificación legal completa de documentos",
             passed=passed,
             issues=ai_response if not passed else None
         )
@@ -1242,7 +1264,7 @@ def full_doc_ai_check_logic(contract_id):
     except Exception as e:
         validation_result = ValidationResult.objects.create(
             contract=contract_steps,  # Can be None
-            check_type="Full Document Legal Check",
+            check_type="Verificación legal completa de documentos",
             passed=False,
             issues=f"Error during full document check: {str(e)}"
         )
