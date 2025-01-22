@@ -199,7 +199,6 @@ def cancel_subscription(request):
             'status': 'error'
         })
 
-
 @login_required(login_url='/login/')  
 def chats(request):
     return render(request, 'chats.html')
@@ -227,7 +226,6 @@ def contract(request, pk):
 
     context = {'contract': contract}
     return render(request, 'documents/contract.html', context)
-
 
 User = get_user_model()
 
@@ -260,7 +258,7 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f"¡Bienvenido {user.username}!")
-                return redirect('/')  # Redirect after successful login
+                return redirect('contract_stepbystep')  # Redirect after successful login
             else:
                 messages.error(request, "Correo electrónico o nombre de usuario o contraseña incorrecta.")
         else:
@@ -339,7 +337,7 @@ def activate(request, uidb64, token):
             return redirect(f"{reverse('create_checkout_session')}?subscription_type={subscription_type}")
 
         messages.success(request, 'Gracias por confirmar tu correo electrónico. Ya puedes iniciar sesión en tu cuenta.')
-        return redirect('index')  # Redirect to the login page
+        return redirect('contract_stepbystep')  # Redirect to the login page
     else:
         messages.error(request, 'El enlace de activación no es válido!')
     return redirect('index')  # Redirect to the login page even if activation fails

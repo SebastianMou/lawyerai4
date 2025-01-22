@@ -91,14 +91,14 @@ tinymce.init({
             const templateButtons = document.querySelector('.template-buttons'); // Get the template buttons container
 
             // Ensure element exists before trying to set textContent
-            if (highlightDisplay) {
+            if (highlightedTextDisplay) {
                 if (selectedText) {
-                    // Display the highlighted text and show template buttons
-                    highlightDisplay.textContent = selectedText;
+                    highlightedTextDisplay.textContent = selectedText;
+                    highlightedTextDisplay.dataset.keepHighlight = true; // Prevent clearing on input
                     templateButtons.style.display = 'block'; // Show template buttons
                 } else {
-                    // Clear the display and hide template buttons if no text is selected
-                    highlightDisplay.textContent = '';
+                    highlightedTextDisplay.textContent = "";
+                    highlightedTextDisplay.dataset.keepHighlight = false; // Allow clearing
                     templateButtons.style.display = 'none'; // Hide template buttons
                 }
             }
@@ -113,6 +113,8 @@ tinymce.init({
         });
     }
 });
+
+document.getElementById('aiSend').addEventListener('click', sendMessage);
 
 document.addEventListener('DOMContentLoaded', function() {
     const copyButton = document.getElementById('copy-button'); // Ensure you have a button with this ID in your HTML
@@ -379,25 +381,24 @@ function sendMessage() {
 
     isPopupActive = true;
 
-    const contractProjectId = popup.getAttribute('data-contract-id');
-    const highlightedText = document.getElementById('highlightDisplay').textContent.trim() || ''; // Default to empty string if no highlight
-    const instruction = textarea.value.trim();  // Trim user input to avoid empty space submission
-
+    // const contractProjectId = popup.getAttribute('data-contract-id');
+    const highlightedText = document.getElementById('highlightedTextDisplay').textContent.trim() || ''; // Use the correct ID for highlighted text
+    const instruction = document.getElementById('aiInput').value.trim();
 
     // Check if both fields are empty
-    if (!highlightedText && !instruction) {
+    if (!instruction && !highlightedText) {
         console.log("Nothing to send, both highlighted text and instruction are empty.");
         isPopupActive = false;
         return;
     }
-
-    // Append the user's message immediately to the chat history
+    const contractProjectId = document.querySelector('#createSubtaskPopup').getAttribute('data-contract-id');
     const chatHistoryContainer = document.getElementById('chatHistoryContainer');
+
     const userMessage = document.createElement('div');
     userMessage.classList.add('message'); // Same structure as history
     let highlightHTML = highlightedText
-        ? `<div><span class="highlight">${highlightedText}</span></div>`
-        : '';
+        ? `<div class="highlighted-section">${highlightedText}</div>` // Add a class for styling consistency
+    : '';
     userMessage.innerHTML = `
         <div class="chat-bubble user-bubble">
             ${highlightHTML}
@@ -418,11 +419,19 @@ function sendMessage() {
     chatHistoryContainer.insertAdjacentHTML('beforeend', loadingMessageHTML);
     chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
 
+    // Clear inputs after sending
+    document.getElementById('aiInput').value = "";
+    document.getElementById('highlightedTextDisplay').textContent = ""; // Clear highlighted text
+    document.getElementById('highlightDisplay').innerHTML = ""; // Clear the "oye justi" animation
+
     // Clear the input field after sending the message
     textarea.value = '';
     textarea.style.height = 'auto'; // Reset height
-    document.getElementById('highlightDisplay').textContent = ''; // Clear highlighted text
+    const highlightDisplay = document.getElementById('highlightDisplay');
+    highlightDisplay.textContent = ''; // Clear highlighted text
+    highlightDisplay.dataset.keepHighlight = false; // Reset persistence flag
     document.querySelector('.template-buttons').style.display = 'none'; // Hide template buttons
+
 
     // Make the API call to submit the message
     fetch(`${baseUrl}/api/create-ai-chat-contract/${contractProjectId}/`, {
@@ -441,7 +450,8 @@ function sendMessage() {
             // Check if the response is valid before proceeding
             if (!data || !data.ai_response) {
                 console.error('Invalid AI response:', data);
-                throw new Error('Invalid AI response format.');
+                isPopupActive = false; // Ensure popup state is reset
+                return;
             }
 
             // Remove the loading message
@@ -614,7 +624,7 @@ window.addEventListener('load', function() {
 });
 
 document.getElementById('deleteChatButton').addEventListener('click', function() {
-    if (confirm("Are you sure you want to delete this chat?")) { // Confirmation prompt
+    if (confirm("¿Estás seguro de que deseas eliminar este chat?")) { // Confirmation prompt
         const contractProjectId = this.getAttribute('data-contract-id');
         const url = `${baseUrl}/api/delete-chat-history-contract/${contractProjectId}/`;
 
@@ -634,7 +644,6 @@ document.getElementById('deleteChatButton').addEventListener('click', function()
                 alert(data.error); // Error message
             }
         })
-        .catch(error => console.error('Error deleting chat history:', error));
+        .catch(error => console.error('Error al eliminar el historial de chat:', error));
     }
 });
-

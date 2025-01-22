@@ -549,14 +549,28 @@
             display: inline-block;
             font-size: 1.1em;
             color: white;
-            background-color: #6e85da;
-            padding: 10px;
+            background-color: #3954b3;
+            padding: 5px;
             border-radius: 4px;
             text-decoration: none;
             font-weight: 700;
             margin-top: 5px;
-            border: 2px solid #6460f1;
+            border: 2px solid #4a47b3;
+            padding-right: 15px;
+            padding-left: 15px;
             border-radius: 50px;
+        }
+
+        .leer-mas {
+            display: inline-block;
+            border-radius: 50px;
+            background-color: #3954b3;
+            color: white;
+            margin-top: 5px;
+        }
+
+        .leer-mas:hover {
+            background-color: #3954b3;
         }
 
         .pricing-cost {
@@ -649,6 +663,10 @@
                 transform: translateY(0) rotate(0deg);
             }
         }
+
+        .characteristics-list{
+
+        }
     </style>
     <div style="background: linear-gradient(67deg, rgba(154,44,227,1) 8%, rgba(81,160,224,1) 57%, rgba(25,238,203,1) 93%); border-bottom-left-radius: 40%; border-bottom-right-radius: 40%;">
         <nav class="navbar navbar-expand-lg navbar-transparent">
@@ -737,7 +755,6 @@
     </div>
     <div class="container text-center">
         <img style="width: 7%; height: auto; margin-top: 12px;" src="{% static 'img/icons/Anton Logo 1.png' %}" alt="">
-
         <h1>UL timeline cards</h1>
         <ul>
             <li style="--accent-color:#41516C">
@@ -776,37 +793,33 @@
                 <div class="pricing-content">
                     <h3 class="pricing-title">Acceso por Una Semana</h3>
                     <ol style="list-style: none; padding: 0; margin: 0;">
-                        <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times"></i> Coffee
+                        <li style="display: flex; align-items: center; margin: 0;" class="characteristics-list">
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times"></i> Chat avanzado con IA.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Asistencia de IA con documentos legales.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Optimización y claridad de contratos.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Análisis completo de documentos legales.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> 28+ plantillas legales.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
-                        </li>
-                        <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Sugerencias avanzadas.
                         </li>
                     </ol>
-                    <h3 class="pricing-cost"><s class="old-price">$350</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                    <h3 class="pricing-cost"><s class="old-price">$500</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
-                      </svg> $299 MXN</h3>
+                      </svg> $350 MXN</h3>
                     <form action="{% url 'signup' %}" method="get">
                         <input type="hidden" name="subscription_type" value="weekly_access">
-                        <button type="submit" class="pricing-link">Comprar Pase Semanal</button>
+                        <button type="submit" class="pricing-link">Una Semanal</button>
+                        <a class="btn btn-primary leer-mas" style="margin-bottom: 7px;" data-bs-toggle="modal" data-bs-target="#AccesoporUnaSemana">Leer Más...</a>
                     </form>
-                    
-                    
                 </div>
             </div>
 
@@ -817,36 +830,32 @@
                     <h3 class="pricing-title">Justimex Básica</h3>
                     <ol style="list-style: none; padding: 0; margin: 0;">
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times"></i> Hasta 50 documentos legales por mes.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Sugerencias avanzadas de IA para personalización.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Uso de hasta 5 plantillas.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> 2 horas de acceso al Abogado IA por mes.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Historial de chat disponible durante 1 mes.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
-                        </li>
-                        <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Soporte prioritario no incluido.
                         </li>
                     </ol>
-                    <h3 class="pricing-cost"><s class="old-price">$350</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                    <h3 class="pricing-cost"><s class="old-price">$400</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
                       </svg> $250 MXN / mes</h3>
                     <form action="{% url 'signup' %}" method="get">
                         <input type="hidden" name="subscription_type" value="basic_plan">
-                        <button type="submit" class="pricing-link">Subscribe to Basic Plan</button>
+                        <button type="submit" class="pricing-link">Básica</button>
+                        <a class="btn btn-primary leer-mas" style="margin-bottom: 7px;" data-bs-toggle="modal" data-bs-target="#JustimexBasica">Leer Más...</a>
                     </form>
-                    
-                    
                 </div>
             </div>
 
@@ -857,36 +866,33 @@
                     <h3 class="pricing-title">Justimex Estándar</h3>
                     <ol style="list-style: none; padding: 0; margin: 0;">
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Creación de documentos legales ilimitada.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> IA avanzada con sugerencias más completas.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Acceso completo a todas las plantillas disponibles.
+
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Acceso ilimitado al Abogado IA.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Historial de chat ilimitado.
                         </li>
                         <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-check" style="margin-right: 8px;"></i> Coffee
-                        </li>
-                        <li style="display: flex; align-items: center; margin: 0;">
-                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Tea
+                            <i style="color: rgb(4, 176, 4); font-size: 19px; margin-right: 8px;" class="align-middle me-2 fas fa-fw fa-times" style="margin-right: 8px;"></i> Soporte prioritario con respuesta en 24 horas.
                         </li>
                     </ol>
-                    <h3 class="pricing-cost"><s class="old-price">$350</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                    <h3 class="pricing-cost"><s class="old-price">$500</s> <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
                       </svg> $350 MXN / mes</h3>
                     <form action="{% url 'signup' %}" method="get">
                         <input type="hidden" name="subscription_type" value="pro_plan">
-                        <button type="submit" class="pricing-link">Suscribirse a Pro</button>
+                        <button type="submit" class="pricing-link">Estándar</button>
+                        <a class="btn btn-primary leer-mas" style="margin-bottom: 7px;" data-bs-toggle="modal" data-bs-target="#JustimexEstandar">Leer Más...</a>
                     </form>
-                    
-                    
                 </div>
             </div>
         </section>
@@ -940,6 +946,101 @@
             </ol>
         </footer>
     </section>
+
+    <!-- Modal Justimex Estandar -->
+    <div class="modal fade" id="JustimexEstandar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">¿Por qué elegir Acceso por Una Semana?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div style="background-color: #fefefe; border: 1px solid #ddd; border-radius: 8px; padding: 1.5em; font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+                        <h2 style="color: #2c3e50; margin-top: 0;">¿Necesitas resolver asuntos legales de forma rápida y económica?</h2>
+                        
+                        <p style="margin-bottom: 1em;">
+                          Resolver asuntos legales a menudo implica altos costos y largas esperas con abogados tradicionales. 
+                          Con <strong style="color: #c0392b;">Justimex Acceso por Una Semana</strong>, te damos el control:
+                        </p>
+                        
+                        <ul style="list-style: none; padding-left: 0; margin-bottom: 1em;">
+                          <li style="margin: 0.5em 0;">
+                            <span style="color: #27ae60; font-weight: bold;">&#10003;</span>
+                            Obtén hasta <strong>3 documentos legales personalizados</strong> sin necesidad de contratar un abogado.
+                          </li>
+                          <li style="margin: 0.5em 0;">
+                            <span style="color: #27ae60; font-weight: bold;">&#10003;</span>
+                            Resuelve problemas legales comunes rápidamente con <strong>asistencia básica de IA</strong>.
+                          </li>
+                          <li style="margin: 0.5em 0;">
+                            <span style="color: #27ae60; font-weight: bold;">&#10003;</span>
+                            Accede a <strong>2 plantillas legales</strong> para tus necesidades inmediatas.
+                          </li>
+                          <li style="margin: 0.5em 0;">
+                            <span style="color: #27ae60; font-weight: bold;">&#10003;</span>
+                            Consulta nuestro <strong>Abogado IA</strong> durante 30 minutos para recibir orientación rápida y efectiva.
+                          </li>
+                          <li style="margin: 0.5em 0;">
+                            <span style="color: #27ae60; font-weight: bold;">&#10003;</span>
+                            Historial de chat disponible durante <strong>7 días</strong> para que nunca pierdas información clave.
+                          </li>
+                        </ul>
+                        
+                        <p style="margin-bottom: 1em;">
+                          Ideal para quienes necesitan soluciones legales rápidas y asequibles sin comprometer la calidad.
+                          ¿Por qué gastar tiempo y dinero innecesario en consultas legales?
+                        </p>
+                        
+                        <p style="font-weight: bold; margin-bottom: 0;">
+                          Con Justimex, toma el control de tus necesidades legales con confianza y rapidez.
+                        </p>
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Justimex Básica -->
+    <div class="modal fade" id="JustimexBasica" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Justimex Básica</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Acceso por Una Semana -->
+    <div class="modal fade" id="AccesoporUnaSemana" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Acceso por Una Semana</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <script src="{% static 'js/app.js' %}"></script>
