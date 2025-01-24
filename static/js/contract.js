@@ -376,12 +376,11 @@ aiSendButton.addEventListener('click', function() {
 function sendMessage() {
     if (isPopupActive) {
         console.log("Another action is in progress. Please wait.");
-        return; // Prevent sending a new message while another action is ongoing
+        return; 
     }
 
     isPopupActive = true;
 
-    // const contractProjectId = popup.getAttribute('data-contract-id');
     const highlightedText = document.getElementById('highlightedTextDisplay').textContent.trim() || ''; // Use the correct ID for highlighted text
     const instruction = document.getElementById('aiInput').value.trim();
 

@@ -239,7 +239,7 @@ def create_ai_chat_contract(request, contract_project_id):
         # Check for the ACCESS_KEYWORD in the instruction or highlighted text
         if ACCESS_KEYWORD in instruction.lower() or ACCESS_KEYWORD in highlighted_text.lower():
             description = contract_project.description
-            user_prompt = f"User asked: {instruction}\n\nDescription to analyze:\n\n{description}"
+            user_prompt = f"Usuario preguntó: {instruction}\n\nDescripción para analizar:\n\n{description}"
             # Call OpenAI with the combined prompt
             response = openai.chat.completions.create(
                 model="gpt-3.5-turbo",
@@ -258,11 +258,11 @@ def create_ai_chat_contract(request, contract_project_id):
                 contract_project=contract_project,
                 highlighted_text=highlighted_text,
                 instruction=instruction,
-                ai_response=f"Keyword detected. {ai_response}"
+                ai_response=f"Justi. {ai_response}"
             )
             print("Keyword-triggered chat saved to database.")
 
-            return JsonResponse({"ai_response": f"Keyword detected. {ai_response}"}, status=201)
+            return JsonResponse({"ai_response": f"Oye justi. {ai_response}"}, status=201)
 
 
         # Fetch ValidationResult issues
@@ -323,18 +323,13 @@ def create_ai_chat_contract(request, contract_project_id):
             {
                 "role": "system",
                 "content": (
-                    "Eres un asistente legal en una plataforma de creación de documentos, enfocado en ayudar a los usuarios "
-                    "a organizar, redactar y mejorar texto, especialmente en el contexto de contratos legales y documentos formales. "
-                    "Responde en español, usando un tono profesional y claro. Utiliza el formato Markdown para organizar las respuestas "
-                    "de manera estructurada, con listas, encabezados y ejemplos cuando sea útil.\n\n"
-                    "Tu función principal es servir como copiloto legal para el usuario, ayudándolo a:\n\n"
-                    "- **Organizar y dar formato a textos**: Asegúrate de que el texto esté bien estructurado y profesional.\n"
-                    "- **Proveer información legal**: Responde preguntas sobre el proceso legal en México y ofrece explicaciones "
-                    "generales sobre temas como custodia, contratos, mediación, y otros procedimientos relevantes.\n"
-                    "- **Sugerir opciones de redacción profesional**: Ayuda a mejorar el tono y estilo de los textos para que "
-                    "suenen formales y legales.\n\n"
-                    "Recuerda siempre incluir un recordatorio de que el usuario debe consultar a un abogado para obtener asesoramiento "
-                    "legal personalizado, ya que eres solo una herramienta de apoyo y no reemplazas la asesoría profesional."
+                    "Eres Justimex, un asistente legal que responde en español con un tono profesional. Responde directamente a las preguntas del usuario usando Markdown cuando sea útil."
+                    "Responde profesionalmente y usa Markdown para estructurar las respuestas. Incluye listas, encabezados y ejemplos útiles.\n\n"
+                    "Funciones principales:\n"
+                    "- Organizar y dar formato a textos.\n"
+                    "- Proveer información sobre procesos legales en México.\n"
+                    "- Sugerir redacciones formales.\n\n"
+                    "Nota: Recuerda que el usuario debe consultar a un abogado para asesoría personalizada."
                 )
             }
         ]
